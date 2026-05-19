@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pipeline Architecture - DM ESBL</title>
+    <title>Pipeline Architecture & Orchestration - DM ESBL</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,87 +21,170 @@
 
     <div class="content">
         <h1>Pipeline Architecture & Orchestration</h1>
-        <p>This document outlines the folder structure of the DM-ESBL clinical pipeline and explains how to use the <code>make.bat</code> manager to execute the workflow.</p>
+        <p>This document outlines the consolidated folder structure of the DM-ESBL clinical validation pipeline and explains how to utilize the unified cross-platform automation suite to execute workflows seamlessly.</p>
+
+        <h2 id="quick-start">Environment Initialization</h2>
+        <p>Before running any pipeline steps, initialize the isolated container infrastructure. This ensures all dependencies, libraries, and python environments match production standards exactly, eliminating cross-platform configuration errors.</p>
+        <div class="terminal" style="background-color: #212529; color: #f8f9fa; padding: 15px; border-radius: 4px; font-family: monospace; margin-bottom: 20px;">
+            <span style="color: #6c757d;"># Clone, build, and launch the isolated pipeline container network in detached mode</span><br>
+            <span style="color: #20c997;">$</span> docker-compose up -d --build
+        </div>
+        <p>Once the container status is active, you can utilize the orchestration suite below to run commands directly inside the containerized system environment.</p>
+        <hr style="border-top: 1px solid #dee2e6; margin: 25px 0;">
 
         <h2 id="folder-structure">1. Folder Structure</h2>
-        <p>The project strictly separates configuration, core clinical logic, execution scripts, and generated reports to ensure reproducibility and easy auditing.</p>
+        <p>The project strictly separates configuration blueprints, core modular logic, execution dispatchers, and generated artifacts to ensure complete auditability, reproducibility, and isolation of experimental setups.</p>
 
 <pre>
 <span class="folder">dm-esbl/</span>
-├── <span class="folder">assets/</span>                 # Static clinical knowledge bases
+├── <span class="folder">assets/</span>                 # Static clinical knowledge bases and maps
 │   └── <span class="file">res195-comorbidity-cci-gold.csv</span>
-├── <span class="folder">config/</span>                 # YAML files defining how logic is applied
-│   ├── <span class="file">feature_config.yaml</span>   # Weights for MEWS, SIRS, Pitt, etc.
-│   └── <span class="file">code_search.yaml</span>      # Keyword rules for clinical code discovery
-├── <span class="folder">data/</span>                   # Patient data (Ignored by Git)
-│   ├── <span class="folder">raw/</span>                  # Unprocessed synthetic iCARE data
-│   └── <span class="folder">processed/</span>            # Final engineered dataframes ready for modeling
-├── <span class="folder">reports/</span>                # Logs and outputs for clinical review
+├── <span class="folder">config/</span>                 # Blueprints controlling pipeline execution (YAML)
+|   ├── <span class="file">code_search.yaml</span>     # Keywords to look for insteresting codes
+│   ├── <span class="file">data_config.yaml</span>     # Synthetic data generation schemas
+│   ├── <span class="file">feature_config.yaml</span>  # Feature windowing and phenotype logic definitions
+│   ├── <span class="file">eval_config.yaml</span>     # Cohort stratification and time-slice rules
+│   └── <span class="file">threshold_config.yaml</span># Literature-recommended safety validation cutoffs
+├── <span class="folder">data/</span>                   # Data storage layer (Ignored by Git)
+│   ├── <span class="folder">synthetic/</span>            # Unprocessed multi-table synthetic cohorts (Step 1 output)
+│   └── <span class="folder">processed/</span>            # High-dimensional patient-level analytics (Step 2 output)
+├── <span class="folder">outputs/</span>                # Target summary matrices and evaluation plots
+│   └── <span class="folder">&lt;run_timestamp&gt;/</span>     # Isolated, directory-contained results per experiment run
+│       ├── <span class="folder">metrics/</span>        # Tabular performance reports (Master summary, stewardship, etc.)
+│       └── <span class="folder">plots/</span>          # High-resolution clinical curves (ROC, PR, Longitudinal)
+├── <span class="folder">reports/</span>                # Validation logging and static audit trails
 │   ├── <span class="file">score_validation.log</span>
 │   └── <span class="file">code_search_results.txt</span>
-├── <span class="folder">scripts/</span>                # Executable steps in the pipeline (01 to 06)
-├── <span class="folder">src/</span>                    # Core clinical Python logic (No execution here)
-│   ├── <span class="file">phenotypes.py</span>         # Functions to evaluate raw patient conditions
-│   └── <span class="file">scores.py</span>             # Functions to calculate complex medical scores
-├── <span class="folder">tests/</span>                  # Pytest suite protecting the clinical logic
-│   ├── <span class="file">cases.csv</span>             # The "Gold Standard" test patients
+├── <span class="folder">scripts/</span>                # Executable orchestrators and pipeline dispatchers
+│   ├── <span class="file">01_generate_data_v2.py</span>
+│   ├── <span class="file">02_build_features_icare.py</span>
+│   ├── <span class="file">03_evaluate_scores_v2.py</span>
+│   ├── <span class="file">04_evaluate_thresholds.py</span>
+│   ├── <span class="file">05_validate_scores.py</span>
+│   └── <span class="file">06_find_clinical_codes.py</span>
+├── <span class="folder">src/</span>                    # Production core logic assets (Pure mathematical functions)
+│   ├── <span class="file">generators.py</span>        # Simulation and EAV cohort generation algorithms
+│   ├── <span class="file">features.py</span>          # Aggregation engine, windowing, and parsing systems
+│   ├── <span class="file">phenotypes.py</span>        # Clinical rule extraction and context matching logic
+│   ├── <span class="file">scores.py</span>            # Transparent clinical point calculators with audit traces
+│   ├── <span class="file">metrics.py</span>           # Statistical validation, curves, and evaluation engines
+│   └── <span class="file">utils.py</span>             # Multi-stage execution helper modules
+├── <span class="folder">tests/</span>                  # Regression testing suite checking for logic drift
+│   ├── <span class="file">cases.csv</span>            # The "Gold Standard" human-verified patient audits
 │   ├── <span class="file">test_phenotypes.py</span>
 │   └── <span class="file">test_scores.py</span>
-├── <span class="file">make.bat</span>                # Windows Pipeline Manager
-└── <span class="file">Makefile</span>                # Linux/macOS Pipeline Manager
+├── <span class="file">Dockerfile</span>               # Pipeline container runtime instructions
+├── <span class="file">docker-compose.yml</span>       # Shared infrastructure orchestration mount
+├── <span class="file">Makefile</span>                 # Linux / macOS Pipeline automation suite
+└── <span class="file">make.bat</span>                 # Windows Unified Pipeline automation proxy
 </pre>
 
-        <h2 id="using-make">2. Using the <code>make.bat</code> Pipeline Manager</h2>
-        <p>Because Windows does not natively support the <code>make</code> utility, we use a custom batch script (<code>make.bat</code>) to orchestrate the pipeline. It automatically activates the correct Python module paths (using <code>python -m</code>) so your scripts can safely access the <code>src/</code> folder.</p>
+        <h2 id="orchestration">2. The Unified Orchestration Suite</h2>
+        <p>The system provides dual managers (<code>Makefile</code> and <code>make.bat</code>) featuring an identical syntax wrapper. This design decouples runtime environments from physical machine operating systems, allowing you to control execution using the exact same terminology whether on Linux or Windows host targets.</p>
 
-        <h3>Interactive Menu Mode</h3>
-        <p>If you simply run the script without any arguments, it will present an interactive menu:</p>
-        <pre>.\make.bat</pre>
-        <p>You can then type a number (e.g., <code>1</code> for all, <code>5</code> for validation) to run a specific step.</p>
+        <div class="note">
+            <strong>📋 CLI Target Overrides:</strong> Running any command with no target (simply typing <code>make</code> or <code>.\make.bat</code>) automatically triggers the internal help manual displaying available automation hooks.
+        </div>
 
-        <h3>Direct Command Mode</h3>
-        <p>For faster execution, you can pass the target name directly in your PowerShell terminal. This skips the menu and executes the code immediately.</p>
-
-        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-            <tr style="background-color: #f1f3f5; text-align: left;">
-                <th style="padding: 10px; border: 1px solid #dee2e6;">Command</th>
-                <th style="padding: 10px; border: 1px solid #dee2e6;">What it does</th>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #dee2e6;"><code>.\make.bat all</code></td>
-                <td style="padding: 10px; border: 1px solid #dee2e6;">Runs steps 1 through 4 sequentially.</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #dee2e6;"><code>.\make.bat generate</code></td>
-                <td style="padding: 10px; border: 1px solid #dee2e6;">Runs <code>01_generate_data_v2.py</code>.</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #dee2e6;"><code>.\make.bat features</code></td>
-                <td style="padding: 10px; border: 1px solid #dee2e6;">Runs <code>02_build_features_icare.py</code>.</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #dee2e6;"><code>.\make.bat evaluate</code></td>
-                <td style="padding: 10px; border: 1px solid #dee2e6;">Runs <code>03_evaluate_scores_v2.py</code>.</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #dee2e6;"><code>.\make.bat validate</code></td>
-                <td style="padding: 10px; border: 1px solid #dee2e6;">Runs the clinical audit against <code>cases.csv</code>.</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #dee2e6;"><code>.\make.bat search</code></td>
-                <td style="padding: 10px; border: 1px solid #dee2e6;">Generates the ICD/SNOMED keyword report.</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #dee2e6;"><code>.\make.bat test</code></td>
-                <td style="padding: 10px; border: 1px solid #dee2e6;">Runs the Pytest suite to check for logic drift.</td>
-            </tr>
+        <table class="pipeline-table">
+            <thead>
+                <tr>
+                    <th>Unix Target</th>
+                    <th>Windows Command</th>
+                    <th>Action Scope</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="highlight-row">
+                    <td class="nowrap"><code>make all</code></td>
+                    <td class="nowrap"><code>.\make.bat all</code></td>
+                    <td>Runs end-to-end simulation (Steps 1-5): Compilation, feature extraction, mathematical profiling, safety thresholds, and validation.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap"><code>make generate</code></td>
+                    <td class="nowrap"><code>.\make.bat generate</code></td>
+                    <td>Step 1: Spins up structural synthetic relational clinical cohorts.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap"><code>make features</code></td>
+                    <td class="nowrap"><code>.\make.bat features</code></td>
+                    <td>Step 2: Cleans, computes windows, extracts phenotypes, and logs scores.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap"><code>make evaluate</code></td>
+                    <td class="nowrap"><code>.\make.bat evaluate</code></td>
+                    <td>Step 3: Quantifies risk scores via configuration-driven stratification metrics.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap"><code>make thresholds</code></td>
+                    <td class="nowrap"><code>.\make.bat thresholds</code></td>
+                    <td>Step 4: Conducts literature safety checks focused on maximizing NPV.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap"><code>make validate</code></td>
+                    <td class="nowrap"><code>.\make.bat validate</code></td>
+                    <td>Step 5: Pushes test patients into code verification checks.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap"><code>make search</code></td>
+                    <td class="nowrap"><code>.\make.bat search</code></td>
+                    <td>Utility: Performs query extraction for coding classifications.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap"><code>make test</code></td>
+                    <td class="nowrap"><code>.\make.bat test</code></td>
+                    <td>Utility: Validates functions inside testing environments using Pytest.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap"><code>make clean</code></td>
+                    <td class="nowrap"><code>.\make.bat clean</code></td>
+                    <td>Utility: Wipes out stale verification logs and reporting exports.</td>
+                </tr>
+            </tbody>
         </table>
+
+        <h2 id="environments">3. Runtime Environments</h2>
+        <p>The managers leverage a runtime routing mechanism designed to adapt configuration based on execution goals.</p>
+
+        <h3>A. Containerized Environment (Default Workflow)</h3>
+        <p>By default, executing automation targets directly routes code execution into the isolated pipeline container. This enforces isolation of software environments, paths, and package models across target environments.</p>
+        <pre><code># Initial boot setup
+docker-compose up -d --build
+
+# Subsequent execution targets process automatically within the active container infrastructure
+make generate
+make features</code></pre>
+
+        <h3>B. Native Host Environments (The Local Toggle)</h3>
+        <p>To run directly inside local development terminal settings (bypassing container runtimes), append the explicit keyword indicator <code>local</code> to any automation command. This switches execution directly back to local machine Python configurations.</p>
+        <pre><code># Execution utilizes localized paths, dependencies, and resources
+make generate local
+.\make.bat features local</code></pre>
+
+        <h2 id="parameterization">4. Parameterized Argument Injection</h2>
+        <p>All core pipeline scripts are constructed using modular configuration parsers. You can pass explicit runtime flag modifications downstream into execution layers without restructuring hardcoded YAML blueprints or script files.</p>
+
+        <h3>Execution Formatting Patterns</h3>
+        <ul>
+            <li><strong>Unix Systems (via the ARGS environment variable pass-through block):</strong>
+                <pre><code>make generate ARGS="--config experimental_data_blueprint.yaml"
+make evaluate local ARGS="--eval-config strict_sepsis_matrix.yaml"</code></pre>
+            </li>
+            <li><strong>Windows Platforms (via sequential string argument chain wrapping):</strong>
+                <pre><code>.\make.bat generate --config experimental_data_blueprint.yaml
+.\make.bat evaluate local --eval-config strict_sepsis_matrix.yaml</code></pre>
+            </li>
+        </ul>
+
     </div>
 
     <div class="toc-sidebar">
         <h4>On this page</h4>
+        <a href="#quick-start">Environment Initialization</a>
         <a href="#folder-structure">1. Folder Structure</a>
-        <a href="#using-make">2. Using make</a>
+        <a href="#orchestration">2. Unified Orchestration</a>
+        <a href="#environments">3. Runtime Environments</a>
+        <a href="#parameterization">4. Argument Injection</a>
     </div>
 
 </body>

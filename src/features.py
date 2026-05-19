@@ -163,6 +163,11 @@ class FeaturePipeline:
                 print(
                     f"❌ Error computing '{score_name}': Function '{func_name}' does not exist inside '{module_name}'.")
 
+            #except KeyError as e:
+            #    print(f"❌ Error computing '{score_name}': Missing required column {e}.")
+            #    print(
+            #        f"   💡 Hint: Check if this column is generated in Step 1 or defined in your 'custom_features' YAML block.")
+
             except Exception as e:
                 print(f"⚠️ Warning: Failed to compute custom score '{score_name}'. Error: {e}")
 

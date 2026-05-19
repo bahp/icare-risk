@@ -21,37 +21,54 @@
 
    <div class="content">
         <h1 id="intro">Synthetic Clinical Data Generator</h1>
-        <p>Welcome! This tool allows you to generate highly realistic, fake patient data. Instead of hard-coding values, this system uses a flexible "blueprint" (a YAML configuration file) to build a relational database of patients, vitals, labs, and medications.</p>
+        <p>Welcome! This tool allows you to generate fake patient data. Instead of hard-coding values,
+            this system uses a flexible "blueprint" (a YAML configuration file) to build a relational
+            database of patients, vitals, labs, and medications.</p>
 
         <div class="note">
-            <strong>💡 For Dummies:</strong> Think of this tool as a factory. The <code>data_config_v2.yaml</code> file is the <strong>recipe book</strong> that tells the factory what to build. The Python scripts are the <strong>machines</strong> that actually build it.
+            <strong>💡 For Dummies:</strong> Think of this tool as a factory. The
+            <code>data_config.yaml</code> file is the <strong>recipe book</strong> that tells the
+            factory what to build. The Python scripts are the <strong>machines</strong> that actually
+            build it.
         </div>
 
         <hr>
 
         <h2 id="params">1. Global Parameters (The "Big Picture")</h2>
-        <p>At the very top of your <code>data_config_v2.yaml</code> file, you will find the <code>generation_params</code>. This dictates the size and scope of your fake hospital.</p>
+        <p>At the very top of your <code>data_config.yaml</code> file, you will find the
+            <code>generation_params</code>. This dictates the size and scope of your fake
+            hospital.</p>
         <pre><code>generation_params:
-  n_patients: 100         # How many fake patients to create
-  days: 10                # How many days of data to simulate
-  freq: '4h'              # How often to check vitals (every 4 hours)
-  output_format: 'tidy'   # The shape of the final data
-  default_missing_rate: 0.5 # 50% chance a test isn't taken (makes data realistic)</code></pre>
+    n_patients: 100         # How many fake patients to create
+    days: 10                # How many days of data to simulate
+    freq: '4h'              # How often to check vitals (every 4 hours)
+    output_format: 'tidy'   # The shape of the final data
+    default_missing_rate: 0.5 # 50% chance a test isn't taken (makes data realistic)
+        </code></pre>
 
         <hr>
 
         <h2 id="dictionary">2. The Clinical Dictionary (The "Menu")</h2>
-        <p>Before we build tables, we need to define the medical concepts our hospital tracks. This is found under <code>clinical_concepts</code>. Every vital sign, lab result, or score is defined here with strict rules so the generator doesn't create impossible scenarios (like a body temperature of 100°C).</p>
+        <p>Before building tables, we define universal medical concepts under <code>clinical_concepts</code>. This ensures the generator never creates impossible scenarios (like a body temperature of 100°C) and standardizes coding.</p>
+
+        <p>Concepts are grouped into <strong>vitals</strong>, <strong>labs</strong>, and <strong>neuro</strong>. Each concept defines:</p>
+        <ul>
+            <li><code>code</code> & <code>name</code>: The LOINC code and human-readable string (e.g., "LOINC-8867-4", "Heart Rate").</li>
+            <li><code>unit</code>: Measurement unit (e.g., 'bpm', 'mg/dL').</li>
+            <li><code>prob</code>: The probability this specific test is ordered/recorded (overrides the default missing rate).</li>
+            <li><code>range</code>: The absolute <code>[min, max]</code> bounds for generated values.</li>
+        </ul>
 
         <hr>
 
-        <h2 id="tables-advanced">4. Advanced: Table Architectures</h2>
+        <h2 id="tables-advanced">3. Table Architectures</h2>
         <div class="advanced">
-            <strong>⚙️ Under the Hood:</strong> The <code>tables</code> section is the brain of the database. It dictates how the columns are structured and how they relate to one another. Let's break down the rules of table building.
+            <strong>⚙️ Under the Hood:</strong> The <code>tables</code> section dictates how CSVs are structured and how they relate. Let's break down the core architectural rules.
         </div>
 
+
         <h3 id="schema-types">A. Table Types & Row Counts</h3>
-        <p>When you define a table, you must tell the generator its basic behavior:</p>
+        <p>Every table must define its basic structural behavior:</p>
         <ul>
             <li><code>type: "relational"</code>: A standard spreadsheet where each row is a distinct event (like an admission or a prescribed drug).</li>
             <li><code>type: "eav_timeseries"</code>: Entity-Attribute-Value format. Used for repeating measurements (like heart rate over time). It makes one long table where the "test name" and "result" are stacked in rows rather than spread across 50 different columns.</li>
@@ -70,7 +87,7 @@ OBSERVATION_RESULT_CLEAN:
 
         <hr>
 
-        <h2 id="columns-deepdive">5. Column Types Deep-Dive</h2>
+        <h2 id="columns-deepdive">4. Column Types Deep-Dive</h2>
         <p>Inside the <code>schema</code> of a table, you define your columns. Here is exactly what every column configuration does, with examples:</p>
 
         <h4>1. The Combo Meal: <code>categorical_tuple</code></h4>
@@ -114,15 +131,85 @@ UPDATE_DT_TM:
 
         <hr>
 
+       <h2 id="tables-overview">5. The Configured Tables</h2>
+        <p>The <code>data_config.yaml</code> currently builds 6 interconnected tables for your cohort:</p>
+        <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Table Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td><strong>ICARE_EPISODES_ANON</strong></td>
+                <td>
+                    The anchor table. Records admissions, discharges, age,
+                    and deprivation deciles.
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td><strong>ICARE_MICROBIOLOGY_ANON</strong></td>
+                <td>
+                    Tracks blood/urine cultures, organism growth
+                    (e.g., E. coli, MRSA), and sensitivities.
+                </td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td><strong>ICARE_VITAL_SIGNS_ANON</strong></td>
+                <td>
+                    Dense time-series of heart rate, temperature,
+                    blood pressure, etc., tracked longitudinally.
+                </td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td><strong>ICARE_PROBLEMS_ANON</strong></td>
+                <td>
+                    ICD-10 diagnostic history (diabetes, sepsis, CKD)
+                    with onset and resolution dates.
+                </td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td><strong>ICARE_PHARMACY_PRESCRIBING_ANON</strong></td>
+                <td>
+                    Medication orders (antibiotics, pressors, fluids)
+                    with routes and dosages.
+                </td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td><strong>ICARE_PATHOLOGY_BLOOD_ANON</strong></td>
+                <td>
+                    Lab test results (creatinine, CRP, lactate)
+                    featuring delayed result timestamps.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+        <hr>
+
+
         <h2 id="generation">6. How Data is Created</h2>
-        <p>The Python logic (found in <code>generators.py</code>) respects all the rules you set in the YAML file to ensure output that mimics real human biology, including applying circadian rhythms and simulating missing data.</p>
+        <p>The Python backend (<code>src/generators.py</code>) executes the YAML blueprint sequentially. It establishes parent tables (Episodes) first so child tables (Pharmacy, Vitals) can safely inherit foreign keys. It then applies biological variance, bounds logic, and missingness masks to produce highly realistic datasets.</p>
 
         <hr>
 
         <h2 id="running">7. Running the Tool</h2>
-        <p>Open your terminal/command prompt and run:</p>
-        <pre><code>python -m scripts.01_generate_data </code></pre>
-        <p>Your newly minted synthetic tables will be saved to the <code>data/synthetic/</code> directory as fully populated CSV files.</p>
+        <p>Use the unified orchestration suite to execute data generation. This will automatically route through Docker (or run locally if specified) and output your CSVs to a timestamped folder in <code>data/synthetic/</code>.</p>
+
+        <pre><code># Default (Runs in Docker Container)
+make generate
+
+# Native Execution (Runs on Host CPU)
+make generate local</code></pre>
+        <p><em>Note for Windows users: Use <code>.\make.bat generate</code>.</em></p>
     </div>
 
     <div class="toc-sidebar">
@@ -131,8 +218,9 @@ UPDATE_DT_TM:
         <a href="#dictionary">2. The Clinical Dictionary</a>
         <a href="#tables-advanced">3. Table Architectures</a>
         <a href="#columns-deepdive">4. Column Types Deep-Dive</a>
-        <a href="#generation">5. How Data is Created</a>
-        <a href="#running">6. Running the Tool</a>
+        <a href="#tables-overview">5. The Configured Tables</a>
+        <a href="#generation">6. How Data is Created</a>
+        <a href="#running">7. Running the Tool</a>
     </div>
 
 </body>

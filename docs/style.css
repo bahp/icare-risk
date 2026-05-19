@@ -336,6 +336,48 @@ tr:nth-child(even) {
     background-color: #f8fafc;
 }
 
+/* Table Layout Rules */
+.pipeline-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+}
+
+.pipeline-table th {
+    background-color: #f1f3f5;
+    text-align: left;
+    padding: 12px 10px;
+    border: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+.pipeline-table td {
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    vertical-align: top;
+    line-height: 1.4;
+}
+
+/* Row Styling Variants */
+.pipeline-table tbody tr:nth-child(even) {
+    background-color: #fdfdfd;
+}
+
+.pipeline-table tbody tr.highlight-row {
+    font-weight: bold;
+    background-color: #f8f9fa;
+}
+
+/* Non-breaking Column Rules */
+.pipeline-table td.nowrap {
+    white-space: nowrap;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #b83a3a;
+}
+
 /* ==========================================================================
    RESPONSIVE DESIGN (Failsafe for smaller screens)
    ========================================================================== */

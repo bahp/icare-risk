@@ -2,6 +2,7 @@
 
 import sys
 import yaml
+import argparse
 from pathlib import Path
 from datetime import datetime
 
@@ -13,6 +14,18 @@ from src.generators import generate_custom_table, generate_eav_timeseries
 
 
 def main():
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Dynamic Synthetic Data Generation")
+    parser.add_argument(
+        '--config',
+        type=str,
+        default='data_config_v2.yaml',  # Fallback if no parameter is passed
+        help='Name of the YAML config file located in the config/ directory'
+    )
+    args = parser.parse_args()
+
+
     print("==================================================")
     print("🧬 [Step 1] Dynamic Synthetic Data Generation")
     print("==================================================\n")
@@ -25,7 +38,7 @@ def main():
 
     print(f"\n📂 TARGET SAVE DIRECTORY: {data_dir.absolute()}\n")
 
-    config_path = config_dir / 'data_config_v2.yaml'
+    config_path = config_dir / args.config
     if not config_path.exists():
         print(f"❌ Error: Config file not found at {config_path}")
         return

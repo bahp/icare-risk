@@ -2,6 +2,7 @@
 
 import sys
 import yaml
+import argparse
 import operator
 import pandas as pd
 from pathlib import Path
@@ -15,6 +16,15 @@ from src.utils import get_latest_processed_file
 
 
 def main():
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Configuration-Driven Model Evaluation")
+    parser.add_argument('--eval-config',
+        type=str, default='eval_config.yaml', help='Name of the evaluation YAML config file')
+    parser.add_argument('--feature-config',
+        type=str, default='feature_config.yaml', help='Name of the feature YAML config file')
+    args = parser.parse_args()
+
     print("==================================================")
     print("📊 [Step 3] Configuration-Driven Model Evaluation")
     print("==================================================\n")
@@ -24,6 +34,15 @@ def main():
     # ---------------------------------------------------------
     processed_file = get_latest_processed_file()
     final_features = pd.read_csv(processed_file)
+
+    run_id = processed_file.parent.name
+    out_dir = project_root / 'outputs' / run_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(out_dir / 'run_metadata.txt', 'w') as f:
+        f.write(f"--- CLINICAL PIPELINE METADATA ---\n")
+        f.write(f"Run ID: {run_id}\n")
+        f.write(f"Source Data: {processed_file}\n")
 
     config_path = project_root / 'config' / 'eval_config.yaml'
     with open(config_path, 'r') as file:
@@ -37,7 +56,7 @@ def main():
     # 2. Determine which scores to evaluate
     # ---------------------------------------------------------
     if exp_config.get('scores_to_evaluate') == 'all':
-        feature_config_path = project_root / 'config' / 'feature_config.yaml'
+        feature_config_path = project_root / 'config' / args.feature_config
         with open(feature_config_path, 'r') as file:
             fc = yaml.safe_load(file)
             custom_scores = list(fc.get('custom_scores', {}).keys())
@@ -72,7 +91,7 @@ def main():
     final_features['hours_from_admin'] = (final_features['date'] - final_features[
         'ADMISSION_DATE']).dt.total_seconds() / 3600
 
-    evaluator = ClinicalEvaluator(output_dir=project_root / 'outputs')
+    evaluator = ClinicalEvaluator(output_dir=out_dir)
     master_results = []
 
     # ---------------------------------------------------------
