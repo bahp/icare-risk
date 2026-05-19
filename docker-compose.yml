@@ -1,0 +1,7 @@
+services:
+  pipeline:
+    build: .
+    container_name: clinical_pipeline
+    volumes:
+      # Mount the local project to the container so data/outputs sync instantly
+      - .:/app

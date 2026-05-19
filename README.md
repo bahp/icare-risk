@@ -5,6 +5,116 @@ data, engineer clinical features, and audit predictive scoring systems
 (e.g., INCREMENT-ESBL, Gavaghan, Jones, Holmgren).
 
 ---
+
+## 🐳 Environment Setup & Execution
+
+By default, the `make` pipeline routes all commands into a Docker 
+container. This ensures the environment is identical across Windows, 
+Mac, and Linux, preventing library and path conflicts.
+
+## 1. Standard Docker Workflow (Default)
+
+### Build and start the container in the background
+
+```bash
+docker-compose up -d --build
+```
+
+### How to Run Commands
+
+The Clinical Pipeline Manager is a unified wrapper that lets you 
+run complex data generation and scoring workflows effortlessly. It 
+ensures your code runs the exact same way on Mac, Linux, and Windows.
+
+Depending on your operating system, use the corresponding wrapper:
+* **Mac/Linux:** Use `make <command>`
+* **Windows:** Use `./make.bat <command>` (or double-click `make.bat` for an interactive menu)
+
+**Core Pipeline Commands:**
+
+| Command | Description | Allowed Script Parameters (`ARGS="..."`)                                                          |
+|---|---|---------------------------------------------------------------------------------------------------|
+| `make generate` | Step 1: Create synthetic patients | `--config` *(def: `data_config_v2.yaml`)*                                                         |
+| `make features` | Step 2: Clean data & engineer phenotypes | `--data-config` *(def: `data_config_v2.yaml`)*<br>`--feature-config` *(def: `feature_config.yaml`)* |
+| `make evaluate` | Step 3: Run AI/ML scoring metrics | `--eval-config` *(def: `eval_config.yaml`)*<br>`--feature-config` *(def: `feature_config.yaml`)*  |
+| `make thresholds` | Step 4: Check clinical safety | Currently hardcoded: <br> `feature_config.yaml` & `threshold_config.yaml`                         |
+| `make validate` | Step 5: Audit specific patient cases | Currently uses hardcoded: <br> `cases.csv`                                       |
+| `make all` | Runs Steps 1 through 5 sequentially | Same `ARGS` to ALL scripts 
+
+### Dynamic Configurations 
+
+Because the pipeline is fully dynamic, you do not need to rewrite Python 
+code to test new theories. You can pass custom YAML configuration files 
+directly through the manager.
+
+#### Example 1: Generating Data with an Experimental Config
+
+```bash
+make generate ARGS="--config experimental_data.yaml"
+```
+
+
+### Stop the container when finished
+
+```bash
+docker-compose down
+```
+
+## 2. Running Locally (Without Docker)
+
+If you have installed the requirements natively:
+
+```bash
+pip install -r requirements.txt
+```
+
+and wish to run the pipeline directly on your machine's CPU, simply 
+append `local` to any command.
+
+This works identically on Mac, Linux, and Windows.
+
+```bash
+make generate local
+make evaluate local
+```
+
+Or with dynamic configuration
+
+```bash
+make generate local ARGS="--config experimental_data.yaml"
+```
+
+### 💡 Pro Tip for Windows Users
+
+You do not need the `ARGS=""` syntax on Windows. You can chain the arguments directly in your terminal.
+
+```bash
+make.bat evaluate local --eval-config eval_strict.yaml
+```
+
+---
+
+# 🚀 1. Quick Start: The Pipeline
+
+You can orchestrate the pipeline using the provided `Makefile` (Mac/Linux) or `make.bat` (Windows).
+
+> **Note:** All examples below show the default local commands. If using Docker, remember to add your Docker flag.
+
+## 1.1 Generate Synthetic Data
+
+Generates a synthetic patient cohort with demographics, comorbidities, and time-series vitals/labs based on your YAML configurations.
+
+```bash
+make generate
+```
+
+To use a custom config:
+
+```bash
+make generate ARGS="--config my_data.yaml"
+```
+
+---
 ## 📁 Key Directories
 
 ```

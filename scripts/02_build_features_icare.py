@@ -2,6 +2,7 @@
 
 import sys
 import yaml
+import argparse
 import pandas as pd
 from pathlib import Path
 
@@ -23,8 +24,6 @@ def prepare_icare_ts(df_vitals, df_labs, data_config):
 
     labs_concepts = data_config.get('clinical_concepts', {}).get('labs', {})
     l_map = {specs['name']: key for key, specs in labs_concepts.items()}
-
-
 
     # Pivot Vitals
     vits_wide = df_vitals.pivot_table(
@@ -57,6 +56,15 @@ def prepare_icare_ts(df_vitals, df_labs, data_config):
 
 
 def main():
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Feature Engineering: ICARE Edition")
+    parser.add_argument('--data-config',
+        type=str, default='data_config_v2.yaml', help='Name of the data YAML config file')
+    parser.add_argument('--feature-config',
+        type=str, default='feature_config.yaml', help='Name of the feature YAML config file')
+    args = parser.parse_args()
+
     print("==================================================")
     print("⚙️  [Step 2] Feature Engineering: ICARE Edition")
     print("==================================================\n")
@@ -69,7 +77,7 @@ def main():
     try:
         df_episodes = pd.read_csv(latest_data_dir / 'icare_episodes_anon.csv')
         df_vitals = pd.read_csv(latest_data_dir / 'icare_vital_signs_anon.csv',
-                                parse_dates=['OBSERVATION_PERFORMED_DT'])
+                parse_dates=['OBSERVATION_PERFORMED_DT'])
         df_labs = pd.read_csv(latest_data_dir / 'icare_pathology_blood_anon.csv', parse_dates=['SAMPLE_COLLECTED_DT'])
         df_micro = pd.read_csv(latest_data_dir / 'icare_microbiology_anon.csv')
         print("✅ Raw ICARE tables loaded successfully.")
@@ -77,7 +85,8 @@ def main():
         print(f"❌ Error: Could not find required CSV files: {e}")
         return
 
-    with open(project_root / 'config' / 'data_config_v2.yaml', 'r') as f:
+    data_config_path = project_root / 'config' / args.data_config
+    with open(data_config_path, 'r') as f:
         data_config = yaml.safe_load(f)
 
     # 2. Prepare Time-Series
@@ -88,7 +97,7 @@ def main():
     print(f"  -> Static (Episodes) rows: {len(df_static)}")
 
     # 4. Run Pipeline
-    config_path = project_root / 'config' / 'feature_config.yaml'
+    config_path = project_root / 'config' / args.feature_config
     context = {
         'microbiology': pd.read_csv(latest_data_dir / 'icare_microbiology_anon.csv'),
         'pharmacy': pd.read_csv(latest_data_dir / 'icare_pharmacy_prescribing_anon.csv'),

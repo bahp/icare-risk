@@ -7,7 +7,8 @@ from sklearn.metrics import (
     average_precision_score,
     roc_curve,
     precision_recall_curve,
-    confusion_matrix
+    confusion_matrix,
+    f1_score
 )
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -81,16 +82,35 @@ class ClinicalEvaluator:
             ppv = tp / (tp + fp) if (tp + fp) > 0 else 0
             npv = tn / (tn + fn) if (tn + fn) > 0 else 0
 
+            f1 = f1_score(y_true, y_pred_binary)
+            youden_j = sens + spec - 1
+
             # Build row dynamically
             row = {'Score_Name': score}
-            if all_metrics_flag or 'auroc' in requested_metrics: row['AUROC'] = round(auroc, 3)
-            if all_metrics_flag or 'auprc' in requested_metrics: row['AUPRC'] = round(auprc, 3)
-            if all_metrics_flag or 'optimal_cutoff' in requested_metrics: row['Optimal_Cutoff'] = round(
+            if all_metrics_flag or 'auroc' in requested_metrics:
+                row['AUROC'] = round(auroc, 3)
+            if all_metrics_flag or 'auprc' in requested_metrics:
+                row['AUPRC'] = round(auprc, 3)
+            if all_metrics_flag or 'optimal_cutoff' in requested_metrics:
+                row['Optimal_Cutoff'] = round(
                 optimal_threshold, 2)
-            if all_metrics_flag or 'sensitivity' in requested_metrics: row['Sensitivity'] = round(sens, 3)
-            if all_metrics_flag or 'specificity' in requested_metrics: row['Specificity'] = round(spec, 3)
-            if all_metrics_flag or 'ppv' in requested_metrics: row['PPV'] = round(ppv, 3)
-            if all_metrics_flag or 'npv' in requested_metrics: row['NPV'] = round(npv, 3)
+            if all_metrics_flag or 'sensitivity' in requested_metrics:
+                row['Sensitivity'] = round(sens, 3)
+            if all_metrics_flag or 'specificity' in requested_metrics:
+                row['Specificity'] = round(spec, 3)
+            if all_metrics_flag or 'ppv' in requested_metrics:
+                row['PPV'] = round(ppv, 3)
+            if all_metrics_flag or 'npv' in requested_metrics:
+                row['NPV'] = round(npv, 3)
+            if all_metrics_flag or 'confusion_matrix' in requested_metrics:
+                row['TP'] = int(tp)
+                row['TN'] = int(tn)
+                row['FP'] = int(fp)
+                row['FN'] = int(fn)
+            if all_metrics_flag or 'f1' in requested_metrics:
+                row['F1_Score'] = round(f1, 3)
+            if all_metrics_flag or 'youden' in requested_metrics:
+                row['Youden_J'] = round(youden_j, 3)
 
             results.append(row)
 
