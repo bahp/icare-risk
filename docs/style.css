@@ -1,29 +1,38 @@
 /* ==========================================================================
-   DM-ESBL CLINICAL PIPELINE - GLOBAL STYLESHEET
+   DM-ESBL CLINICAL PIPELINE - MODERN PROFESSIONAL STYLESHEET
    ========================================================================== */
 
+/* Import a premium, highly readable modern font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
 :root {
-    /* Color Palette */
-    --primary-color: #0f172a;       /* Dark slate for headers */
-    --secondary-color: #2563eb;     /* Professional blue for links/notes */
-    --accent-color: #d97706;        /* Amber for advanced callouts */
-    --success-color: #059669;       /* Emerald green for success */
-    --danger-color: #dc2626;        /* Crimson red for warnings */
+    /* Sophisticated Color Palette */
+    --primary-color: #0f172a;       /* Deep Slate for Headings */
+    --secondary-color: #3b82f6;     /* Modern Vibrant Blue */
+    --secondary-hover: #2563eb;
+    --accent-color: #f59e0b;        /* Crisp Amber */
+    --success-color: #10b981;       /* Clean Emerald */
+    --danger-color: #ef4444;        /* Sharp Red */
 
     /* Backgrounds & Borders */
     --bg-page: #ffffff;
     --bg-sidebar: #f8fafc;
-    --border-color: #e2e8f0;
+    --border-light: #e2e8f0;
+    --border-dark: #cbd5e1;
 
     /* Typography Colors */
-    --text-main: #334155;
+    --text-main: #334155;           /* Softened black for less eye strain */
     --text-muted: #64748b;
 
-    /* Code blocks */
-    --code-bg: #1e293b;
-    --code-text: #f8f8f2;
+    /* Code blocks (Midnight Theme) */
+    --code-bg: #0d1117;             /* GitHub dark mode background */
+    --code-text: #e6edf3;
     --code-inline-bg: #f1f5f9;
-    --code-inline-text: #db2777;    /* Pink/Magenta for inline code */
+    --code-inline-text: #0ea5e9;    /* Ocean blue for inline code */
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 /* ==========================================================================
@@ -31,22 +40,29 @@
    ========================================================================== */
 
 html {
-    scroll-behavior: smooth; /* Smooth scrolling for ToC links */
+    scroll-behavior: smooth;
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
 }
 
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--text-main);
     background-color: var(--bg-page);
     display: flex;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
 }
 
-/* Scrollbar styling for a polished look */
-::-webkit-scrollbar { width: 8px; height: 8px; }
+/* Elegant Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 /* ==========================================================================
@@ -54,59 +70,53 @@ body {
    ========================================================================== */
 
 .nav-sidebar {
-    width: 260px;
+    width: 280px;
     height: 100vh;
     background-color: var(--bg-sidebar);
-    border-right: 1px solid var(--border-color);
-    padding: 25px 20px;
+    border-right: 1px solid var(--border-light);
+    padding: 30px 24px;
     position: fixed;
     left: 0;
     top: 0;
     overflow-y: auto;
-    box-sizing: border-box;
 }
 
 .nav-sidebar h3 {
     margin-top: 0;
     color: var(--primary-color);
-    font-size: 1.15rem;
-    border-bottom: 2px solid var(--secondary-color);
-    padding-bottom: 12px;
-    margin-bottom: 20px;
-    letter-spacing: -0.01em;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-bottom: 2px solid var(--border-light);
+    padding-bottom: 15px;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
 }
 
 .nav-sidebar ul { list-style: none; padding: 0; margin: 0; }
-.nav-sidebar li { margin-bottom: 6px; }
+.nav-sidebar li { margin-bottom: 4px; }
 
 .nav-sidebar a {
     text-decoration: none;
-    color: var(--text-main);
+    color: var(--text-muted);
     display: block;
     padding: 8px 12px;
     border-radius: 6px;
-    transition: all 0.2s ease;
-    font-size: 0.95rem;
+    transition: all 0.15s ease-in-out;
+    font-size: 0.9rem;
     font-weight: 500;
 }
 
 .nav-sidebar a:hover {
-    background-color: #e2e8f0;
-    color: var(--secondary-color);
+    background-color: var(--bg-page);
+    color: var(--primary-color);
+    box-shadow: var(--shadow-sm);
 }
 
 .nav-sidebar a.active {
     background-color: var(--secondary-color);
     color: #ffffff;
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-}
-
-.nav-sidebar .sub-nav {
-    margin-left: 15px;
-    font-size: 0.85rem;
-    border-left: 1px solid #cbd5e1;
-    padding-left: 10px;
-    margin-top: 4px;
+    box-shadow: var(--shadow-md);
+    font-weight: 600;
 }
 
 /* ==========================================================================
@@ -114,47 +124,44 @@ body {
    ========================================================================== */
 
 .toc-sidebar {
-    width: 320px; /* Increased from 250px to make it wider */
+    width: 300px;
     height: 100vh;
     background-color: var(--bg-page);
-    border-left: none; /* Removed the separating line to make it float */
-    padding: 50px 20px 25px 40px; /* Adjusted padding for better breathing room */
+    padding: 50px 20px 30px 30px;
     position: fixed;
     right: 0;
     top: 0;
     overflow-y: auto;
-    box-sizing: border-box;
 }
 
 .toc-sidebar h4 {
     margin-top: 0;
-    color: var(--text-muted);
-    font-size: 0.85rem;
+    color: var(--primary-color);
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 15px;
-    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+    font-weight: 700;
 }
 
 .toc-sidebar ul {
     list-style: none;
     padding: 0;
     margin: 0;
-    border-left: 2px solid #f1f5f9;
+    border-left: 1px solid var(--border-light);
 }
 
-.toc-sidebar li { margin-bottom: 8px; }
+.toc-sidebar li { margin-bottom: 0px; }
 
 .toc-sidebar a {
     text-decoration: none;
     color: var(--text-muted);
     display: block;
-    padding-left: 15px;
-    font-size: 0.9rem;
+    padding: 8px 0 8px 16px;
+    font-size: 0.85rem;
     transition: all 0.2s ease;
-    position: relative;
-    left: -2px;
     border-left: 2px solid transparent;
+    margin-left: -1px; /* Align border perfectly */
 }
 
 .toc-sidebar a:hover {
@@ -167,48 +174,53 @@ body {
    ========================================================================== */
 
 .content {
-    margin-left: 260px;  /* Matches width of left nav */
-    margin-right: 320px; /* Increased to match the new wider right sidebar */
-    padding: 50px 80px;
-    max-width: 850px;
-    line-height: 1.7;
-    font-size: 1.05rem;
+    margin-left: 280px;
+    margin-right: 300px;
+    padding: 60px 80px;
+    max-width: 900px;
 }
 
 .content h1, .content h2, .content h3, .content h4 {
     color: var(--primary-color);
-    font-weight: 600;
+    line-height: 1.3;
 }
 
 .content h1 {
-    font-size: 2.5em;
+    font-size: 2.25rem;
+    font-weight: 800;
     margin-top: 0;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
+    padding-bottom: 20px;
     margin-bottom: 30px;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
 }
 
 .content h2 {
-    font-size: 1.8em;
-    color: var(--secondary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
     margin-top: 50px;
     margin-bottom: 20px;
+    letter-spacing: -0.02em;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 10px;
 }
 
 .content h3 {
-    font-size: 1.3em;
-    color: var(--primary-color);
-    border-bottom: 1px dashed var(--border-color);
-    padding-bottom: 8px;
-    margin-top: 40px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-top: 35px;
+    margin-bottom: 15px;
 }
 
 .content hr {
     border: 0;
     height: 1px;
-    background: var(--border-color);
-    margin: 50px 0;
+    background: var(--border-light);
+    margin: 40px 0;
+}
+
+.content p, .content li {
+    font-size: 1.05rem;
+    color: var(--text-main);
 }
 
 /* ==========================================================================
@@ -217,174 +229,166 @@ body {
 
 code {
     background-color: var(--code-inline-bg);
-    padding: 3px 6px;
+    padding: 0.2em 0.4em;
     border-radius: 4px;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-family: 'Fira Code', 'SFMono-Regular', Consolas, monospace;
     color: var(--code-inline-text);
-    font-size: 0.9em;
+    font-size: 0.85em;
+    border: 1px solid var(--border-light);
 }
 
 pre {
     background-color: var(--code-bg);
     color: var(--code-text);
-    padding: 20px;
-    border-radius: 8px;
+    padding: 24px;
+    border-radius: 12px;
     overflow-x: auto;
-    font-family: "SFMono-Regular", Consolas, Menlo, Courier, monospace;
-    font-size: 0.9em;
-    line-height: 1.5;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    margin: 20px 0;
+    font-family: 'Fira Code', 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    box-shadow: var(--shadow-md);
+    margin: 24px 0;
+    border: 1px solid #30363d; /* Subtle dark border */
 }
 
 pre code {
     background: transparent;
     color: inherit;
     padding: 0;
+    border: none;
 }
 
 /* Terminal specific styling */
 .terminal {
-    background-color: #000000;
-    color: #4af626; /* Hacker green */
-    font-family: "SFMono-Regular", Consolas, monospace;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    background-color: #0d1117;
+    color: #e6edf3;
+    font-family: 'Fira Code', Consolas, monospace;
+    padding: 20px 24px;
+    border-radius: 12px;
+    margin: 24px 0;
+    border: 1px solid #30363d;
+    box-shadow: var(--shadow-md);
+    font-size: 0.85rem;
 }
-.terminal span { color: #ffffff; }
+
+.terminal .prompt { color: #3fb950; font-weight: 600; }
+.terminal .comment { color: #8b949e; font-style: italic; }
 
 /* File structure colors (Architecture Doc) */
-.folder { color: #38bdf8; font-weight: bold; } /* Light blue */
-.file { color: #a3e635; } /* Lime green */
+.folder { color: #79c0ff; font-weight: 600; }
+.file { color: #a5d6ff; }
 
 /* ==========================================================================
    CALLOUT BOXES (Notes, Warnings, Success)
    ========================================================================== */
 
 .note, .advanced, .success, .danger {
-    padding: 18px 20px;
-    margin: 25px 0;
-    border-radius: 0 8px 8px 0;
-    border-left: 5px solid;
+    padding: 20px 24px;
+    margin: 30px 0;
+    border-radius: 8px;
+    border-left: 4px solid;
     font-size: 0.95rem;
+    box-shadow: var(--shadow-sm);
 }
 
 .note {
     background-color: #eff6ff;
     border-left-color: var(--secondary-color);
-    color: #1e3a8a;
+    color: #1e40af;
 }
-.note strong { color: var(--secondary-color); }
 
 .advanced {
     background-color: #fffbeb;
     border-left-color: var(--accent-color);
     color: #92400e;
 }
-.advanced strong { color: var(--accent-color); }
 
 .success {
     background-color: #ecfdf5;
     border-left-color: var(--success-color);
     color: #065f46;
 }
-.success strong { color: var(--success-color); }
 
 .danger {
     background-color: #fef2f2;
     border-left-color: var(--danger-color);
     color: #991b1b;
 }
-.danger strong { color: var(--danger-color); }
+
+.note strong, .advanced strong, .success strong, .danger strong {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
 
 /* ==========================================================================
-   TABLES
+   MODERN DATA TABLES
    ========================================================================== */
 
-table {
+table, .pipeline-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 25px 0;
-    font-size: 0.95rem;
-    background-color: #ffffff;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow: hidden; /* Keeps rounded corners clean */
-}
-
-th, td {
-    border: 1px solid var(--border-color);
-    padding: 12px 16px;
+    margin: 30px 0;
+    font-size: 0.9rem;
     text-align: left;
+    box-shadow: var(--shadow-sm);
+    border-radius: 8px;
+    overflow: hidden; /* Required for border-radius on tables */
+    border: 1px solid var(--border-light);
 }
 
-th {
-    background-color: #f1f5f9;
-    color: var(--primary-color);
+th, .pipeline-table th {
+    background-color: #f8fafc;
+    color: var(--text-muted);
     font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-dark);
 }
 
-/* Specific class for output tables */
-.output-table th {
-    background-color: var(--primary-color);
-    color: #ffffff;
+td, .pipeline-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-main);
+    vertical-align: middle;
 }
 
-tr:nth-child(even) {
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
     background-color: #f8fafc;
 }
 
-/* Table Layout Rules */
-.pipeline-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    margin-bottom: 30px;
-    font-size: 0.95rem;
-}
-
-.pipeline-table th {
-    background-color: #f1f3f5;
-    text-align: left;
-    padding: 12px 10px;
-    border: 1px solid #dee2e6;
+/* Specific styling for the pipeline orchestrator table */
+.pipeline-table .highlight-row td {
     font-weight: 600;
-}
-
-.pipeline-table td {
-    padding: 10px;
-    border: 1px solid #dee2e6;
-    vertical-align: top;
-    line-height: 1.4;
-}
-
-/* Row Styling Variants */
-.pipeline-table tbody tr:nth-child(even) {
-    background-color: #fdfdfd;
-}
-
-.pipeline-table tbody tr.highlight-row {
-    font-weight: bold;
-    background-color: #f8f9fa;
+    background-color: #f1f5f9;
+    color: var(--primary-color);
 }
 
 /* Non-breaking Column Rules */
 .pipeline-table td.nowrap {
     white-space: nowrap;
-    font-family: monospace;
-    font-size: 0.9rem;
-    color: #b83a3a;
+    vertical-align: middle;
+}
+
+/* Specific styling for the pipeline orchestrator table */
+.pipeline-table .highlight-row td {
+    font-weight: 600;
+    background-color: #f1f5f9;
+    color: var(--primary-color);
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN (Failsafe for smaller screens)
+   RESPONSIVE DESIGN
    ========================================================================== */
 
-@media screen and (max-width: 1300px) { /* Increased breakpoint from 1200px */
-    .toc-sidebar { display: none; } /* Hides right sidebar on medium screens */
-    .content { margin-right: 0; padding-right: 50px; }
+@media screen and (max-width: 1200px) {
+    .toc-sidebar { display: none; }
+    .content { margin-right: 0; padding-right: 60px; }
 }
 
 @media screen and (max-width: 850px) {
@@ -394,10 +398,15 @@ tr:nth-child(even) {
         height: auto;
         position: relative;
         border-right: none;
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-light);
+        padding: 20px;
     }
     .content {
         margin-left: 0;
-        padding: 30px 20px;
+        padding: 30px 24px;
+    }
+    .pipeline-table td.nowrap {
+        display: block;
+        margin-bottom: 8px;
     }
 }
