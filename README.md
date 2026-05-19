@@ -32,12 +32,12 @@ Depending on your operating system, use the corresponding wrapper:
 
 **Core Pipeline Commands:**
 
-| Command | Description | Allowed Script Parameters (`ARGS="..."`)                                                          |
-|---|---|---------------------------------------------------------------------------------------------------|
-| `make generate` | Step 1: Create synthetic patients | `--config` *(def: `data_config_v2.yaml`)*                                                         |
-| `make features` | Step 2: Clean data & engineer phenotypes | `--data-config` *(def: `data_config_v2.yaml`)*<br>`--feature-config` *(def: `feature_config.yaml`)* |
-| `make evaluate` | Step 3: Run AI/ML scoring metrics | `--eval-config` *(def: `eval_config.yaml`)*<br>`--feature-config` *(def: `feature_config.yaml`)*  |
-| `make thresholds` | Step 4: Check clinical safety | Currently hardcoded: <br> `feature_config.yaml` & `threshold_config.yaml`                         |
+| Command | Description | Allowed Script Parameters (`ARGS="..."`)                                                       |
+|---|---|------------------------------------------------------------------------------------------------|
+| `make generate` | Step 1: Create synthetic patients | `--config` *(def: `data_config.yaml`)*                                                         |
+| `make features` | Step 2: Clean data & engineer phenotypes | `--data-config` *(def: `data_config.yaml`)*<br>`--feature-config` *(def: `feature_config.yaml`)* |
+| `make evaluate` | Step 3: Run AI/ML scoring metrics | `--eval-config` *(def: `eval_config.yaml`)*<br>`--feature-config` *(def: `feature_config.yaml`)* |
+| `make thresholds` | Step 4: Check clinical safety | Currently hardcoded: <br> `feature_config.yaml` & `threshold_config.yaml`                      |
 | `make validate` | Step 5: Audit specific patient cases | Currently uses hardcoded: <br> `cases.csv`                                       |
 | `make all` | Runs Steps 1 through 5 sequentially | Same `ARGS` to ALL scripts 
 
