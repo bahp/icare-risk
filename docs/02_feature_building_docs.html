@@ -35,7 +35,7 @@
         <h2 id="base-features">Phase 1: Base Features (Time-Series Cleaning)</h2>
         <p>This section of the YAML file handles raw numbers that change over time (like heart rate, blood pressure, or temperature). It fixes missing data and calculates trends automatically using the logic inside <code>features.py</code>.</p>
 
-        <pre><code>base_features:
+        <pre><code class="language-yaml">base_features:
   hr:
     impute: 'ffill'
     missing_indicator: false
@@ -62,7 +62,7 @@
         <h2 id="computed-features">Phase 2: Computed Features (Fast Math)</h2>
         <p>Once the base features are clean, we can perform basic math on them. This section uses the Pandas <code>df.eval()</code> engine, which allows you to write simple math equations as plain text strings.</p>
 
-        <pre><code>computed_features:
+        <pre><code class="language-yaml">computed_features:
   # Simple division for clinical ratios
   shock_index: "hr / sbp"
 
@@ -78,7 +78,7 @@
         <h2 id="custom-features">Phase 3: Custom Features (Phenotypes)</h2>
         <p>A "Phenotype" is a clinical state. We cannot use simple math to find out if a patient has "Metastatic Cancer" or "Diabetes". We have to search through text, pharmacy records, and billing codes (ICD-10).</p>
 
-        <pre><code>custom_features:
+        <pre><code class="language-yaml">custom_features:
   hx_mi: # This will be the name of the new column (History of Myocardial Infarction)
     module: 'src.phenotypes'
     function: 'derive_historical_condition'
@@ -101,7 +101,7 @@
         <h2 id="custom-scores">Phase 4: Final Clinical Scores</h2>
         <p>This is the top of the pyramid. Now that we have clean vitals, computed math, and complex 1/0 phenotypes, we can calculate validated medical scores (like Charlson Comorbidity Index or INCREMENT-ESBL).</p>
 
-        <pre><code>custom_scores:
+        <pre><code class="language-yaml">custom_scores:
   charlson_quan_score:
     module: 'src.scores'
     function: 'calculate_charlson_quan'
@@ -120,7 +120,7 @@
 
         <h3>Step 1: Update <code>feature_config.yaml</code></h3>
         <p>First, we need to make sure Creatinine is being processed as a base feature, and then we declare our new custom phenotype.</p>
-        <pre><code># 1. Add Creatinine to Base Features so we get rolling windows
+        <pre><code class="language-yaml"># 1. Add Creatinine to Base Features so we get rolling windows
 base_features:
   creatinine:
     impute: 'ffill'
@@ -139,7 +139,7 @@ custom_features:
 
         <h3>Step 2: Write the Logic in <code>src/phenotypes.py</code></h3>
         <p>Next, we open <code>phenotypes.py</code> and write the <code>derive_aki_status</code> function. We will use the built-in helper functions to keep the code clean and fast.</p>
-        <pre><code>def derive_aki_status(df, **kwargs):
+        <pre><code class="language-python">def derive_aki_status(df, **kwargs):
     """
     Derives Acute Kidney Injury (1=Yes, 0=No).
     Logic: ICD-10 code 'N17' OR Creatinine > 1.5.
@@ -220,7 +220,7 @@ custom_features:
         <h3>2. <code>scores.py</code> (The Rule Engine)</h3>
         <p>This file only does math. <strong>Do not search for ICD-10 codes here</strong>.</p>
         <p>This file relies heavily on a custom function called <code>evaluate_score</code>. It allows you to build a transparent "rulebook" for a clinical score. For example, the INCREMENT-ESBL score is defined simply as a list of rules:</p>
-        <pre><code>rules = [
+        <pre><code class="language-yaml">rules = [
     {'desc': 'Age > 50', 'col': age_col, 'condition': df[age_col] > 50, 'points': 3},
     {'desc': 'Charlson > 3', 'col': charlson_col, 'condition': df[charlson_col] > 3, 'points': 4},
 ]
@@ -242,6 +242,8 @@ return evaluate_score(df, rules, score_name, verbose, logger)</code></pre>
         <a href="#tutorial">5. Tutorial: Adding a New Feature</a>
         <a href="#python-backend">6. Python Backend Logic</a>
     </div>
+
+    <script src="theme-engine.js"></script>
 
 </body>
 </html>

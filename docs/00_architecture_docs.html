@@ -17,23 +17,34 @@
             <li><a href="04_pipeline_evaluation_docs.html">Pipeline Evaluation</a></li>
             <li><a href="05_validation_docs.html">Validation & Testing</a></li>
         </ul>
+        <button id="theme-toggle" class="theme-toggle-btn">
+            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <span id="theme-text">Dark Mode</span>
+        </button>
     </div>
 
     <div class="content">
         <h1>Pipeline Architecture & Orchestration</h1>
-        <p>This document outlines the consolidated folder structure of the DM-ESBL clinical validation pipeline and explains how to utilize the unified cross-platform automation suite to execute workflows seamlessly.</p>
+        <p>This document outlines the consolidated folder structure of the DM-ESBL
+            clinical validation pipeline and explains how to utilize the unified
+            cross-platform automation suite to execute workflows seamlessly.</p>
 
         <h2 id="quick-start">Environment Initialization</h2>
-        <p>Before running any pipeline steps, initialize the isolated container infrastructure. This ensures all dependencies, libraries, and python environments match production standards exactly, eliminating cross-platform configuration errors.</p>
-        <div class="terminal" style="background-color: #212529; color: #f8f9fa; padding: 15px; border-radius: 4px; font-family: monospace; margin-bottom: 20px;">
-            <span style="color: #6c757d;"># Clone, build, and launch the isolated pipeline container network in detached mode</span><br>
-            <span style="color: #20c997;">$</span> docker-compose up -d --build
-        </div>
-        <p>Once the container status is active, you can utilize the orchestration suite below to run commands directly inside the containerized system environment.</p>
+        <p>Before running any pipeline steps, initialize the isolated container
+            infrastructure. This ensures all dependencies, libraries, and python
+            environments match production standards exactly, eliminating cross-platform
+            configuration errors.</p>
+         <pre><code class="language-bash"># Clone, build, and launch the isolated pipeline container network in detached mod
+ docker-compose up -d --build</code></pre>
+        <p>Once the container status is active, you can utilize the orchestration
+            suite below to run commands directly inside the containerized system
+            environment.</p>
         <hr style="border-top: 1px solid #dee2e6; margin: 25px 0;">
 
         <h2 id="folder-structure">1. Folder Structure</h2>
-        <p>The project strictly separates configuration blueprints, core modular logic, execution dispatchers, and generated artifacts to ensure complete auditability, reproducibility, and isolation of experimental setups.</p>
+        <p>The project strictly separates configuration blueprints, core modular logic,
+            execution dispatchers, and generated artifacts to ensure complete auditability,
+            reproducibility, and isolation of experimental setups.</p>
 
 <pre>
 <span class="folder">dm-esbl/</span>
@@ -148,7 +159,7 @@
 
         <h3>A. Containerized Environment (Default Workflow)</h3>
         <p>By default, executing automation targets directly routes code execution into the isolated pipeline container. This enforces isolation of software environments, paths, and package models across target environments.</p>
-        <pre><code># Initial boot setup
+        <pre><code class="language-bash"># Initial boot setup
 docker-compose up -d --build
 
 # Subsequent execution targets process automatically within the active container infrastructure
@@ -157,7 +168,7 @@ make features</code></pre>
 
         <h3>B. Native Host Environments (The Local Toggle)</h3>
         <p>To run directly inside local development terminal settings (bypassing container runtimes), append the explicit keyword indicator <code>local</code> to any automation command. This switches execution directly back to local machine Python configurations.</p>
-        <pre><code># Execution utilizes localized paths, dependencies, and resources
+        <pre><code class="language-bash"># Execution utilizes localized paths, dependencies, and resources
 make generate local
 .\make.bat features local</code></pre>
 
@@ -167,11 +178,11 @@ make generate local
         <h3>Execution Formatting Patterns</h3>
         <ul>
             <li><strong>Unix Systems (via the ARGS environment variable pass-through block):</strong>
-                <pre><code>make generate ARGS="--config experimental_data_blueprint.yaml"
+                <pre><code class="language-bash">make generate ARGS="--config experimental_data_blueprint.yaml"
 make evaluate local ARGS="--eval-config strict_sepsis_matrix.yaml"</code></pre>
             </li>
             <li><strong>Windows Platforms (via sequential string argument chain wrapping):</strong>
-                <pre><code>.\make.bat generate --config experimental_data_blueprint.yaml
+                <pre><code class="language-bash">.\make.bat generate --config experimental_data_blueprint.yaml
 .\make.bat evaluate local --eval-config strict_sepsis_matrix.yaml</code></pre>
             </li>
         </ul>
@@ -186,6 +197,9 @@ make evaluate local ARGS="--eval-config strict_sepsis_matrix.yaml"</code></pre>
         <a href="#environments">3. Runtime Environments</a>
         <a href="#parameterization">4. Argument Injection</a>
     </div>
+
+    <script src="theme-engine.js"></script>
+</body>
 
 </body>
 </html>

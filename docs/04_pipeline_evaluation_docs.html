@@ -35,7 +35,7 @@
         <h2 id="global-settings">1. Global Settings (The Target)</h2>
         <p>This section defines the core rules of the experiment. What are we trying to predict, and how are we measuring success?</p>
 
-        <pre><code>experiment:
+        <pre><code class="language-yaml">experiment:
   target_label: 'ground_truth'
   scores_to_evaluate: 'all'
   metrics_to_compute: 'all'</code></pre>
@@ -51,7 +51,7 @@
         <h2 id="time-slices">2. Time-Slice Strategies</h2>
         <p>A patient's health changes drastically from Day 1 to Day 5. Therefore, a clinical score's accuracy also changes! We evaluate the scores at specific "snapshots" in time.</p>
 
-        <pre><code>time_slices:
+        <pre><code class="language-yaml">time_slices:
   admission:
     run: true
     plots_to_generate: ['roc_curve', 'pr_curve']
@@ -74,7 +74,7 @@
         <h2 id="longitudinal">3. Longitudinal Analyses (Performance Over Time)</h2>
         <p>Instead of single snapshots, what if we want to see a line graph showing how the AUROC degrades or improves over an entire week?</p>
 
-        <pre><code>longitudinal:
+        <pre><code class="language-yaml">longitudinal:
   auroc_over_time:
     run: true
     bin_hours: 24
@@ -91,7 +91,7 @@
             <strong>⚙️ How it Works:</strong> The Python engine reads your filters and translates string operators (like <code>">="</code>) into actual math (like <code>operator.ge</code>) to slice the dataset before evaluating.
         </div>
 
-        <pre><code>subgroup_analysis:
+        <pre><code class="language-yaml">subgroup_analysis:
   run: true
   cohorts:
     - name: "Elderly Diabetics"
@@ -111,7 +111,7 @@
 
         <h2 id="outputs">5. Running the Script & Understanding Outputs</h2>
         <p>Once your YAML is configured, simply run:</p>
-        <pre><code>python -m scripts.03_evaluate_scores_v2</code></pre>
+        <pre><code>python -m scripts.03_evaluate_scores</code></pre>
 
         <h3>Where do the files go?</h3>
         <p>The <code>src/metrics.py</code> engine automatically sanitizes your cohort names (turning "Elderly (>= 65)" into "elderly_65") and saves everything into an organized <code>outputs/</code> folder.</p>
@@ -142,6 +142,8 @@
         <a href="#subgroups">5. Subgroup Stratification</a>
         <a href="#outputs">6. Understanding Outputs</a>
     </div>
+
+    <script src="theme-engine.js"></script>
 
 </body>
 </html>

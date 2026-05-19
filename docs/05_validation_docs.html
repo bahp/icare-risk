@@ -50,7 +50,7 @@
 
         <h3>Execution</h3>
         <p>To run the validation test, execute the following command from your project root:</p>
-        <pre><code>python -m scripts.05_validate_scores</code></pre>
+        <pre><code class="language-bash">python -m scripts.05_validate_scores</code></pre>
 
         <hr>
 
@@ -112,7 +112,7 @@
         <h4>Step 1: Define the Mock Scenario</h4>
         <p>Create a small DataFrame with "Edge Cases" (values exactly at the threshold). For a SBP threshold of 90 mmHg, test 89, 90, and 91.</p>
 
-        <pre><code>def test_is_hypotensive_logic():
+        <pre><code class="language-python">def test_is_hypotensive_logic():
     # Setup data with edge cases
     data = pd.DataFrame({
         'sbp': [89, 90, 120]
@@ -150,6 +150,8 @@
         <a href="#generation">5. How Data is Created</a>
         <a href="#running">6. Running the Tool</a>
     </div>
+
+    <script src="theme-engine.js"></script>
 
 </body>
 </html>

@@ -283,7 +283,8 @@ pre code {
    ========================================================================== */
 
 .note, .advanced, .success, .danger {
-    padding: 20px 24px;
+    position: relative;
+    padding: 20px 24px 20px 56px; /* Extra left padding makes room for the icon */
     margin: 30px 0;
     border-radius: 8px;
     border-left: 4px solid;
@@ -291,30 +292,60 @@ pre code {
     box-shadow: var(--shadow-sm);
 }
 
+/* Base Icon Styling */
+.note::before, .advanced::before, .success::before, .danger::before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 21px; /* Aligns perfectly with the first line of text */
+    width: 20px;
+    height: 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+/* 1. Note (Blue Info Circle) */
 .note {
     background-color: #eff6ff;
     border-left-color: var(--secondary-color);
     color: #1e40af;
 }
+.note::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e40af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='16' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='8' x2='12.01' y2='8'%3E%3C/line%3E%3C/svg%3E");
+}
 
+/* 2. Advanced (Amber Lightbulb) */
 .advanced {
     background-color: #fffbeb;
     border-left-color: var(--accent-color);
     color: #92400e;
 }
+.advanced::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2392400e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18h6'%3E%3C/path%3E%3Cpath d='M10 22h4'%3E%3C/path%3E%3Cpath d='M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.45.62 2.72 1.5 3.5.76.76 1.23 1.52 1.41 2.5'%3E%3C/path%3E%3C/svg%3E");
+}
 
+/* 3. Success (Emerald Checkmark) */
 .success {
     background-color: #ecfdf5;
     border-left-color: var(--success-color);
     color: #065f46;
 }
+.success::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23065f46' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 11.08V12a10 10 0 1 1-5.93-9.14'%3E%3C/path%3E%3Cpolyline points='22 4 12 14.01 9 11.01'%3E%3C/polyline%3E%3C/svg%3E");
+}
 
+/* 4. Danger (Red Exclamation Triangle) */
 .danger {
     background-color: #fef2f2;
     border-left-color: var(--danger-color);
     color: #991b1b;
 }
+.danger::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23991b1b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z'%3E%3C/path%3E%3Cline x1='12' y1='9' x2='12' y2='13'%3E%3C/line%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3C/svg%3E");
+}
 
+/* Bold text inside callouts match the box colors perfectly */
 .note strong, .advanced strong, .success strong, .danger strong {
     font-weight: 700;
     letter-spacing: -0.01em;
@@ -409,4 +440,62 @@ tr:hover td {
         display: block;
         margin-bottom: 8px;
     }
+}
+
+/* ==========================================================================
+   THEME TOGGLE BUTTON
+   ========================================================================== */
+.theme-toggle-btn {
+    width: 100%;
+    margin-top: 30px;
+    padding: 10px 15px;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    border: 1px solid var(--border-dark);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+    background-color: var(--border-light);
+}
+
+/* ==========================================================================
+   DARK MODE OVERRIDES (Triggered by JavaScript)
+   ========================================================================== */
+body.dark-mode {
+    /* Swap to Midnight Slate Backgrounds */
+    --bg-page: #0f172a;
+    --bg-sidebar: #1e293b;
+    --border-light: #334155;
+    --border-dark: #475569;
+
+    /* Invert Typography */
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    --primary-color: #f8fafc;
+
+    /* Brighten accents */
+    --secondary-color: #60a5fa;
+    --secondary-hover: #93c5fd;
+
+    /* Deepen code blocks (Prism.js will handle the inner colors) */
+    --code-bg: #000000;
+    --code-inline-bg: #334155;
+    --code-inline-text: #38bdf8;
+}
+
+body.dark-mode th, body.dark-mode .pipeline-table th { background-color: #1e293b; color: var(--text-main); }
+body.dark-mode tr:hover td { background-color: #1e293b; }
+body.dark-mode .pipeline-table .highlight-row td {
+    background-color: #0f172a;
+    color: var(--secondary-color);
 }

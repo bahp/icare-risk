@@ -27,7 +27,7 @@
 
         <div class="note">
             <strong>💡 For Dummies:</strong> Think of this tool as a factory. The
-            <code>data_config.yaml</code> file is the <strong>recipe book</strong> that tells the
+            <code class="language-yaml">data_config.yaml</code> file is the <strong>recipe book</strong> that tells the
             factory what to build. The Python scripts are the <strong>machines</strong> that actually
             build it.
         </div>
@@ -38,7 +38,7 @@
         <p>At the very top of your <code>data_config.yaml</code> file, you will find the
             <code>generation_params</code>. This dictates the size and scope of your fake
             hospital.</p>
-        <pre><code>generation_params:
+        <pre><code class="language-yaml">generation_params:
     n_patients: 100         # How many fake patients to create
     days: 10                # How many days of data to simulate
     freq: '4h'              # How often to check vitals (every 4 hours)
@@ -78,7 +78,7 @@
 
         <h3 id="map-to">B. The `map_to` Keyword (The Translator)</h3>
         <p>In <code>eav_timeseries</code> tables (like vitals or lab results), the generator produces raw data first. You use <code>map_to</code> to tell the generator exactly which column in your final CSV should hold which piece of data.</p>
-        <pre><code>OBSERVATION_CODE:
+        <pre><code class="language-yaml">OBSERVATION_CODE:
   map_to: "concept.code"  # Takes the LOINC code from the dictionary
 OBSERVATION_NAME:
   map_to: "concept.name"  # Takes the human-readable name
@@ -92,7 +92,7 @@ OBSERVATION_RESULT_CLEAN:
 
         <h4>1. The Combo Meal: <code>categorical_tuple</code></h4>
         <p>This is crucial for clinical accuracy. If a patient has diabetes, their diagnosis code should always match the description. If you generated them separately, you might accidentally give a patient an Asthma code with a Diabetes description. A <code>categorical_tuple</code> locks them together.</p>
-        <pre><code>PROBLEM_TUPLE:
+        <pre><code class="language-yaml">PROBLEM_TUPLE:
   type: "categorical_tuple"
   columns: [ "PROBLEM_CODE", "PROBLEM_DESC" ] # The columns to create
   values:
@@ -103,7 +103,7 @@ OBSERVATION_RESULT_CLEAN:
 
         <h4>2. Time Travel Prevention: <code>date</code> and <code>date_offset</code></h4>
         <p>Medical data must follow a timeline. You can't resolve a medical problem before you've diagnosed it. The generator uses offsets to enforce this logic.</p>
-        <pre><code>PROBLEM_DT_TM:
+        <pre><code class="language-yaml">PROBLEM_DT_TM:
   type: "date"
   start: "2020-01-01"
   end: "2024-01-01"  # Picks a random baseline date in this window.
@@ -116,7 +116,7 @@ UPDATE_DT_TM:
 
         <h4>3. The V.I.P. Pass: <code>foreign_key</code></h4>
         <p>This is how tables talk to each other. If you generate a prescription, it needs to belong to a valid hospital visit.</p>
-        <pre><code>ENCNTR_ID:
+        <pre><code class="language-yaml">ENCNTR_ID:
   type: "foreign_key"
   source_table: "ICARE_EPISODES_ANON"</code></pre>
         <p>This tells the script: <em>"Go look at the Episodes table, find a valid Encounter ID for this specific patient, and paste it here."</em></p>
@@ -204,7 +204,7 @@ UPDATE_DT_TM:
         <h2 id="running">7. Running the Tool</h2>
         <p>Use the unified orchestration suite to execute data generation. This will automatically route through Docker (or run locally if specified) and output your CSVs to a timestamped folder in <code>data/synthetic/</code>.</p>
 
-        <pre><code># Default (Runs in Docker Container)
+        <pre><code class="language-bash"># Default (Runs in Docker Container)
 make generate
 
 # Native Execution (Runs on Host CPU)
@@ -222,6 +222,8 @@ make generate local</code></pre>
         <a href="#generation">6. How Data is Created</a>
         <a href="#running">7. Running the Tool</a>
     </div>
+
+    <script src="theme-engine.js"></script>
 
 </body>
 </html>
