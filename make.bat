@@ -24,6 +24,8 @@ if "%1"=="validate" goto validate
 if "%1"=="search" goto search
 if "%1"=="test" goto test
 if "%1"=="clean" goto clean
+if "%1"=="build-pkg" goto build_pkg
+if "%1"=="test-pkg" goto test_pkg
 goto menu
 
 :menu
@@ -39,12 +41,14 @@ echo   6. validate   - Step 5: Run Clinical Audit (cases.csv)
 echo   7. search     - Discover Clinical Codes (Keywords)
 echo   8. test       - Run Pytest Suite
 echo   9. clean      - Remove old reports
+echo   10. build-pkg - Build PyPI Package
+echo   11. test-pkg  - Verify Package in Isolated Venv
 echo   0. exit       - Close the manager
 echo ============================================================
 echo NOTE: Commands run in Docker by default.
 echo       To run locally, type: make.bat generate local
 echo ============================================================
-set /p choice="Enter choice (0-9): "
+set /p choice="Enter choice (0-11): "
 
 if "%choice%"=="1" goto all
 if "%choice%"=="2" goto generate
@@ -55,6 +59,8 @@ if "%choice%"=="6" goto validate
 if "%choice%"=="7" goto search
 if "%choice%"=="8" goto test
 if "%choice%"=="9" goto clean
+if "%choice%"=="10" goto build_pkg
+if "%choice%"=="11" goto test_pkg
 if "%choice%"=="0" goto :eof
 goto menu
 
@@ -118,4 +124,51 @@ if exist reports\*.log del /q reports\*.log
 if exist reports\*.txt del /q reports\*.txt
 echo Done.
 timeout /t 2 >nul
+goto :eof
+
+:publish
+echo Tagging and triggering PyPI release...
+:: Get current date/time parts for Windows
+for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set dt=%%I
+set TAG=v%dt:~0,4%.%dt:~4,2%.%dt:~6,2%.%dt:~8,2%
+git tag %TAG%
+git push origin %TAG%
+echo Release %TAG% pushed!
+goto :eof
+
+
+:build_pkg
+echo.
+echo --- Building PyPI Package ---
+%RUN% python -m build
+goto :eof
+
+:test_pkg
+call :build_pkg
+echo.
+echo --- 1. Creating Isolated Venv ---
+%RUN% python -m venv /tmp/pkg_test_venv
+%RUN% /tmp/pkg_test_venv/bin/pip install --upgrade pip --quiet
+if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+echo.
+echo --- 2. Installing Built Wheel ---
+%RUN% bash -c "/tmp/pkg_test_venv/bin/pip install dist/*.whl"
+if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+echo.
+echo --- 3. Running Import Smoke Test ---
+%RUN% bash -c "cd /tmp && /tmp/pkg_test_venv/bin/python -c 'import src; import scripts'"
+if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+echo ✅ Modules imported successfully from wheel!
+
+echo.
+echo --- 4. Running Pytest Suite ---
+%RUN% bash -c "cd /tmp && /tmp/pkg_test_venv/bin/pytest /app/tests/"
+if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+echo.
+echo --- 5. Cleaning Up ---
+%RUN% rm -rf /tmp/pkg_test_venv
+echo ✅ Package verification complete!
 goto :eof

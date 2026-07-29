@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel", "setuptools_scm[toml]>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "icare-risk-metrics"
+dynamic = ["version"]
+description = "Clinical pipeline package for secure environment deployment"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "pandas",
+    "numpy",
+    "PyYAML",
+    "scikit-learn",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "scripts*"]  # This includes both your source code and scripts folder
+
+[tool.setuptools_scm]
+fallback_version = "0.0.0-dev"
