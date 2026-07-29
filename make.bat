@@ -139,6 +139,8 @@ goto :eof
 
 :build_pkg
 echo.
+echo --- Cleaning old distribution files ---
+if exist dist\* del /q dist\*
 echo --- Building PyPI Package ---
 %RUN% python -m build
 goto :eof

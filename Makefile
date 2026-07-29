@@ -95,6 +95,11 @@ build-pkg:
 	$(RUN) python -m build
 
 test-pkg: build-pkg
+	@echo "\n--- Cleaning old distribution files ---"
+	rm -rf dist/*
+	@echo "\n--- Building PyPI Package (Wheel & Source) ---"
+	$(RUN) python -m build
+
 	@echo "\n--- 1. Creating Isolated Venv ---"
 	$(RUN) python -m venv /tmp/pkg_test_venv
 	$(RUN) /tmp/pkg_test_venv/bin/pip install --upgrade pip --quiet
