@@ -2,7 +2,7 @@
 # DATA SOURCE CONFIGURATION
 # =============================================================================
 # Set active source: "synthetic" or "external"
-data_source: "external"
+data_source: "synthetic"
 
 paths:
   synthetic_dir: "data/synthetic"

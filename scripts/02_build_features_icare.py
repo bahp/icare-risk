@@ -17,6 +17,27 @@ from src.utils import get_latest_data_dir
 
 
 
+class LazyContextDict(dict):
+    """
+    A smart dictionary that automatically loads CSVs into pandas DataFrames
+    only when they are explicitly requested by a feature extractor.
+    """
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        # If the value is a Path object, load it on demand!
+        if isinstance(value, Path):
+            if value.exists():
+                print(f"📂 [Lazy Load] Reading context table: {key}")
+                df = pd.read_csv(value)
+                super().__setitem__(key, df) # Cache it so we only read it once
+                return df
+            else:
+                return pd.DataFrame() # Return empty if file is missing
+        return value
+
+
+
+
 def prepare_icare_ts(df_vitals, df_labs, data_config):
     """Pivots ICARE tables using names defined in clinical_concepts."""
 
@@ -78,9 +99,9 @@ def main():
     try:
         df_episodes = pd.read_csv(latest_data_dir / 'icare_episodes_anon.csv')
         df_vitals = pd.read_csv(latest_data_dir / 'icare_vital_signs_anon.csv',
-                parse_dates=['OBSERVATION_PERFORMED_DT'])
-        df_labs = pd.read_csv(latest_data_dir / 'icare_pathology_blood_anon.csv', parse_dates=['SAMPLE_COLLECTED_DT'])
-        df_micro = pd.read_csv(latest_data_dir / 'icare_microbiology_anon.csv')
+            parse_dates=['OBSERVATION_PERFORMED_DT'])
+        df_labs = pd.read_csv(latest_data_dir / 'icare_pathology_blood_anon.csv',
+            parse_dates=['SAMPLE_COLLECTED_DT'])
         print("✅ Raw ICARE tables loaded successfully.")
     except FileNotFoundError as e:
         print(f"❌ Error: Could not find required CSV files: {e}")
@@ -97,15 +118,29 @@ def main():
     df_static = df_episodes.rename(columns={'SUBJECT': 'patient_id'})
     print(f"  -> Static (Episodes) rows: {len(df_static)}")
 
+
     # 4. Run Pipeline
-    config_path = project_root / 'config' / args.feature_config
+    """
     context = {
         'microbiology': pd.read_csv(latest_data_dir / 'icare_microbiology_anon.csv'),
         'pharmacy': pd.read_csv(latest_data_dir / 'icare_pharmacy_prescribing_anon.csv'),
         'episodes': df_episodes,
         'problems': pd.read_csv(latest_data_dir / 'icare_problems_anon.csv')
     }
+    """
 
+    context_paths = {
+        'microbiology': latest_data_dir / 'icare_microbiology_anon.csv',
+        'pharmacy': latest_data_dir / 'icare_pharmacy_prescribing_anon.csv',
+        'problems': latest_data_dir / 'icare_problems_anon.csv',
+        #'episodes': latest_data_dir / 'icare_episodes_anon.csv',
+        #'vitals': latest_data_dir / 'icare_vital_signs_anon.csv',
+        #'labs': latest_data_dir / 'icare_pathology_blood_anon.csv',
+        'episodes': df_episodes
+    }
+
+    context = LazyContextDict(context_paths)
+    config_path = project_root / 'config' / args.feature_config
     pipeline = FeaturePipeline(config_path=config_path, context_dfs=context)
 
     print("\n🚀 Starting Feature Pipeline...")
@@ -122,8 +157,13 @@ def main():
         output_file = processed_dir / 'features_engineered_icare.csv'
         final_features.to_csv(output_file, index=False)
 
+        try:
+            display_path = output_file.relative_to(project_root)
+        except ValueError:
+            display_path = output_file
+
         print(f"\n✨ SUCCESS! Engineered {final_features.shape[1]} features across {len(final_features)} rows.")
-        print(f"📍 Saved to: {output_file.relative_to(project_root)}")
+        print(f"📍 Saved to: {display_path}")
 
 
 if __name__ == "__main__":
