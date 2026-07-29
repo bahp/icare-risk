@@ -9,6 +9,7 @@ from datetime import datetime
 # Setup path so Python can find 'src'
 project_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_root))
+project_root = Path.cwd()
 
 from src.generators import generate_custom_table, generate_eav_timeseries
 
@@ -20,7 +21,7 @@ def main():
     parser.add_argument(
         '--config',
         type=str,
-        default='data_config_v2.yaml',  # Fallback if no parameter is passed
+        default='data_config.yaml',  # Fallback if no parameter is passed
         help='Name of the YAML config file located in the config/ directory'
     )
     args = parser.parse_args()
@@ -96,8 +97,12 @@ def main():
             file_name = f"{table_name.lower()}.csv"
             df_table.to_csv(data_dir / file_name, index=False)
 
-    print(f"\n✅ Success! All data saved dynamically to: {data_dir.relative_to(project_root)}")
+    try:
+        display_path = data_dir.relative_to(project_root)
+    except ValueError:
+        display_path = data_dir
 
+    print(f"\n✅ Success! All data saved dynamically to: {display_path}")
 
 if __name__ == "__main__":
     main()

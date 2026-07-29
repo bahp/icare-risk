@@ -91,7 +91,7 @@ publish:
 .PHONY: build-pkg test-pkg
 
 build-pkg:
-	@echo "\n--- 📦 Building PyPI Package (Wheel & Source) ---"
+	@echo "\n--- Building PyPI Package (Wheel & Source) ---"
 	$(RUN) python -m build
 
 test-pkg: build-pkg
@@ -99,16 +99,16 @@ test-pkg: build-pkg
 	$(RUN) python -m venv /tmp/pkg_test_venv
 	$(RUN) /tmp/pkg_test_venv/bin/pip install --upgrade pip --quiet
 
-	@echo "\n--- 2. Installing Built Wheel ---"
-	$(RUN) /tmp/pkg_test_venv/bin/pip install dist/*.whl
+	@echo "\n--- 2. Installing Built Wheel & Pytest ---"
+	$(RUN) /tmp/pkg_test_venv/bin/pip install dist/*.whl pytest
 
 	@echo "\n--- 3. Running Import Smoke Test ---"
 	$(RUN) bash -c "cd /tmp && /tmp/pkg_test_venv/bin/python -c 'import src; import scripts'"
-	@echo "✅ Modules imported successfully from wheel!"
+	@echo "Modules imported successfully from wheel!"
 
 	@echo "\n--- 4. Running Pytest Suite ---"
-	$(RUN) bash -c "cd /tmp && /tmp/pkg_test_venv/bin/pytest /app/tests/"
+	$(RUN) bash -c "cd /tmp && /tmp/pkg_test_venv/bin/pytest /app/tests/ -v"
 
 	@echo "\n--- 5. Cleaning Up ---"
 	$(RUN) rm -rf /tmp/pkg_test_venv
-	@echo "✅ Package verification complete!"
+	@echo "Package verification complete!"

@@ -1,53 +1,105 @@
 import sys
 import yaml
+import logging
 import pandas as pd
 from pathlib import Path
 
 # Setup path
-project_root = Path(__file__).resolve().parent.parent
+#project_root = Path(__file__).resolve().parent.parent
+#sys.path.append(str(project_root))
+
+# Setup path dynamically based on execution directory
+_cwd = Path.cwd()
+project_root = _cwd.parent if _cwd.name == 'src' else _cwd
 sys.path.append(str(project_root))
 
 from src.metrics import ClinicalEvaluator
 
+def load_data_config():
+    """Loads data_config.yaml dynamically relative to CWD or project root."""
+    config_path = Path.cwd() / 'config' / 'data_config.yaml'
+    if not config_path.exists():
+        config_path = project_root / 'config' / 'data_config.yaml'
+
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found at {config_path}")
+
+    with open(config_path, 'r') as file:
+        return yaml.safe_load(file)
+
+
 def get_latest_data_dir():
-    """Finds the most recently created folder in data/synthetic/"""
-    synthetic_dir = project_root / 'data' / 'synthetic'
+    """
+    Finds the most recently created raw data directory inside data/synthetic/
+    or data/external/ depending on the 'data_source' key in data_config.yaml.
+    """
+    config = load_data_config()
+    source = config.get('data_source', 'synthetic').lower()
+
+    # Determine base directory based on config
+    paths = config.get('paths', {})
+    if source == 'external':
+        rel_path = paths.get('external_dir', 'data/external')
+    else:
+        rel_path = paths.get('synthetic_dir', 'data/synthetic')
+
+    synthetic_dir = Path.cwd() / rel_path
+
     if not synthetic_dir.exists():
-        raise FileNotFoundError("No synthetic data found. Run 01_generate_data.py first.")
+        raise FileNotFoundError(
+            f"No [{source}] data root folder found at '{synthetic_dir}'. "
+            f"Please ensure '{rel_path}' exists."
+        )
 
     dirs = sorted([d for d in synthetic_dir.iterdir() if d.is_dir()])
     if not dirs:
-        raise FileNotFoundError("No synthetic data directories found.")
+        raise FileNotFoundError(
+            f"No timestamped directories found inside [{source}] folder: {synthetic_dir}"
+        )
 
-    return dirs[-1]
+    latest_dir = dirs[-1]
+    print(f"🔄 Active Data Source: [{source.upper()}] -> Reading from '{latest_dir.name}'")
+    return latest_dir
 
 
 def get_latest_processed_file():
-    """Finds the most recently processed dataset (any .csv file in the latest folder)."""
-    processed_dir = project_root / 'data' / 'processed'
-    if not processed_dir.exists():
-        raise FileNotFoundError("No processed data found. Run 02_build_features.py first.")
+    """Finds the most recently processed dataset (any .csv file in the latest processed folder)."""
+    config = load_data_config()
+    paths = config.get('paths', {})
 
+    # Resolve processed directory using config or default fallback
+    rel_processed_path = paths.get('processed_dir', 'data/processed')
+    processed_dir = Path.cwd() / rel_processed_path
+
+    if not processed_dir.exists():
+        raise FileNotFoundError(f"No processed data found at {processed_dir}. Run 02_build_features_icare.py first.")
+
+    # Check if files exist directly or inside subdirectories
+    csv_files = list(processed_dir.glob('*.csv'))
+
+    if csv_files:
+        # Flat structure: grab the latest modified CSV file in processed_dir
+        latest_file = max(csv_files, key=lambda x: x.stat().st_mtime)
+        print(f"📄 Loading processed dataset: '{latest_file.name}' from '{processed_dir.name}'")
+        return latest_file
+
+    # Nested structure: look inside timestamp subdirectories (e.g., data/processed/YYYY-MM-DD_HHMMSS/)
     dirs = sorted([d for d in processed_dir.iterdir() if d.is_dir()])
     if not dirs:
-        raise FileNotFoundError("No processed data directories found.")
+        raise FileNotFoundError(f"No processed data directories or CSV files found in {processed_dir}.")
 
     latest_dir = dirs[-1]
-    csv_files = list(latest_dir.glob('*.csv'))
+    csv_files_nested = list(latest_dir.glob('*.csv'))
 
-    if not csv_files:
+    if not csv_files_nested:
         raise FileNotFoundError(f"No CSV files found in the directory: {latest_dir}")
 
-    # Grab the first CSV file found
-    latest_file = csv_files[0]
-
-    # Log the file we are about to read
+    latest_file = csv_files_nested[0]
     print(f"📄 Loading processed dataset: '{latest_file.name}' from run '{latest_dir.name}'")
 
     return latest_file
 
 
-import logging
 
 def validate_required_columns(df,
                               required_cols,

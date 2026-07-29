@@ -10,6 +10,7 @@ from pathlib import Path
 # Setup path so Python can find 'src' and 'config'
 project_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_root))
+project_root = Path.cwd()
 
 from src.metrics import ClinicalEvaluator
 from src.utils import get_latest_processed_file

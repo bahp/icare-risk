@@ -51,7 +51,7 @@ def get_test_data():
 def test_charlson_logic(score_configs):
     """
     Validates Charlson Comorbidity Index weights.
-    Logic: Age 75 (+4 points) + Diabetes (1) + CKD (2) = 7
+    Logic: Age 75 (+3 points) + Diabetes (1) + CKD (2) = 6
     """
     # Use the 'charlson_score' block from your YAML
     kwargs = score_configs.get('charlson_score', {}).get('kwargs', {})
@@ -72,7 +72,7 @@ def test_charlson_logic(score_configs):
     # 75yo is 35 years over 40. 35 // 10 = 3 points.
     # If your formula uses (75-30)//10, it's 4. Check your scores.py logic!
     # Based on your comment 'expected 7', we assume 4 (age) + 1 (dm) + 2 (ckd)
-    assert result[0] == 7, f"Charlson Expected 7, got {result[0]}"
+    assert result[0] == 6, f"Charlson Expected 6, got {result[0]}"
     print("✅ Charlson Index test passed!")
 
 def test_charlson_quan_metastatic(score_configs):
@@ -133,14 +133,14 @@ def test_pitt_logic(score_configs):
     # Patient: Temp 34 (+2), Hypotension (+2), Vent (+2), Arrest (+4), Mental Status 1 (+1)
     # Total expected: 11
     data = pd.DataFrame({
-        'temp_24h_max': [34.0],      # 2 pts
-        'hypotension_flag': [1],     # 2 pts
-        'mech_vent_flag': [1],       # 2 pts
-        'cardiac_arrest_flag': [1],  # 4 pts
-        'mental_status_score': [1]   # 1 pts
+        'pitt_fever_status_score': [2],   # 2 pts
+        'pitt_hypotension_flag': [1],     # 2 pts
+        'pitt_mech_vent_flag': [1],       # 2 pts
+        'pitt_cardiac_arrest_flag': [1],  # 4 pts
+        'pitt_mental_status_score': [1]   # 1 pts
     })
     score = calculate_pitt_score(data, **kwargs)[0]
-    assert score == 5, f"Expected 5, got {score}. Pitt math is incorrect."
+    assert score == 11, f"Expected 11, got {score}. Pitt math is incorrect."
 
 
 def test_sirs_logic(score_configs):
@@ -632,7 +632,7 @@ def run_all_tests():
 # 2. Automated Validation from CSV
 # -----------------------------------------------------------------------------
 
-@pytest.mark.parametrize("index, row", get_test_data().iterrows())
+@pytest.mark.parametrize("index, row", list(get_test_data().iterrows()))
 def test_all_scores_from_csv(index, row, score_configs):
     """
     Loops through cases.csv. For each patient, dynamically loads kwargs

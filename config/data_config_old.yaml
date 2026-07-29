@@ -1,0 +1,249 @@
+# config/data_config_old.yaml
+
+# =============================================================================
+# SYNTHETIC DATA GENERATOR CONFIGURATION
+# =============================================================================
+# This file acts as the "DNA" for the synthetic patient cohort. The
+# 01_generate_data.py script reads these rules to build realistic, messy
+# Electronic Health Record (EHR) data without requiring manual Python loops.
+
+# -----------------------------------------------------------------------------
+# 1. PRIMARY KEY
+# The unique identifier used to link the static demographics table with the
+# time-series vitals/labs table.
+# -----------------------------------------------------------------------------
+primary_key: "patient_id"
+
+# -----------------------------------------------------------------------------
+# 2. GENERATION PARAMETERS
+# Controls the overall size, length, and "messiness" of the generated dataset.
+# - n_patients: Total number of unique patient profiles to create.
+# - days: How many days of hospital stay to simulate per patient.
+# - freq: How often time-series measurements (vitals/labs) are taken.
+# - default_missing_rate: The baseline probability that a time-series reading
+#   is skipped/missing (simulating real-world EHR dropouts).
+# -----------------------------------------------------------------------------
+generation_params:
+  n_patients: 100
+  days: 10
+  freq: '4h'
+  output_format: 'tidy'
+  default_missing_rate: 0.5
+
+# -----------------------------------------------------------------------------
+# 3. DEMOGRAPHICS SCHEMA (STATIC DATA)
+# Defines the static, non-time-varying characteristics of the patients.
+# The generator will randomly sample from these ranges and lists to create
+# the `df_static` table.
+# -----------------------------------------------------------------------------
+demographics_schema:
+  patient_id:
+    type: "string"
+    prefix: "P-"
+  age:
+    type: 'int'
+    range: [18, 95]
+  sex:
+    type: 'enumerated'
+    values: ['M', 'F']
+  unit_type:
+    type: 'enumerated'
+    values: ['MICU', 'SICU', 'CCU', 'General Floor']
+  admission_source:
+    type: 'enumerated'
+    values: ['Emergency', 'Transfer', 'Clinic', 'Direct Admit']
+  weight:
+    type: 'float'
+    range: [50.0, 150.0]
+  bsi_source:
+    type: 'enumerated'
+    values: [ 'Urinary', 'Respiratory', 'Intra-abdominal', 'Catheter', 'Unknown' ]
+  microorganism:
+    type: 'enumerated'
+    values: [ 'E. coli', 'Klebsiella spp.', 'Enterobacter spp.', 'Other ESBL' ]
+
+# -----------------------------------------------------------------------------
+# 4. CONDITIONS (COMORBIDITIES)
+# Defines binary (1/0) medical history flags. The generator will use these to
+# populate prior history or assign specific ICD-10 codes (defined in
+# icd_config.yaml) to the patient's record.
+# -----------------------------------------------------------------------------
+# Binary Conditions (Boolean/Int)
+conditions:
+  # General comorbidities
+  diabetes: 0.20
+  hypertension: 0.30
+  ckd: 0.15
+  copd: 0.15
+  malignancy: 0.10
+  asthma: 0.3
+  mech_vent: 0.3
+  cardiac_arrest: 0.3
+  inappropriate_abx: 0.3
+  vasopressor_use: 0.3
+  hypotension: 0.3
+  mental_status_score: 0.3 # 0, 1, 2, or 4 for Pitt Score
+
+  # Palacios-Baena Score Specifics
+  abx_inappropriate_flag: 0.5  # 50$ of cohort had inappropriate abx
+  is_non_ecoli: 0.5            # 50% of cohort had ecoli
+
+  # Holmgren Score Specifics (Low-resistance setting probabilities)
+  hosp_abroad_12m: 0.05        # 5% of patients were hospitalized abroad
+  prev_3gcr_culture: 0.03      # 3% have a history of 3GCR in blood/urine
+  prev_3gcr_rectal_swab: 0.02  # 2% have a positive rectal swab
+
+  # Gavaghan 2025 Specifics
+  prior_esbl_365d: 0.08          # 8% of cohort had prior ESBL
+  nursing_home_resident: 0.12    # 12% from long-term care
+  urinary_catheter_present: 0.20 # 20% have indwelling catheters
+  prior_f_c_abx_90d: 0.15        # 15% had specific high-risk abx exposure
+
+  # Jones 2025 Specifics (Non-Urinary Isolate Risk)
+  prior_esbl_180d: 0.06      # History of ESBL in last 6 months
+  prior_abx_30d: 0.25        # Very recent antibiotic exposure
+  chronic_dialysis: 0.04     # Patients on dialysis
+  transfer_from_hosp: 0.08   # Inter-hospital transfers
+
+  # Tumbarello/Utrech,Stockholm 2019 Specifics
+  prior_esbl_history: 0.07        # History of ESBL colonization
+  hosp_last_90d: 0.15             # Recent hospitalization
+  abx_last_90d: 0.20              # Recent beta-lactam/quinolone use
+  #urinary_catheter_present: 0.10 # !!! Previously defined, here for completeness.
+
+  # Kim 2019 Specifics
+  #prior_esbl_history: 0.07
+  hosp_last_1y: 0.20              # Korean study looked at 1-year window
+  #nursing_home_resident: 0.10    # !!! Previously defined, here for completeness.
+  #urinary_catheter_present: 0.15 # !!! Previously defined, here for completeness.
+  prior_abx_90d: 0.25
+
+# -----------------------------------------------------------------------------
+# 5. TIME-SERIES CONFIGURATION (DYNAMIC DATA)
+# Defines the clinical vitals and lab results that change over time.
+# The generator creates the `df_ts` table based on these rules.
+# - range: The realistic physiological boundaries for the generated numbers.
+# - prob: The likelihood that this specific test is ordered/measured at any
+#   given time interval. (e.g., hr is checked 95% of the time, temp only 33%).
+# -----------------------------------------------------------------------------
+# Time-series Vitals & Labs Schema
+ts_config:
+  hr:
+    type: 'float'
+    unit: 'bpm'
+    prob: 0.95
+    range: [30.0, 250.0]  # Realistic clinical bounds
+  rr:
+    type: 'float'
+    unit: 'br/min'
+    prob: 0.90
+    range: [6.0, 60.0]
+  o2sat:
+    type: 'float'
+    unit: '%'
+    prob: 0.90
+    range: [50.0, 100.0]  # Cannot exceed 100%
+  temp:
+    type: 'float'
+    unit: 'C'
+    prob: 0.33
+    range: [32.0, 42.0]
+
+  # --- Hemodynamics ---
+  sbp:
+    type: 'float'
+    unit: 'mmHg'
+    prob: 0.80
+    range: [ 40.0, 250.0 ]
+  dbp:
+    type: 'float'
+    unit: 'mmHg'
+    prob: 0.80
+    range: [ 20.0, 150.0 ]
+  map:
+    type: 'float'
+    unit: 'mmHg'
+    prob: 0.80
+    range: [ 30.0, 200.0 ]
+
+  # --- Infection & Metabolic Labs ---
+  lactate:
+    type: 'float'
+    unit: 'mmol/L'
+    prob: 0.05
+    range: [ 0.5, 20.0 ]
+  crp:
+    type: 'float'
+    unit: 'mg/L'
+    prob: 0.10
+    range: [ 0.0, 300.0 ]
+  wbc:
+    type: 'float'
+    unit: 'K/uL'
+    prob: 0.15
+    range: [ 0.1, 100.0 ]
+
+  # --- Organ Function Labs (SOFA Score Requirements) ---
+  creatinine:
+    type: 'float'
+    unit: 'mg/dL'
+    prob: 0.20
+    range: [ 0.3, 15.0 ]
+  bilirubin:
+    type: 'float'
+    unit: 'mg/dL'
+    prob: 0.10
+    range: [ 0.1, 40.0 ]
+  platelets:
+    type: 'float'
+    unit: 'K/uL'
+    prob: 0.15
+    range: [ 10.0, 1000.0 ]
+
+  # --- Neurological ---
+  gcs:
+    type: 'int'
+    unit: 'points'
+    prob: 0.40
+    range: [ 3, 15 ]
+
+
+# Add this to your existing data_config_old.yaml
+
+tables:
+  ICARE_EPISODES_ANON:
+    # How many episodes/rows a single patient might have
+    rows_per_patient_range: [1, 4]
+    schema:
+      SUBJECT:
+        type: "foreign_key"      # Links back to the static demographics ID
+      SPELL_IDENTIFIER:
+        type: "unique_id"        # Generates a random integer ID
+      ENCNTR_ID:
+        type: "unique_id"
+      EPISODE_IDENTIFIER:
+        type: "unique_id"
+      ADMISSION_DATE:
+        type: "date"
+        start: "2020-01-01"
+        end: "2024-01-01"
+      ADMISSION_TIME:
+        type: "time"
+      AGE_AT_ADMISSION:
+        type: "int"
+        range: [18, 95]          # Could also be derived from demographics later
+      DISCHARGE_DATE:
+        type: "date_offset"      # Ensures discharge is after admission
+        base_col: "ADMISSION_DATE"
+        days_range: [1, 30]
+      MAIN_SPECIALTY:
+        type: "categorical_tuple" # Ensures the code and desc match
+        columns: ["MAIN_SPECIALTY_CODE", "MAIN_SPECIALTY_CODE_DESC"]
+        values:
+          - [140, "oral surgery"]
+          - [300, "general medicine"]
+          - [301, "gastroenterology"]
+          - [320, "cardiology"]
+      INDEX_OF_MULTIPLE_DEPRIVATION_DECILE:
+        type: "enumerated"
+        values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "unknown", "none"]

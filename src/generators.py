@@ -503,7 +503,7 @@ if __name__ == '__main__':
     # 1. Load Configuration
     # --------------------------
     # Assuming you run this from inside the src/ folder
-    config_path = Path('../config/data_config.yaml')
+    config_path = Path('../config/data_config_old.yaml')
 
     # Fallback/mock config if file doesn't exist yet for testing
     if not config_path.exists():

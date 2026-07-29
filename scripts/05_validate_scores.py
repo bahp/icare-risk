@@ -7,6 +7,7 @@ import sys
 # Setup path to import src
 project_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_root))
+project_root = Path.cwd()
 
 from src.scores import (
     calculate_increment_esbl,
@@ -36,7 +37,7 @@ def setup_validation_logger(log_path):
 
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent
+    #project_root = Path(__file__).resolve().parent.parent
     cases_path = project_root / 'tests' / 'cases.csv'
     log_path = project_root / 'reports' / 'score_validation.log'
     log_path.parent.mkdir(parents=True, exist_ok=True)

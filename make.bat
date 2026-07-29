@@ -146,29 +146,31 @@ goto :eof
 :test_pkg
 call :build_pkg
 echo.
-echo --- 1. Creating Isolated Venv ---
+echo 1. Creating Isolated Venv...
 %RUN% python -m venv /tmp/pkg_test_venv
 %RUN% /tmp/pkg_test_venv/bin/pip install --upgrade pip --quiet
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 echo.
-echo --- 2. Installing Built Wheel ---
-%RUN% bash -c "/tmp/pkg_test_venv/bin/pip install dist/*.whl"
+echo 2. Installing Built Wheel and Pytest...
+%RUN% bash -c "/tmp/pkg_test_venv/bin/pip install dist/*.whl pytest"
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 echo.
-echo --- 3. Running Import Smoke Test ---
-%RUN% bash -c "cd /tmp && /tmp/pkg_test_venv/bin/python -c 'import src; import scripts'"
-if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
-echo ✅ Modules imported successfully from wheel!
-
-echo.
-echo --- 4. Running Pytest Suite ---
-%RUN% bash -c "cd /tmp && /tmp/pkg_test_venv/bin/pytest /app/tests/"
+echo 3. Running Import Smoke Test...
+%RUN% bash -c "cd /tmp && /tmp/pkg_test_venv/bin/python -c 'import src; import scripts; print(\"Smoke Test Passed!\")'"
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 echo.
-echo --- 5. Cleaning Up ---
+echo 4. Running Pytest Suite...
+%RUN% bash -c "cd /tmp && /tmp/pkg_test_venv/bin/pytest /app/tests/ -v"
+if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+echo.
+echo 5. Cleaning Up...
 %RUN% rm -rf /tmp/pkg_test_venv
-echo ✅ Package verification complete!
+echo.
+echo ============================================================
+echo ✅ PACKAGE VERIFICATION COMPLETE
+echo ============================================================
 goto :eof

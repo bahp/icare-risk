@@ -18,6 +18,8 @@ class FeaturePipeline:
         # df_static is your episodes table
         # df_ts is your pivoted vitals/labs
         """
+        #df = df_ts.reset_index()
+
         # Order time series
         df = df_ts \
             .sort_values(['patient_id', 'date']) \

@@ -5,6 +5,7 @@ from pathlib import Path
 
 # Setup Paths
 project_root = Path(__file__).resolve().parent.parent
+project_root = Path.cwd()
 MAP_PATH = project_root / 'assets' / 'clinical_mappings' / 'res195-comorbidity-cci-gold.csv'
 CONFIG_PATH = project_root / 'config' / 'code_search.yaml'
 OUTPUT_PATH = project_root / 'reports' / 'code_search_results.txt'

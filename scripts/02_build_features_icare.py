@@ -9,6 +9,7 @@ from pathlib import Path
 # Setup path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_root))
+project_root = Path.cwd()
 
 from src.features import FeaturePipeline
 from src.utils import get_latest_data_dir
@@ -60,7 +61,7 @@ def main():
     # Parse arguments
     parser = argparse.ArgumentParser(description="Feature Engineering: ICARE Edition")
     parser.add_argument('--data-config',
-        type=str, default='data_config_v2.yaml', help='Name of the data YAML config file')
+        type=str, default='data_config.yaml', help='Name of the data YAML config file')
     parser.add_argument('--feature-config',
         type=str, default='feature_config.yaml', help='Name of the feature YAML config file')
     args = parser.parse_args()
