@@ -1,6 +1,6 @@
 @echo off
 set PYTHON=python
-set SCRIPTS_DIR=scripts
+set SCRIPTS_PKG=icare_risk.scripts
 
 :: Default command prefix (runs via Docker)
 set RUN=docker-compose exec pipeline
@@ -75,31 +75,31 @@ goto :eof
 :generate
 echo.
 echo --- Step 1: Generating Synthetic iCARE Data ---
-%RUN% %PYTHON% -m %SCRIPTS_DIR%.01_generate_data %EXTRA_ARGS%
+%RUN% %PYTHON% -m %SCRIPTS_PKG%.a_generate_data %EXTRA_ARGS%
 goto :eof
 
 :features
 echo.
 echo --- Step 2: Building Clinical Features ---
-%RUN% %PYTHON% -m %SCRIPTS_DIR%.02_build_features_icare %EXTRA_ARGS%
+%RUN% %PYTHON% -m %SCRIPTS_PKG%.b_build_features_icare %EXTRA_ARGS%
 goto :eof
 
 :evaluate
 echo.
 echo --- Step 3: Evaluating Clinical Scores ---
-%RUN% %PYTHON% -m %SCRIPTS_DIR%.03_evaluate_scores %EXTRA_ARGS%
+%RUN% %PYTHON% -m %SCRIPTS_PKG%.c_evaluate_scores %EXTRA_ARGS%
 goto :eof
 
 :thresholds
 echo.
 echo --- Step 4: Evaluating Stewardship Thresholds ---
-%RUN% %PYTHON% -m %SCRIPTS_DIR%.04_evaluate_thresholds %EXTRA_ARGS%
+%RUN% %PYTHON% -m %SCRIPTS_PKG%.d_evaluate_thresholds %EXTRA_ARGS%
 goto :eof
 
 :validate
 echo.
 echo --- Step 5: Validating Scores (Clinical Audit) ---
-%RUN% %PYTHON% -m %SCRIPTS_DIR%.05_validate_scores %EXTRA_ARGS%
+%RUN% %PYTHON% -m %SCRIPTS_PKG%.e_validate_scores %EXTRA_ARGS%
 timeout /t 2 >nul
 goto :eof
 
@@ -113,7 +113,7 @@ goto :eof
 :search
 echo.
 echo --- Discover Clinical Codes (Keywords) ---
-%RUN% %PYTHON% -m %SCRIPTS_DIR%.06_find_clinical_codes %EXTRA_ARGS%
+%RUN% %PYTHON% -m %SCRIPTS_PKG%.f_find_clinical_codes %EXTRA_ARGS%
 timeout /t 2 >nul
 goto :eof
 
@@ -139,8 +139,10 @@ goto :eof
 
 :build_pkg
 echo.
-echo --- Cleaning old distribution files ---
+echo --- Cleaning old distribution files & build caches ---
 if exist dist\* del /q dist\*
+if exist build rmdir /s /q build
+if exist src\icare_risk.egg-info rmdir /s /q src\icare_risk.egg-info
 echo --- Building PyPI Package ---
 %RUN% python -m build
 goto :eof
@@ -160,16 +162,23 @@ if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 echo.
 echo 3. Running Import Smoke Test...
-%RUN% bash -c "cd /tmp && /tmp/pkg_test_venv/bin/python -c 'import src; import scripts; print(\"Smoke Test Passed!\")'"
+%RUN% bash -c "cd /tmp && /tmp/pkg_test_venv/bin/python -c 'import icare_risk; print(\"Smoke Test Passed!\")'"
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 echo.
-echo 4. Running Pytest Suite...
+echo 4. Running CLI Console Script Smoke Tests...
+%RUN% bash -c "/tmp/pkg_test_venv/bin/icare-risk-generate --help"
+%RUN% bash -c "/tmp/pkg_test_venv/bin/icare-risk-features --help"
+echo CLI Entry Points verified successfully!
+if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+echo.
+echo 5. Running Pytest Suite...
 %RUN% bash -c "cd /tmp && /tmp/pkg_test_venv/bin/pytest /app/tests/ -v"
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 echo.
-echo 5. Cleaning Up...
+echo 6. Cleaning Up...
 %RUN% rm -rf /tmp/pkg_test_venv
 echo.
 echo ============================================================

@@ -12,5 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the project
 COPY . .
 
+# Install the package in editable mode inside the container
+RUN pip install --no-cache-dir -e .
+
 # Default command keeps the container alive so we can run make commands inside it
 CMD ["tail", "-f", "/dev/null"]

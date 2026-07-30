@@ -24,8 +24,19 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["src*", "scripts*"]  # This includes both your source code and scripts folder
+where = ["src"]
+include = ["icare_risk", "icare_risk.*"]
+
+[tool.setuptools.package-data]
+"icare_risk.config" = ["*.yaml"]
 
 [tool.setuptools_scm]
 fallback_version = "0.0.0-dev"
+
+[project.scripts]
+icare-risk-generate = "icare_risk.scripts.a_generate_data:main"
+icare-risk-features = "icare_risk.scripts.b_build_features_icare:main"
+icare-risk-evaluate = "icare_risk.scripts.c_evaluate_scores:main"
+icare-risk-thresholds = "icare_risk.scripts.d_evaluate_thresholds:main"
+icare-risk-validate = "icare_risk.scripts.e_validate_scores:main"
+icare-risk-search = "icare_risk.scripts.f_find_clinical_codes:main"

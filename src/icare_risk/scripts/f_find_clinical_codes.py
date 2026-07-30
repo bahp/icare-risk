@@ -1,25 +1,44 @@
+import sys
+import argparse
 import pandas as pd
-import yaml
-import os
 from pathlib import Path
 
-# Setup Paths
-project_root = Path(__file__).resolve().parent.parent
+# Setup Paths dynamically
 project_root = Path.cwd()
-MAP_PATH = project_root / 'assets' / 'clinical_mappings' / 'res195-comorbidity-cci-gold.csv'
-CONFIG_PATH = project_root / 'config' / 'code_search.yaml'
-OUTPUT_PATH = project_root / 'reports' / 'code_search_results.txt'
+sys.path.append(str(project_root))
+
+from icare_risk.utils import load_yaml_config
+
+# Setup Paths
+#project_root = Path(__file__).resolve().parent.parent
+#project_root = Path.cwd()
+#MAP_PATH = project_root / 'assets' / 'clinical_mappings' / 'res195-comorbidity-cci-gold.csv'
+#CONFIG_PATH = project_root / 'config' / 'code_search.yaml'
+#OUTPUT_PATH = project_root / 'reports' / 'code_search_results.txt'
 
 
-def find_codes():
+def main():
+
+    parser = argparse.ArgumentParser(description="Clinical Code Discovery")
+    parser.add_argument('--search-config',
+        type=str, default=None, help='Path to optional code search YAML override')
+    args = parser.parse_args()
+
+    MAP_PATH = project_root / 'assets' / 'clinical_mappings' / 'res195-comorbidity-cci-gold.csv'
+    OUTPUT_PATH = project_root / 'reports' / 'code_search_results.txt'
+
     # 1. Load Data
     if not MAP_PATH.exists():
         print(f"❌ Mapping file not found at {MAP_PATH}")
         return
 
     df = pd.read_csv(MAP_PATH)
-    with open(CONFIG_PATH, 'r') as f:
-        config = yaml.safe_load(f)
+
+    # Use the smart loader to securely read the config
+    config = load_yaml_config(
+        config_name="code_search.yaml",
+        user_path=args.search_config
+    )
 
     report_lines = ["# CLINICAL CODE DISCOVERY REPORT\n" + "=" * 40 + "\n"]
 
@@ -65,12 +84,17 @@ def find_codes():
             report_lines.append(f"\n  UNIQUE CODES FOR YAML: {unique_codes}")
 
     # 4. Save results
-    os.makedirs(OUTPUT_PATH.parent, exist_ok=True)
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, 'w') as f:
         f.write("\n".join(report_lines))
+
+    try:
+        display_path = OUTPUT_PATH.relative_to(project_root)
+    except ValueError:
+        display_path = OUTPUT_PATH
 
     print(f"✅ Discovery complete. Report saved to: {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":
-    find_codes()
+    main()

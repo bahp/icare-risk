@@ -1,39 +1,65 @@
 import sys
 import yaml
-import logging
 import pandas as pd
 from pathlib import Path
-
-# Setup path
-#project_root = Path(__file__).resolve().parent.parent
-#sys.path.append(str(project_root))
-
-# Setup path dynamically based on execution directory
-_cwd = Path.cwd()
-project_root = _cwd.parent if _cwd.name == 'src' else _cwd
-sys.path.append(str(project_root))
-
-from src.metrics import ClinicalEvaluator
-
-def load_data_config():
-    """Loads data_config.yaml dynamically relative to CWD or project root."""
-    config_path = Path.cwd() / 'config' / 'data_config.yaml'
-    if not config_path.exists():
-        config_path = project_root / 'config' / 'data_config.yaml'
-
-    if not config_path.exists():
-        raise FileNotFoundError(f"Configuration file not found at {config_path}")
-
-    with open(config_path, 'r') as file:
-        return yaml.safe_load(file)
+from importlib.resources import files
 
 
-def get_latest_data_dir():
+def deep_merge(base_dict, override_dict):
+    """Recursively deep-merges override_dict into base_dict."""
+    for key, value in override_dict.items():
+        if (isinstance(value, dict) and
+            key in base_dict and
+            isinstance(base_dict[key], dict)):
+            deep_merge(base_dict[key], value)
+        else:
+            base_dict[key] = value
+    return base_dict
+
+
+def load_yaml_config(config_name="data_config.yaml", user_path=None):
+    """
+    Loads a default YAML from the package and deep-merges user overrides.
+    """
+    # 1. Read the default YAML from inside the installed package
+    default_yaml = files('icare_risk.config').joinpath(config_name)
+
+    with default_yaml.open('r') as f:
+        config = yaml.safe_load(f)
+
+    # 2. If the user provided an override path, load it and merge
+    if user_path:
+        user_file = Path(user_path)
+        if user_file.is_file():
+            print(f"⚙️ Merging local overrides from: {user_file.name}")
+            with user_file.open('r') as f:
+                user_overrides = yaml.safe_load(f) or {}
+
+            config = deep_merge(config, user_overrides)
+        else:
+            print(f"⚠️ Warning: Override file '{user_path}' not found. Using defaults.")
+
+    return config
+
+#def load_data_config():
+#    """Loads data_config.yaml dynamically relative to CWD or project root."""
+#    config_path = Path.cwd() / 'config' / 'data_config.yaml'
+#    if not config_path.exists():
+#        config_path = project_root / 'config' / 'data_config.yaml'##
+#
+#    if not config_path.exists():
+#        raise FileNotFoundError(f"Configuration file not found at {config_path}")#
+#
+#    with open(config_path, 'r') as file:
+#        return yaml.safe_load(file)
+
+
+def get_latest_data_dir(user_config_path=None):
     """
     Finds the most recently created raw data directory inside data/synthetic/
     or data/external/ depending on the 'data_source' key in data_config.yaml.
     """
-    config = load_data_config()
+    config = load_yaml_config("data_config.yaml", user_config_path)
     source = config.get('data_source', 'synthetic').lower()
 
     # Determine base directory based on config
@@ -62,9 +88,9 @@ def get_latest_data_dir():
     return latest_dir
 
 
-def get_latest_processed_file():
+def get_latest_processed_file(user_config_path=None):
     """Finds the most recently processed dataset (any .csv file in the latest processed folder)."""
-    config = load_data_config()
+    config = load_yaml_config("data_config.yaml", user_config_path)
     paths = config.get('paths', {})
 
     # Resolve processed directory using config or default fallback
@@ -139,10 +165,8 @@ def validate_required_columns(df,
 
     if missing_cols:
         error_msg = f"[{score_name}] Missing critical variables: {missing_cols}"
-
         if strict:
             raise ValueError(f"❌ {error_msg}. Pipeline halted to prevent data corruption.")
-
         print(f"⚠️ Warning: {error_msg}. Results will be underestimated for these records.")
         return False
 
@@ -160,9 +184,7 @@ def check_col_contains(df, col_name, keywords):
     """Returns a boolean Series checking if text in a column contains certain keywords."""
     if col_name not in df.columns:
         return pd.Series(False, index=df.index)
-
-    # Create a regex pattern: 'keyword1|keyword2|keyword3'
-    pattern = '|'.join(keywords)
+    pattern = '|'.join(keywords) # Create a regex pattern: 'keyword1|keyword2'
     return df[col_name].astype(str).str.lower().str.contains(pattern, na=False)
 
 

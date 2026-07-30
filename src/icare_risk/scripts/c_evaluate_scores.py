@@ -1,19 +1,18 @@
-# scripts/03_evaluate_scores.py
+# scripts/c_evaluate_scores.py
 
 import sys
-import yaml
 import argparse
 import operator
 import pandas as pd
 from pathlib import Path
 
 # Setup path so Python can find 'src' and 'config'
-project_root = Path(__file__).resolve().parent.parent
-sys.path.append(str(project_root))
 project_root = Path.cwd()
+sys.path.append(str(project_root))
 
-from src.metrics import ClinicalEvaluator
-from src.utils import get_latest_processed_file
+from icare_risk.metrics import ClinicalEvaluator
+from icare_risk.utils import get_latest_processed_file
+from icare_risk.utils import load_yaml_config
 
 
 def main():
@@ -21,9 +20,9 @@ def main():
     # Parse arguments
     parser = argparse.ArgumentParser(description="Configuration-Driven Model Evaluation")
     parser.add_argument('--eval-config',
-        type=str, default='eval_config.yaml', help='Name of the evaluation YAML config file')
+        type=str, default=None, help='Path to evaluation YAML override')
     parser.add_argument('--feature-config',
-        type=str, default='feature_config.yaml', help='Name of the feature YAML config file')
+        type=str, default=None, help='Path to feature YAML override')
     args = parser.parse_args()
 
     print("==================================================")
@@ -33,7 +32,7 @@ def main():
     # ---------------------------------------------------------
     # 1. Load Data & Configs
     # ---------------------------------------------------------
-    processed_file = get_latest_processed_file()
+    processed_file = get_latest_processed_file(user_config_path=args.feature_config)
     final_features = pd.read_csv(processed_file)
 
     run_id = processed_file.parent.name
@@ -45,9 +44,11 @@ def main():
         f.write(f"Run ID: {run_id}\n")
         f.write(f"Source Data: {processed_file}\n")
 
-    config_path = project_root / 'config' / 'eval_config.yaml'
-    with open(config_path, 'r') as file:
-        eval_config = yaml.safe_load(file)
+        # Load configs dynamically via our smart loader
+        eval_config = load_yaml_config(
+            config_name="eval_config.yaml",
+            user_path=args.eval_config
+        )
 
     exp_config = eval_config.get('experiment', {})
     target_label = exp_config.get('target_label', 'ground_truth')
@@ -57,13 +58,16 @@ def main():
     # 2. Determine which scores to evaluate
     # ---------------------------------------------------------
     if exp_config.get('scores_to_evaluate') == 'all':
-        feature_config_path = project_root / 'config' / args.feature_config
-        with open(feature_config_path, 'r') as file:
-            fc = yaml.safe_load(file)
-            custom_scores = list(fc.get('custom_scores', {}).keys())
-            # Exclude the target label to prevent 2D array crashes
-            valid_scores = [s for s in custom_scores
-                if s in final_features.columns and s != target_label]
+        # Load feature config dynamically via our smart loader
+        fc = load_yaml_config(
+            config_name="feature_config.yaml",
+            user_path=args.feature_config
+        )
+        custom_scores = list(fc.get('custom_scores', {}).keys())
+
+        # Exclude the target label to prevent 2D array crashes
+        valid_scores = [s for s in custom_scores
+            if s in final_features.columns and s != target_label]
     else:
         valid_scores = [s for s in exp_config.get('scores_to_evaluate', [])
             if s in final_features.columns]
@@ -89,8 +93,9 @@ def main():
         final_features['ADMISSION_DATE'] = pd.to_datetime(final_features['ADMISSION_DATE'])
 
     # Calculate exact elapsed hours for every row
-    final_features['hours_from_admin'] = (final_features['date'] - final_features[
-        'ADMISSION_DATE']).dt.total_seconds() / 3600
+    final_features['hours_from_admin'] = \
+        (final_features['date'] - final_features['ADMISSION_DATE']) \
+            .dt.total_seconds() / 3600
 
     evaluator = ClinicalEvaluator(output_dir=out_dir)
     master_results = []
@@ -239,7 +244,14 @@ def main():
 
         # Save master summary
         final_summary.to_csv(evaluator.metrics_dir / 'master_summary.csv', index=False)
-        print(f"\n✅ All metrics and plots saved to: {evaluator.output_dir.relative_to(project_root)}")
+
+        try:
+            display_path = evaluator.output_dir.relative_to(project_root)
+        except ValueError:
+            display_path = evaluator.output_dir
+
+        print(f"\n✅ All metrics and plots saved to: {display_path}")
+
     else:
         print("\n⚠ No evaluation strategies were successfully executed.")
 

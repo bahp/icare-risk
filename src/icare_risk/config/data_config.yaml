@@ -1,0 +1,357 @@
+# =============================================================================
+# DATA SOURCE CONFIGURATION
+# =============================================================================
+# Set active source: "synthetic" or "external"
+data_source: "synthetic"
+
+paths:
+  synthetic_dir: "data/synthetic"
+  external_dir: "data/external"
+  processed_dir: "data/processed"
+
+# =============================================================================
+# GENERATION PARAMETERS (Used when data_source = 'synthetic')
+# =============================================================================
+generation_params:
+  n_patients: 100
+  days: 10
+  freq: '4h'
+  output_format: 'tidy'
+  default_missing_rate: 0.5
+
+# =============================================================================
+# 1. CLINICAL DICTIONARY
+# =============================================================================
+# These are reusable confects.
+clinical_concepts:
+  vitals:
+    hr:
+      code: "LOINC-8867-4"      # Universal code for hear rate.
+      name: "Heart Rate"        # Observation name
+      type: 'float'
+      unit: 'bpm'
+      prob: 0.95
+      range: [30.0, 250.0]
+    rr:
+      code: "LOINC-9279-1"
+      name: "Respiratory Rate"
+      type: 'float'
+      unit: 'br/min'
+      prob: 0.90
+      range: [6.0, 200.0]
+    o2sat:
+      code: "LOINC-2708-6"
+      name: "Oxygen Saturation"
+      type: 'float'
+      unit: '%'
+      prob: 0.90
+      range: [50.0, 100.0]
+    temp:
+      code: "LOINC-8310-5"
+      name: "Body Temperature"
+      type: 'float'
+      unit: 'C'
+      prob: 0.33
+      range: [32.0, 42.0]
+    sbp:
+      code: "LOINC-8480-6"
+      name: "Systolic Blood Pressure"
+      type: 'float'
+      unit: 'mmHg'
+      prob: 0.80
+      range: [40.0, 250.0]
+    dbp:
+      code: "LOINC-8462-4"
+      name: "Diastolic Blood Pressure"
+      type: 'float'
+      unit: 'mmHg'
+      prob: 0.80
+      range: [20.0, 150.0]
+    map:
+      code: "LOINC-8478-0"
+      name: "Mean Arterial Pressure"
+      type: 'float'
+      unit: 'mmHg'
+      prob: 0.80
+      range: [30.0, 200.0]
+
+  labs:
+    lactate:
+      code: "LOINC-32693-4"
+      name: "Lactate"
+      type: 'float'
+      unit: 'mmol/L'
+      prob: 0.05
+      range: [0.5, 20.0]
+    crp:
+      code: "LOINC-1988-5"
+      name: "C-Reactive Protein"
+      type: 'float'
+      unit: 'mg/L'
+      prob: 0.10
+      range: [0.0, 300.0]
+    wbc:
+      code: "LOINC-26464-8"
+      name: "White Blood Cells"
+      type: 'float'
+      unit: 'K/uL'
+      prob: 0.15
+      range: [0.1, 100.0]
+    creatinine:
+      code: "LOINC-2160-0"
+      name: "Creatinine"
+      type: 'float'
+      unit: 'mg/dL'
+      prob: 0.20
+      range: [0.3, 15.0]
+    bilirubin:
+      code: "LOINC-1975-2"
+      name: "Total Bilirubin"
+      type: 'float'
+      unit: 'mg/dL'
+      prob: 0.10
+      range: [0.1, 40.0]
+    platelets:
+      code: "LOINC-26515-7"
+      name: "Platelets"
+      type: 'float'
+      unit: 'K/uL'
+      prob: 0.15
+      range: [10.0, 1000.0]
+
+  neuro:
+    gcs:
+      code: "LOINC-9269-2"
+      name: "Glasgow Coma Scale"
+      type: 'int'
+      unit: 'points'
+      prob: 0.40
+      range: [3, 15]
+
+# =============================================================================
+# 5. TABLE SCHEMAS (Database Structure)
+# Defines exactly how the generated data is physically shaped and saved
+# =============================================================================
+tables:
+  ICARE_EPISODES_ANON:
+    type: "relational"
+    rows_per_patient_range: [1, 1]
+    schema:
+      SUBJECT:
+        type: "foreign_key"
+      SPELL_IDENTIFIER:
+        type: "unique_id"
+      ENCNTR_ID:
+        type: "unique_id"
+      EPISODE_IDENTIFIER:
+        type: "unique_id"
+      ADMISSION_DATE:
+        type: "date"
+        start: "2020-01-01"
+        end: "2024-01-01"
+      ADMISSION_TIME:
+        type: "time"
+      AGE_AT_ADMISSION:
+        type: "int"
+        range: [18, 95]
+      DISCHARGE_DATE:
+        type: "date_offset"
+        base_col: "ADMISSION_DATE"
+        days_range: [1, 30]
+      MAIN_SPECIALTY:
+        type: "categorical_tuple"
+        columns: ["MAIN_SPECIALTY_CODE", "MAIN_SPECIALTY_CODE_DESC"]
+        values:
+          - [140, "oral surgery"]
+          - [300, "general medicine"]
+          - [301, "gastroenterology"]
+          - [320, "cardiology"]
+      INDEX_OF_MULTIPLE_DEPRIVATION_DECILE:
+        type: "enumerated"
+        values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "unknown", "none"]
+
+
+  ICARE_MICROBIOLOGY_ANON:
+    type: "relational"
+    # Not every patient gets a culture, some get multiple. 0-2 is a realistic spread.
+    rows_per_patient_range: [ 0, 2 ]
+    schema:
+      SUBJECT:
+        type: "foreign_key"
+      LAB_TEST_ID:
+        type: "unique_id"
+      # Using a tuple ensures Blood Cultures get the Blood Culture code, not a Urine code
+      ORDER_TUPLE:
+        type: "categorical_tuple"
+        columns: [ "ORDER_CODE", "ORDER_NAME" ]
+        values:
+          - [ "LOINC-600-7", "Blood Culture, Routine" ]
+          - [ "LOINC-630-4", "Urine Culture, Routine" ]
+          - [ "LOINC-625-4", "Respiratory Culture" ]
+      LATEST_COLLECT_DT:
+        type: "date"
+        start: "2020-01-01"
+        end: "2024-01-01"
+      # Received date is 0 to 1 days after collection
+      LATEST_RECEIVED_DT:
+        type: "date_offset"
+        base_col: "LATEST_COLLECT_DT"
+        days_range: [ 0, 1 ]
+      # Result date is usually 2 to 5 days after collection (time for bugs to grow)
+      LATEST_RESULT_DT:
+        type: "date_offset"
+        base_col: "LATEST_COLLECT_DT"
+        days_range: [ 2, 5 ]
+      SITE:
+        type: "enumerated"
+        values: [ "Peripheral Blood", "Central Line", "Clean Catch Urine", "Indwelling Catheter", "Sputum" ]
+      ORGANISM_BUG:
+        type: "enumerated"
+        # Includes a "No Growth" option since many cultures come back negative
+        values: [ "E. coli", "Klebsiella spp.", "Enterobacter spp.", "Pseudomonas aeruginosa", "MRSA", "No Growth" ]
+      SENSITIVITY:
+        type: "enumerated"
+        values: [ "Susceptible", "Resistant", "Intermediate", "Not Applicable" ]
+
+
+  ICARE_VITAL_SIGNS_ANON:
+    type: "eav_timeseries"
+    source: "clinical_concepts.vitals"
+    schema:
+      SUBJECT:
+        map_to: "SUBJECT"
+      ENCNTR_ID:
+        map_to: "foreign_key"
+        source_table: "ICARE_EPISODES_ANON"
+      OBSERVATION_CODE:
+        map_to: "concept.code"
+      OBSERVATION_NAME:
+        map_to: "concept.name"
+      OBSERVATION_PERFORMED_DT:
+        map_to: "timestamp"
+      OBSERVATION_START_DT:
+        map_to: "timestamp"
+      OBSERVATION_END_DT:
+        map_to: "timestamp"
+      OBSERVATION_RESULT_CLEAN:
+        map_to: "value"
+      OBSERVATION_UNIT:
+        map_to: "concept.unit"
+
+
+  ICARE_PROBLEMS_ANON:
+    type: "relational"
+    # A patient might have anywhere from 1 to 5 tracked medical problems
+    rows_per_patient_range: [ 1, 5 ]
+    schema:
+      SUBJECT:
+        type: "foreign_key"
+      ENCNTR_ID:
+        type: "unique_id" # Alternatively, can be linked to episodes
+      PROBLEM_TUPLE:
+        type: "categorical_tuple"
+        columns: [ "PROBLEM_CODE", "PROBLEM_DESC" ]
+        values:
+          - [ "E11.9", "Type 2 diabetes mellitus" ]
+          - [ "I10", "Essential (primary) hypertension" ]
+          - [ "J44.9", "Chronic obstructive pulmonary disease" ]
+          - [ "N18.9", "Chronic kidney disease, unspecified" ]
+          - [ "A41.9", "Sepsis, unspecified organism" ]
+          - [ "I25.10", "Atherosclerotic heart disease" ]
+          - [ "J18.9", "Pneumonia, unspecified organism" ]
+      PROBLEM_DT_TM:
+        type: "date"
+        start: "2020-01-01"
+        end: "2024-01-01"
+      UPDATE_DT_TM:
+        type: "date_offset"
+        base_col: "PROBLEM_DT_TM"
+        # The update/resolution happens anywhere from the same day to 90 days later
+        days_range: [ 0, 90 ]
+
+
+  ICARE_PHARMACY_PRESCRIBING_ANON:
+    type: "relational"
+    rows_per_patient_range: [ 2, 12 ] # Patients often have multiple prescriptions
+    schema:
+      SUBJECT:
+        type: "foreign_key"
+      ENCNTR_ID:
+        type: "foreign_key"
+        source_table: "ICARE_EPISODES_ANON" # Tells the Python engine where to pull valid IDs from
+      ORDER_ID:
+        type: "unique_id"
+      ADMISSION_MEDICINE_Y_N:
+        type: "enumerated"
+        values: [ "yes", "no", "none" ]
+      GP_TO_CONTINUE:
+        type: "boolean"
+        probability: 0.70
+      # Groups the drug details together for clinical accuracy
+      MEDICATION_TUPLE:
+        type: "categorical_tuple"
+        columns: [
+          "MEDICATION_NAME",
+          "MEDICATION_NAME_SHORT",
+          "ORDERED_DRUG_FORM",
+          "ORDERED_ROUTE",
+          "ORDERED_UNIT",
+          "THERAPEUTICAL_CLASS"
+        ]
+        values:
+          - [ "Amoxicillin 500mg Capsule", "Amoxicillin", "capsule", "oral", "mg", "Antibiotics" ]
+          - [ "Vancomycin 1g Infusion", "Vancomycin", "infusion", "iv", "g", "Antibiotics" ]
+          - [ "Metformin 500mg Tablet", "Metformin", "tablet", "oral", "mg", "Metabolic agents" ]
+          - [ "Lisinopril 10mg Tablet", "Lisinopril", "tablet", "oral", "mg", "Antihypertensives" ]
+          - [ "Propofol 10mg/ml Emulsion", "Propofol", "infusion", "iv", "ml", "Anesthetics" ]
+          - [ "Ibuprofen 400mg Tablet", "Ibuprofen", "tablet", "oral", "mg", "Analgesics" ]
+      ORDERED_DOSE:
+        type: "float"
+        range: [ 1.0, 1000.0 ]
+      ORDERED_FREQUENCY:
+        type: "enumerated"
+        values: [ "once daily", "twice daily", "three times a day", "four times a day", "twice only", "prn" ]
+      ORDER_DT_TM:
+        type: "date"
+        start: "2020-01-01"
+        end: "2024-01-01"
+      ORDER_TYPE:
+        type: "enumerated"
+        values: [ "Inpatient", "Discharge", "Outpatient" ]
+      PRESCRIPTION_TYPE:
+        type: "enumerated"
+        values: [ "Standard", "PRN", "Stat", "Continuous" ]
+
+
+  ICARE_PATHOLOGY_BLOOD_ANON:
+    type: "eav_timeseries"
+    source: "clinical_concepts.labs"
+    schema:
+      SUBJECT:
+        map_to: "SUBJECT"
+      PBAID:
+        map_to: "unique_id"
+      LABORATORY_DEPARTMENT:
+        map_to: "concept.department"
+      ORDER_CODE:
+        map_to: "concept.order_code"
+      ORDER_NAME:
+        map_to: "concept.order_name"
+      RESULT_CLEANED:
+        map_to: "value"
+      RESULT_LOWER_RANGE:
+        map_to: "concept.normal_low"
+      RESULT_UPPER_RANGE:
+        map_to: "concept.normal_high"
+      SAMPLE_COLLECTED_DT:
+        map_to: "timestamp"
+      RESULT_AVAILABLE_DT:
+        map_to: "timestamp_offset"
+        base_col: "SAMPLE_COLLECTED_DT"
+        hours_range: [ 1, 72 ] # Realistic delay for lab processing
+      TEST_CODE:
+        map_to: "concept.code"
+      TEST_NAME:
+        map_to: "concept.name"
+      TEST_RESULT_UNIT:
+        map_to: "concept.unit"

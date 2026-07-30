@@ -1,15 +1,14 @@
-# scripts/05_validate_scores.py
+# scripts/e_validate_scores.py
+import sys
 import pandas as pd
 import logging
 from pathlib import Path
-import sys
 
-# Setup path to import src
-project_root = Path(__file__).resolve().parent.parent
-sys.path.append(str(project_root))
+# Setup path to import src dynamically
 project_root = Path.cwd()
+sys.path.append(str(project_root))
 
-from src.scores import (
+from icare_risk.scores import (
     calculate_increment_esbl,
     calculate_holmgren_score,
     calculate_gavaghan_score,
@@ -37,12 +36,17 @@ def setup_validation_logger(log_path):
 
 
 def main():
-    #project_root = Path(__file__).resolve().parent.parent
+
     cases_path = project_root / 'tests' / 'cases.csv'
     log_path = project_root / 'reports' / 'score_validation.log'
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
     logger = setup_validation_logger(log_path)
+
+    if not cases_path.exists():
+        logger.error(f"❌ Error: Validation cases not found at {cases_path}")
+        return
+
     df = pd.read_csv(cases_path, on_bad_lines='skip')
 
     # 1. Define the Score Dictionary

@@ -41,7 +41,7 @@ To maintain a clean and testable architecture, adhere strictly to these rules:
 import pandas as pd
 import numpy as np
 
-from src.utils import validate_required_columns
+from icare_risk.utils import validate_required_columns
 
 # ------------------------------------------------------------------------
 # Helper methods

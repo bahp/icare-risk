@@ -1,0 +1,88 @@
+# config/eval_config.yaml
+# ========================================================================
+# 1. GLOBAL EXPERIMENT SETTINGS
+# ========================================================================
+experiment:
+  target_label: 'ground_truth'
+
+  # List specific scores like ['mews_score', 'pitt_score'] or use 'all'
+  # to automatically grab everything from feature_config.yaml
+  scores_to_evaluate: 'all'
+
+  # Define which metrics to print in the summary tables.
+  # Options: ['auroc', 'auprc', 'optimal_cutoff', 'sensitivity', 'specificity', 'ppv', 'npv']
+  # Or use 'all'
+  metrics_to_compute: 'all'
+
+# ========================================================================
+# 2. TIME-SLICE EVALUATIONS (Point-in-time metrics)
+# ========================================================================
+time_slices:
+  continuous:
+    run: false
+    plots_to_generate: ['roc_curve', 'pr_curve']
+
+  admission:
+    run: true
+    plots_to_generate: ['roc_curve', 'pr_curve']
+
+  peak:
+    run: true
+    plots_to_generate: ['roc_curve']
+
+  milestones:
+    run: true
+    hours: [24, 48, 72]
+    tolerance_hours: 6
+    plots_to_generate: ['roc_curve']
+
+# ========================================================================
+# 3. LONGITUDINAL ANALYSES (Performance over the entire stay)
+# ========================================================================
+longitudinal:
+  auroc_over_time:
+    run: true
+    bin_hours: 24
+    max_hours: 168
+
+  auprc_over_time:
+    run: true
+    bin_hours: 24
+    max_hours: 168
+
+# ========================================================================
+# 4. SUBGROUP ANALYSIS (Stratification)
+# ========================================================================
+# Define specific cohorts to evaluate independently. The pipeline will
+# apply the active `time_slices` rules to these specific subgroups.
+# Operators supported: '==', '!=', '>', '>=', '<', '<='
+subgroup_analysis:
+  run: true
+
+  cohorts:
+    # Example 1: Continuous Variable Only
+    - name: "Elderly (>= 65)"
+      filters:
+        - column: "AGE_AT_ADMISSION"
+          operator: ">="
+          value: 65
+
+    # Example 2: Intersection of variables
+    - name: "Elderly Diabetics"
+      filters:
+        - column: "AGE_AT_ADMISSION"
+          operator: ">="
+          value: 65
+        - column: "hx_diabetes_uncomp"
+          operator: "=="
+          value: 1
+
+    # Example 3: Young Non-Diabetics
+    - name: "Young Non-Diabetics (< 65)"
+      filters:
+        - column: "AGE_AT_ADMISSION"
+          operator: "<"
+          value: 65
+        - column: "hx_diabetes_uncomp"
+          operator: "=="
+          value: 0

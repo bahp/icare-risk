@@ -7,10 +7,8 @@ from pathlib import Path
 
 
 class FeaturePipeline:
-    def __init__(self, config_path='../config/feature_config.yaml',
-                 context_dfs=None):
-        with open(config_path, 'r') as f:
-            self.config = yaml.safe_load(f)
+    def __init__(self, config_dict=None, context_dfs=None):
+        self.config = config_dict or {}
         self.context_dfs = context_dfs or {}  # Holds micro, pharmacy, etc.
 
     def process(self, df_static, df_ts):
@@ -86,7 +84,7 @@ class FeaturePipeline:
         """Executes the custom_features block from YAML (Phenotypes)."""
         custom_feats = self.config.get('custom_features', {})
         for feat_name, meta in custom_feats.items():
-            module_name = meta.get('module', 'src.phenotypes')
+            module_name = meta.get('module', 'icare_risk.phenotypes')
             func_name = meta.get('function')
             kwargs = meta.get('kwargs', {})
 
@@ -157,9 +155,9 @@ class FeaturePipeline:
 
             except ModuleNotFoundError:
                 print(f"❌ Error computing '{score_name}': Cannot find module '{module_name}'.")
-                if not module_name.startswith('src.'):
+                if not module_name.startswith('icare_risk.'):
                     print(
-                        f"   💡 Hint: If your file is in the 'src' folder, update your YAML to use `module: 'src.{module_name}'`")
+                        f"   💡 Hint: If your file is in the 'src.icare_risk' folder, update your YAML to use `module: 'icare_risk.{module_name}'`")
 
             except AttributeError:
                 print(
@@ -178,7 +176,7 @@ class FeaturePipeline:
 if __name__ == '__main__':
 
     # 1. Setup paths
-    latest_dir = sorted([d for d in Path('../data/synthetic').iterdir() if d.is_dir()])[-1]
+    latest_dir = sorted([d for d in Path('../../data/synthetic').iterdir() if d.is_dir()])[-1]
 
     # 2. Load data
     df_static = pd.read_csv(latest_dir / 'df_static.csv')

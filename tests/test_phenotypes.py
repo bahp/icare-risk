@@ -1,9 +1,8 @@
 # tests/test_phenotypes.py
 import pandas as pd
 import pytest
-import numpy as np
 
-from src.phenotypes import (
+from src.icare_risk.phenotypes import (
     derive_pitt_fever_status,
     derive_sirs_tachycardia,
     derive_sirs_tachypnea,

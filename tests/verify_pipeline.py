@@ -1,6 +1,5 @@
 import pandas as pd
 import yaml
-import os
 import sys
 from pathlib import Path
 
@@ -8,7 +7,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_root))
 
-from src.features import FeaturePipeline
+from src import FeaturePipeline
 
 
 def prepare_icare_ts(df_vitals, df_labs, data_config):
@@ -57,7 +56,7 @@ def test_computation():
     df_episodes = pd.read_csv(fixture_path / 'icare_episodes_anon.csv')
 
     # Load configs
-    with open(project_root / 'config' / 'data_config_v2.yaml', 'r') as f:
+    with open(project_root / 'config' / 'data_config.yaml', 'r') as f:
         data_config = yaml.safe_load(f)
 
     # 2. Step 1: Prepare Time-Series (Pivoting)

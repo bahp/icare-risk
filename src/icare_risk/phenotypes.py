@@ -28,10 +28,13 @@ follow strict naming prefixes based on the exact type of data they return:
 import pandas as pd
 import numpy as np
 
-from src.utils import (check_col_bool,
-                       check_col_contains,
-                       check_col_threshold,
-                       check_col_icd10)
+# Silence the downcasting warning globally
+pd.set_option('future.no_silent_downcasting', True)
+
+from icare_risk.utils import (check_col_bool,
+                              check_col_contains,
+                              check_col_threshold,
+                              check_col_icd10)
 
 # ------------------------------------------------------------------------
 #                                  HELPER METHODS

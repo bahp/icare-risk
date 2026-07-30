@@ -2,7 +2,7 @@
 # 🏥 CLINICAL PIPELINE MANAGER
 # ==============================================================================
 PYTHON := python3
-SCRIPTS_DIR := scripts
+SCRIPTS_DIR := icare_risk.scripts
 
 # Default command prefix (runs via Docker)
 RUN := docker-compose exec pipeline
@@ -46,27 +46,27 @@ all: generate features evaluate thresholds validate
 
 generate:
 	@echo "\n--- Step 1: Generating Synthetic iCARE Data ---"
-	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).01_generate_data $(ARGS)
+	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).a_generate_data $(ARGS)
 
 features:
 	@echo "\n--- Step 2: Building Clinical Features ---"
-	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).02_build_features_icare $(ARGS)
+	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).b_build_features_icare $(ARGS)
 
 evaluate:
 	@echo "\n--- Step 3: Evaluating Clinical Scores ---"
-	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).03_evaluate_scores $(ARGS)
+	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).c_evaluate_scores $(ARGS)
 
 thresholds:
 	@echo "\n--- Step 4: Evaluating Stewardship Thresholds ---"
-	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).04_evaluate_thresholds $(ARGS)
+	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).d_evaluate_thresholds $(ARGS)
 
 validate:
 	@echo "\n--- Step 5: Validating Scores (Clinical Audit) ---"
-	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).05_validate_scores $(ARGS)
+	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).e_validate_scores $(ARGS)
 
 search:
 	@echo "\n--- Discover Clinical Codes (Keywords) ---"
-	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).06_find_clinical_codes $(ARGS)
+	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).f_find_clinical_codes $(ARGS)
 
 test:
 	@echo "\n--- Running Unit Tests ---"
@@ -95,8 +95,8 @@ build-pkg:
 	$(RUN) python -m build
 
 test-pkg: build-pkg
-	@echo "\n--- Cleaning old distribution files ---"
-	rm -rf dist/*
+	@echo "\n--- Cleaning old distribution files & build caches ---"
+	rm -rf dist/* build/ src/*.egg-info
 	@echo "\n--- Building PyPI Package (Wheel & Source) ---"
 	$(RUN) python -m build
 
@@ -108,12 +108,17 @@ test-pkg: build-pkg
 	$(RUN) /tmp/pkg_test_venv/bin/pip install dist/*.whl pytest
 
 	@echo "\n--- 3. Running Import Smoke Test ---"
-	$(RUN) bash -c "cd /tmp && /tmp/pkg_test_venv/bin/python -c 'import src; import scripts'"
+	$(RUN) bash -c "cd /tmp && /tmp/pkg_test_venv/bin/python -c 'import icare_risk; print(\"Smoke Test Passed!\")'"
 	@echo "Modules imported successfully from wheel!"
 
-	@echo "\n--- 4. Running Pytest Suite ---"
+	@echo "\n--- 4. Running CLI Console Script Smoke Tests ---"
+	$(RUN) bash -c "/tmp/pkg_test_venv/bin/icare-risk-generate --help"
+	$(RUN) bash -c "/tmp/pkg_test_venv/bin/icare-risk-features --help"
+	@echo "CLI Entry Points verified successfully!"
+
+	@echo "\n--- 5. Running Pytest Suite ---"
 	$(RUN) bash -c "cd /tmp && /tmp/pkg_test_venv/bin/pytest /app/tests/ -v"
 
-	@echo "\n--- 5. Cleaning Up ---"
+	@echo "\n--- 6. Cleaning Up ---"
 	$(RUN) rm -rf /tmp/pkg_test_venv
 	@echo "Package verification complete!"

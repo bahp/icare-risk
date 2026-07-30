@@ -1,20 +1,15 @@
-# scripts/02_build_features_icare.py
+# scripts/b_build_features_icare.py
 
-import sys
-import yaml
 import argparse
 import pandas as pd
 from pathlib import Path
 
 # Setup path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.append(str(project_root))
 project_root = Path.cwd()
 
-from src.features import FeaturePipeline
-from src.utils import get_latest_data_dir
-
-
+from icare_risk.features import FeaturePipeline
+from icare_risk.utils import get_latest_data_dir
+from icare_risk.utils import load_yaml_config
 
 
 class LazyContextDict(dict):
@@ -35,6 +30,13 @@ class LazyContextDict(dict):
                 return pd.DataFrame() # Return empty if file is missing
         return value
 
+    def get(self, key, default=None):
+        """Override get to ensure it triggers our lazy-loading __getitem__ logic."""
+        try:
+            # Force the use of bracket notation to trigger __getitem__
+            return self[key]
+        except KeyError:
+            return default
 
 
 
@@ -82,9 +84,9 @@ def main():
     # Parse arguments
     parser = argparse.ArgumentParser(description="Feature Engineering: ICARE Edition")
     parser.add_argument('--data-config',
-        type=str, default='data_config.yaml', help='Name of the data YAML config file')
+        type=str, default=None, help='Path to data YAML override')
     parser.add_argument('--feature-config',
-        type=str, default='feature_config.yaml', help='Name of the feature YAML config file')
+        type=str, default=None, help='Path to feature YAML override')
     args = parser.parse_args()
 
     print("==================================================")
@@ -107,9 +109,11 @@ def main():
         print(f"❌ Error: Could not find required CSV files: {e}")
         return
 
-    data_config_path = project_root / 'config' / args.data_config
-    with open(data_config_path, 'r') as f:
-        data_config = yaml.safe_load(f)
+    # Load data config
+    data_config = load_yaml_config(
+        config_name="data_config.yaml",
+        user_path=args.data_config
+    )
 
     # 2. Prepare Time-Series
     df_ts_wide = prepare_icare_ts(df_vitals, df_labs, data_config)
@@ -139,9 +143,15 @@ def main():
         'episodes': df_episodes
     }
 
+    # Load feature config
+    feature_config = load_yaml_config(
+        config_name="feature_config.yaml",
+        user_path=args.feature_config
+    )
+
+
     context = LazyContextDict(context_paths)
-    config_path = project_root / 'config' / args.feature_config
-    pipeline = FeaturePipeline(config_path=config_path, context_dfs=context)
+    pipeline = FeaturePipeline(config_dict=feature_config, context_dfs=context)
 
     print("\n🚀 Starting Feature Pipeline...")
     final_features = pipeline.process(df_static, df_ts_wide)

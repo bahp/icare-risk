@@ -1,0 +1,23 @@
+# config/threshold_config.yaml
+
+# RECOMMENDED CUTOFFS BASED ON 2023 META-ANALYSIS & ORIGINAL MANUSCRIPTS
+# Rule: Score >= Cutoff is considered 'High Risk' (empiric carbapenem candidate)
+
+thresholds:
+  # Meta-Analysis Consensus (Timbrook & Fowler 2023)
+  Consensus_2023_Score: 3  # Aiming for high NPV (>95%)
+
+  # Validation Scores
+  increment_esbl_score: 8 # Threshold used in the 2017 multicenter validation
+  holmgren_score: 1      # Any positive factor = High risk in low-prevalence zones
+  gavaghan_score: 4      # Derived for tertiary teaching hospital settings
+  jones_score: 6         # High risk threshold (PPV 0.91) for non-urinary isolates
+  kim_score: 4           # Optimized for community-onset BSIs
+  tumbarello_score: 6    # Classic threshold; sensitivity varies significantly
+
+# CLINICAL DECISION CATEGORIES (Example for Jones 2025)
+risk_categories:
+  jones_score:
+    low: [0, 1]          # NPV 0.36
+    moderate: [2, 5]     # PPV 0.56
+    high: [6, 15]        # PPV 0.91

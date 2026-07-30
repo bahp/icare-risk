@@ -195,7 +195,7 @@ It calculates AUROC, AUPRC, Sensitivity, and Specificity at the mathematically o
 threshold.
 
 ```bash
-python -m scripts/03_evaluate_scores.py
+python -m scripts/c_evaluate_scores.py
 ```
 
   - **Outputs:** `outputs/metrics/` (CSVs) and `outputs/plots/` (ROC/PR curves)

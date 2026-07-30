@@ -3,30 +3,26 @@ import sys
 import pytest
 import yaml
 import pandas as pd
-import numpy as np
 from pathlib import Path
 
 # Ensure src is in the path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.append(str(project_root))
+#project_root = Path(__file__).resolve().parent.parent
+#sys.path.append(str(project_root))
 
-from src.scores import (
+from icare_risk.utils import load_yaml_config
+from icare_risk.scores import (
     calculate_mews,
     calculate_sirs,
     calculate_charlson,
-    calculate_charlson_quan,
-    calculate_pitt_score,
     calculate_increment_esbl,
     calculate_holmgren_score,
     calculate_gavaghan_score,
     calculate_jones_score,
     calculate_tumbarello_score,
-    calculate_kim_score
+    calculate_kim_score,
+    calculate_charlson_quan,
+    calculate_pitt_score
 )
-
-# Add src to path
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-from src.scores import calculate_charlson_quan, calculate_pitt_score
 
 
 # -----------------------------------------------------------------------------
@@ -34,13 +30,13 @@ from src.scores import calculate_charlson_quan, calculate_pitt_score
 # -----------------------------------------------------------------------------
 @pytest.fixture(scope="module")
 def score_configs():
-    """Loads the feature_config.yaml once to share across all tests."""
-    config_path = project_root / 'config' / 'feature_config.yaml'
-    with open(config_path, 'r') as file:
-        return yaml.safe_load(file).get('custom_scores', {})
+    """Loads the feature_config.yaml once to share across all tests via smart loader."""
+    config = load_yaml_config(config_name="feature_config.yaml")
+    return config.get('custom_scores', {})
 
 def get_test_data():
     """Helper to load the CSV test cases."""
+    project_root = Path.cwd()
     csv_path = project_root / 'tests' / 'cases.csv'
     return pd.read_csv(csv_path)
 
@@ -66,7 +62,6 @@ def test_charlson_logic(score_configs):
     # Note: calculate_charlson usually takes (df, comorbidities_dict)
     # We pull the weights (comorbidities) directly from the YAML config
     comorbidities = kwargs.get('comorbidities', {})
-
     result = calculate_charlson(data, comorbidities=comorbidities)
 
     # 75yo is 35 years over 40. 35 // 10 = 3 points.

@@ -1,0 +1,547 @@
+# config/feature_config.yaml
+# =============================================================================
+# 1. BASE FEATURES (Time-Series Cleaning & Windowing)
+# =============================================================================
+# This section automates the processing of raw, messy time-series data (like vitals).
+# Instead of writing complex Python loops, you declare what you want here:
+# - impute: How to fill missing data (e.g., 'ffill' carries the last known value forward).
+# - missing_indicator: If true, creates a new column flagging where data was originally missing.
+# - rolling: Automatically calculates windowed features (e.g., maximum heart rate over 24h).
+base_features:
+  hr:
+    impute: 'ffill'
+    missing_indicator: false
+    delta: true
+    rolling:
+      windows: ['24h', '7D']
+      aggs: ['mean', 'max']
+
+  sbp:
+    impute: 'ffill'
+    missing_indicator: false
+    delta: true
+    rolling:
+      windows: ['24h']
+      aggs: ['min'] # For SBP, we usually care about the lowest drops
+
+  rr:
+    impute: 'ffill'
+
+  crp:
+    impute: 'constant'
+    fill_value: 5.0
+    missing_indicator: true
+
+# =============================================================================
+# 2. COMPUTED FEATURES (Fast Mathematical Expressions)
+# =============================================================================
+# This section uses the Pandas `df.eval()` engine. It allows you to write
+# simple, one-line mathematical equations or logic as strings.
+# - It is extremely fast.
+# - Boolean logic (like `rr >= 22`) automatically evaluates to 1 (True) or 0 (False),
+# - Easy to build simple additive scores without writing a full Python function.
+
+# USES df.eval() - EXPLAIN
+computed_features:
+  # Clinical Ratios
+  shock_index: "hr / sbp"
+
+  # Clinical Scores (e.g., simplified qSOFA: RR >= 22 and SBP <= 100)
+  qsofa_score: "(rr >= 22) + (sbp <= 100)"
+
+  # Hypothetical composite feature
+  vitals_stress_factor: "(hr_24h_mean / 80) + (temp - 37)"
+
+  # Hypothetical ground truth.
+  sepsis_case: "(qsofa_score >= 1) + 0"
+
+  # This does the exact same thing as the Python function, but in one line!
+  # It evaluates to True (1) or False (0).
+  #derived_diabetes_simple: "(med_insulin_given == 1) or (Glucose_24h_max > 200)"
+
+# =============================================================================
+# 3. CUSTOM FEATURES (Complex Phenotyping)
+# =============================================================================
+# When a feature is too complex for a one-line equation (like searching through
+# text for ICD-10 codes or combining multiple rules), we define it as a "Phenotype".
+# This section tells the pipeline which Python function to run and which columns
+# from the dataset to pass into it as arguments (kwargs).
+custom_features:
+
+  # --------------------------------------
+  # Ground truth labels
+  # --------------------------------------
+  ground_truth:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_ground_truth'
+    kwargs:
+      seed: 123
+
+
+  # -------------------------------------
+  # Partials for Pitt Sore
+  # -------------------------------------
+  pitt_fever_status_score:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_pitt_fever_status'
+    kwargs:
+      temp_cols:
+        - 'temp_24h_max'
+        - 'temp_24h_min'
+        - 'temp'
+
+  has_vasopressors:
+    module: 'icare_risk.phenotypes'
+    function: 'has_medication_in_window'
+    kwargs:
+      window_hours: 24
+      target_meds:
+        - 'norepinephrine'
+        - 'epinephrine'
+        - 'vasopressin'
+        - 'dopamine'
+        - 'dobutamine'
+        - 'phenylephrine'
+        - 'noradrenaline'
+        - 'angiotensin'
+
+  pitt_hypotension_flag:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_pitt_hypotension_status'
+    kwargs:
+      sbp_col: 'sbp_24h_min'
+      vasopressor_col: 'has_vasopressors'
+
+  # -------------------------------------
+  # Partials for SIRS
+  # -------------------------------------
+  sirs_tachycardia_flag:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_sirs_tachycardia'
+    kwargs:
+      hr_col: 'hr_24h_max'
+
+  sirs_tachypnea_flag:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_sirs_tachypnea'
+    kwargs:
+      rr_col: 'rr_24h_max'
+      paco2_col: 'paco2'
+
+  sirs_abnormal_temp_flag:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_sirs_abnormal_temp'
+    kwargs:
+      temp_cols:
+        - 'temp_24h_max'
+        - 'temp_24h_min'
+        - 'temp'
+
+  sirs_abnormal_wbc_flag:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_sirs_abnormal_wbc'
+    kwargs:
+      wbc_col: 'wbc'
+      bands_col: 'bands'
+
+  # ---------------------------------------------
+  # Partials for Charlson / Charslson quan score
+  # ---------------------------------------------
+  charlson_mi_flag: # has_myocardial_infarction
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes:
+        - '323..00' # Read codes from your docstring
+        - 'G30..00'
+        - 'I21'     # Example ICD-10
+        - 'I22'
+        - 'I25.2'
+
+  hx_mi: # has_myocardial_infarction
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['I21', 'I22', 'I25.2', '323..00', 'G30..00']
+
+  # has_congestive_heart_failure
+  hx_chf:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['I50', 'I11.0', 'G58..00']
+
+  # has_peripheral_vascular_disease
+  hx_pvd:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['I71', 'I73.9', 'I79.0', 'R02', 'Z95.8', 'Z95.9']
+
+  # has_cerebrovascular_disease
+  hx_stroke:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'G45', 'G46']
+
+  # has_dementia
+  hx_dementia:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['F00', 'F01', 'F02', 'F03', 'F05.1', 'G30', 'G31.1']
+
+  # has_chronic_pulmonary_disease
+  hx_pulmonary:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['J40', 'J41', 'J42', 'J43', 'J44', 'J45', 'J46', 'J47', 'J60', 'J61', 'J62', 'J63', 'J64', 'J65', 'J66', 'J67']
+
+  # has_connective_tissue_disease
+  hx_rheum:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['M05', 'M06', 'M31.5', 'M32', 'M33', 'M34', 'M35.1', 'M35.3', 'M36.0']
+
+  # has_peptic_ulcer_disease
+  hx_pud:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['K25', 'K26', 'K27', 'K28']
+
+  # has_mild_liver_disease
+  hx_liver_mild:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['B18', 'K70.0', 'K70.1', 'K70.2', 'K70.3', 'K70.9', 'K71', 'K73', 'K74', 'K76.0']
+
+  # has_diabetes_without_complications
+  hx_diabetes_uncomp:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['E10.0', 'E10.1', 'E10.6', 'E10.8', 'E10.9', 'E11.0', 'E11.1', 'E11.6', 'E11.8', 'E11.9', 'E13', 'E14']
+
+  # --- 2 Point Categories ---
+  # has_hemiplegia_or_paraplegia
+  hx_hemiplegia:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['G04.1', 'G11.4', 'G80.1', 'G80.2', 'G81', 'G82', 'G83.0', 'G83.1', 'G83.2', 'G83.3', 'G83.4', 'G83.9']
+
+  # has_moderate_to_severe_renal_disease
+  hx_renal_mod_sev:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['N03', 'N05.2', 'N05.3', 'N05.4', 'N05.5', 'N05.6', 'N18', 'N19', 'N25.0', 'Z49', 'Z94.0', 'Z99.2']
+
+  # has_diabetes_with_complications
+  hx_diabetes_comp:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['E10.2', 'E10.3', 'E10.4', 'E10.5', 'E10.7', 'E11.2', 'E11.3', 'E11.4', 'E11.5', 'E11.7']
+
+  # has_metastatic_solid_tumor
+  hx_cancer_solid:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['C00', 'C01', 'C02', 'C03', 'C04', 'C05', 'C06', 'C07', 'C08', 'C09', 'C10', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22', 'C23', 'C24', 'C25', 'C26', 'C30', 'C31', 'C32', 'C33', 'C34', 'C37', 'C38', 'C39', 'C40', 'C41', 'C43', 'C45', 'C46', 'C47', 'C48', 'C49', 'C50', 'C51', 'C52', 'C53', 'C54', 'C55', 'C56', 'C57', 'C58', 'C60', 'C61', 'C62', 'C63', 'C64', 'C65', 'C66', 'C67', 'C68', 'C69', 'C70', 'C71', 'C72', 'C73', 'C74', 'C75', 'C76', 'C97']
+
+  hx_leukemia:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['C91', 'C92', 'C93', 'C94', 'C95']
+
+  hx_lymphoma:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['C81', 'C82', 'C83', 'C84', 'C85', 'C88', 'C90', 'C96']
+
+  # --- 3 Point Categories ---
+  hx_liver_mod_sev:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['I85.0', 'I85.9', 'I86.4', 'I98.2', 'K70.4', 'K71.1', 'K72.1', 'K72.9', 'K76.5', 'K76.6', 'K76.7']
+
+  # --- 6 Point Categories ---
+  hx_cancer_met:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['C77', 'C78', 'C79', 'C80']
+
+  hx_aids:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['B20', 'B21', 'B22', 'B24']
+
+  hx_hiv: # Note: Often weighted as 1 if not AIDS, but 6 in original Quan logic
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes: ['Z21']
+
+  # -------------------------------------
+  # Increment ESBL Score
+  # -------------------------------------
+  increment_bsi_not_urinary_flag:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_bsi_not_urinary'
+    kwargs:
+      target_col: 'bsi_source'
+      urine_culture_code: 'LOINC-630-4'
+
+  increment_is_non_ecoli_flag:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_is_non_ecoli'
+    kwargs:
+      target_col: 'ORGANISM_BUG'
+
+  increment_abx_inappropriate_flag:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_abx_inappropriate'
+    kwargs:
+      window_hours: 24
+
+  # ---------------------------------------
+  # Holmgren Score
+  # ---------------------------------------
+  hx_prior_abx_30d:
+    module: 'icare_risk.phenotypes'
+    function: 'has_medication_in_window'
+    kwargs:
+      window_hours: 720  # 30 days * 24 hours
+      target_meds:
+        - 'ceftriaxone'
+        - 'cefepime'
+        - 'ciprofloxacin'
+        - 'levofloxacin'
+        # ... add your specific ABX list here
+
+    hx_prior_fc_abx_90d:
+      module: 'icare_risk.phenotypes'
+      function: 'has_medication_in_window'
+      kwargs:
+        window_hours: 2160  # 90 days * 24 hours
+        target_meds:
+          - 'ciprofloxacin'
+          - 'levofloxacin'
+          - 'ceftriaxone'
+          - 'ceftazidime'
+
+  # ---------------------------------------
+  # Gavaghan Score
+  # ---------------------------------------
+  hx_nursing_home_resident:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes:
+        - 'Z59.3' # ICD-10 for resident in institution
+
+  hx_chronic_dialysis:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes:
+        - 'Z99.2'
+
+  hx_urinary_catheter_present:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      target_codes:
+        - 'Z46.6' # ICD-10 for 'Encounter for fitting/adjustment of urinary device'
+        - 'Y84.6' # Urinary catheterization as cause of abnormal reaction
+
+  # 2. Prior Antibiotics (Broad 90-day check)
+  # Note: Gavaghan used 'hx_prior_fc_abx_90d' for just fluoroquinolones/cephalosporins.
+  # Tumbarello/Kim usually look at a broader list of beta-lactams.
+  hx_prior_abx_90d:
+    module: 'icare_risk.phenotypes'
+    function: 'has_medication_in_window'
+    kwargs:
+      window_hours: 2160  # 90 days * 24 hours
+      target_meds:
+        - 'amoxicillin'
+        - 'piperacillin'
+        - 'meropenem'
+        - 'ceftriaxone'
+        - 'ciprofloxacin'
+        # ... expand with your formulary's standard broad-spectrum ABX
+
+  # -------------------------------------------------------------
+  # Prior Hospitalizations (Requires an Episodes/Encounters lookup)
+  # -------------------------------------------------------------
+
+  # If you have an explicit 'previous_admissions_count' column in your static data,
+  # you don't even need a python function, you can use pandas eval!
+  hx_hosp_last_90d:
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition' # You may need to tweak this helper to check dates if it only checks codes
+    kwargs:
+      target_codes: [ 'placeholder_for_admission_code' ]
+
+
+# =============================================================================
+# 4. CUSTOM SCORES (Final Clinical Risk Calculations)
+# =============================================================================
+# This section computes the standardized clinical metrics (like Charlson or INCREMENT).
+# It relies on the clean features and phenotypes we generated in the steps above.
+# The pipeline maps the column names in our dataset (kwargs) directly to the
+# arguments expected by the mathematical scoring functions in `src/scores.py`.
+custom_scores:
+
+  charlson_score:
+    module: 'icare_risk.scores'
+    function: 'calculate_charlson'
+    kwargs:
+      age_col: 'AGE_AT_ADMISSION'
+      comorbidities:
+        # 1 Point
+        hx_mi: 1
+        hx_chf: 1
+        hx_pvd: 1
+        hx_stroke: 1
+        hx_dementia: 1
+        hx_pulmonary: 1
+        hx_rheum: 1
+        hx_pud: 1
+        hx_liver_mild: 1
+        hx_diabetes_uncomp: 1
+        # 2 Points
+        hx_hemiplegia: 2
+        hx_renal_mod_sev: 2
+        hx_diabetes_comp: 2
+        hx_cancer_solid: 2
+        hx_leukemia: 2
+        hx_lymphoma: 2
+        # 3 Points
+        hx_liver_mod_sev: 3
+        # 6 Points
+        hx_cancer_met: 6
+        hx_aids: 6
+
+  charlson_quan_score:
+    module: 'icare_risk.scores'
+    function: 'calculate_charlson_quan'
+    kwargs:
+      age_col: 'AGE_AT_ADMISSION'
+      # Simple 1-point categories
+      mi_col: 'hx_mi'
+      chf_col: 'hx_chf'
+      pvd_col: 'hx_pvd'
+      stroke_col: 'hx_stroke'
+      dementia_col: 'hx_dementia'
+      pulmonary_col: 'hx_pulmonary'
+      rheum_col: 'hx_rheum'
+      pud_col: 'hx_pud'
+      # Hierarchical and weighted categories
+      liver_mild_col: 'hx_liver_mild'
+      liver_sev_col: 'hx_liver_mod_sev'
+      diabetes_uncomp_col: 'hx_diabetes_uncomp'
+      diabetes_comp_col: 'hx_diabetes_comp'
+      cancer_solid_col: 'hx_cancer_solid'
+      cancer_met_col: 'hx_cancer_met'
+      hiv_col: 'hx_hiv'
+      aids_col: 'hx_aids'
+      renal_sev_col: 'hx_renal_mod_sev'
+
+  pitt_score:
+    module: 'icare_risk.scores'
+    function: 'calculate_pitt_score'
+    kwargs:
+      temp_col: 'pitt_fever_status_score' # temp_24h_max
+      hypotens_col: 'pitt_hypotension_flag'
+      vent_col: 'pitt_mech_vent_flag'
+      arrest_col: 'pitt_cardiac_arrest_flag'
+      mental_col: 'pitt_mental_status_score'
+
+  sirs_count:
+    module: 'icare_risk.scores'
+    function: 'calculate_sirs'
+    kwargs:
+      tachycardia_col: 'sirs_tachycardia_flag' # temp_24h_max
+      tachypnea_col: 'sirs_tachypnea_flag'     # hr_24h_max
+      temp_col: 'sirs_abnormal_temp_flag'      # rr_24h_max
+      wbc_col: 'sirs_abnormal_wbc_flag'        # wbc
+
+  mews_score:
+    module: 'icare_risk.scores'         # The python file (src/scores.py)
+    function: 'calculate_mews'   # The specific function to call
+    kwargs:                      # The column mappings to pass to the function
+      rr_col: 'rr_24h_max'
+      hr_col: 'hr_24h_max'
+      sbp_col: 'sbp_24h_min'     # SBP MEWS points are mostly for low BP
+      temp_col: 'temp_24h_max'
+
+  increment_esbl_score:
+    module: 'icare_risk.scores'
+    function: 'calculate_increment_esbl'
+    kwargs:
+      age_col: 'AGE_AT_ADMISSION'
+      charlson_col: 'charlson_quan_score'  # References the score computed above
+      pitt_col: 'pitt_score'               # References the score computed above
+      sirs_col: 'sirs_count'               # References the score computed above
+      bsi_not_urinary_col: 'increment_bsi_not_urinary_flag'
+      is_non_ecoli_col: 'increment_is_non_ecoli_flag'
+      inapprop_abx_col: 'increment_abx_inappropriate_flag'
+
+  holmgren_score:
+    module: 'icare_risk.scores'
+    function: 'calculate_holmgren_score'
+    kwargs:
+      hosp_abroad_col: 'hx_hosp_abroad_12m'
+      prev_culture_col: 'hx_prev_3gcr_culture'
+      prev_swab_col: 'hx_prev_3gcr_rectal_swab'
+
+  gavaghan_score:
+    module: 'icare_risk.scores'
+    function: 'calculate_gavaghan_score'
+    kwargs:
+      age_col: 'AGE_AT_ADMISSION'
+      prior_esbl_col: 'hx_prior_esbl_365d'
+      nursing_home_col: 'hx_nursing_home_resident'
+      urinary_catheter_col: 'hx_urinary_catheter_present'
+      prior_abx_col: 'hx_prior_fc_abx_90d'
+
+  jones_score:
+    module: 'icare_risk.scores'
+    function: 'calculate_jones_score'
+    kwargs:
+      prior_esbl_col: 'hx_prior_esbl_180d'
+      prior_abx_col: 'hx_prior_abx_30d'
+      chronic_dialysis_col: 'hx_chronic_dialysis'
+      transfer_hosp_col: 'hx_transfer_from_hosp'
+
+  tumbarello_score:
+    module: 'icare_risk.scores'
+    function: 'calculate_tumbarello_score'
+    kwargs:
+      prior_esbl_col: 'hx_prior_esbl_any'
+      hosp_90d_col: 'hx_hosp_last_90d'
+      abx_90d_col: 'hx_prior_abx_90d'
+      urinary_catheter_col: 'hx_urinary_catheter_present'
+
+  kim_score:
+    module: 'icare_risk.scores'
+    function: 'calculate_kim_score'
+    kwargs:
+      prior_esbl_col: 'hx_prior_esbl_any'
+      hosp_1y_col: 'hx_hosp_last_365d'
+      nursing_home_col: 'hx_nursing_home_resident'
+      urinary_catheter_col: 'hx_urinary_catheter_present'
+      prior_abx_90d_col: 'hx_prior_abx_90d'

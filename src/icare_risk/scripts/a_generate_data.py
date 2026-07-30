@@ -1,17 +1,17 @@
-# scripts/01_generate_data.py
+# scripts/a_generate_data.py
 
 import sys
-import yaml
 import argparse
 from pathlib import Path
 from datetime import datetime
 
 # Setup path so Python can find 'src'
-project_root = Path(__file__).resolve().parent.parent
-sys.path.append(str(project_root))
 project_root = Path.cwd()
+sys.path.append(str(project_root))
 
-from src.generators import generate_custom_table, generate_eav_timeseries
+from icare_risk.generators import generate_custom_table
+from icare_risk.generators import generate_eav_timeseries
+from icare_risk.utils import load_yaml_config
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
     parser.add_argument(
         '--config',
         type=str,
-        default='data_config.yaml',  # Fallback if no parameter is passed
+        default=None,  # Defaults to None, loads package defaults natively
         help='Name of the YAML config file located in the config/ directory'
     )
     args = parser.parse_args()
@@ -32,22 +32,19 @@ def main():
     print("==================================================\n")
 
     # 1. Setup Paths and Load Config
-    config_dir = project_root / 'config'
     date_str = datetime.now().strftime('%Y-%m-%d_%H%M%S')
     data_dir = project_root / 'data' / 'synthetic' / date_str
     data_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"\n📂 TARGET SAVE DIRECTORY: {data_dir.absolute()}\n")
 
-    config_path = config_dir / args.config
-    if not config_path.exists():
-        print(f"❌ Error: Config file not found at {config_path}")
-        return
+    # 2. Load Configuration securely using our new loader
+    data_config = load_yaml_config(
+        config_name="data_config.yaml",
+        user_path=args.config
+    )
 
-    with open(config_path, 'r') as f:
-        data_config = yaml.safe_load(f)
-
-    # 2. Establish Global Parameters
+    # 3. Establish Global Parameters
     params = data_config.get('generation_params', {})
     n_patients = params.get('n_patients', 100)
 
@@ -62,7 +59,8 @@ def main():
         print(f"Generating configured tables for {n_patients} patients...")
 
         # It's important the YAML is ordered with Parent tables (like Episodes)
-        # before Child tables (like Pharmacy or Vitals) so foreign keys exist when needed.
+        # before Child tables (like Pharmacy or Vitals) so foreign keys exist
+        # when needed.
         for table_name, table_config in data_config['tables'].items():
 
             if not isinstance(table_config, dict) or 'type' not in table_config:

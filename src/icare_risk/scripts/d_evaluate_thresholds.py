@@ -1,26 +1,23 @@
-# scripts/04_evaluate_thresholds.py
+# scripts/d_evaluate_thresholds.py
 
 import sys
-import yaml
 import argparse
 import pandas as pd
-import numpy as np
 from pathlib import Path
 from sklearn.metrics import confusion_matrix
 
 # Setup path so Python can find 'src' and 'config'
-project_root = Path(__file__).resolve().parent.parent
+project_root = Path.cwd()
 sys.path.append(str(project_root))
 
-project_root = Path.cwd()
-
-from src.utils import get_latest_processed_file
+from icare_risk.utils import get_latest_processed_file
+from icare_risk.utils import load_yaml_config
 
 
 def main():
     parser = argparse.ArgumentParser(description="Stewardship Safety Evaluation")
     parser.add_argument('--threshold-config',
-        type=str, default='threshold_config.yaml', help='Name of the threshold YAML config file')
+        type=str, default=None, help='Name of the threshold YAML config override')
     args = parser.parse_args()
 
     print("==================================================")
@@ -42,15 +39,11 @@ def main():
     metrics_dir.mkdir(parents=True, exist_ok=True)
 
     # 3. Load Threshold Configurations
-    threshold_path = project_root / 'config' / args.threshold_config
-    target_label = 'sepsis_case'  # Adjust if your target label in eval_config is different
-
-    if not threshold_path.exists():
-        print(f"⚠ Threshold config not found at {threshold_path}. Skipping stewardship validation.")
-        return
-
-    with open(threshold_path, 'r') as file:
-        threshold_config = yaml.safe_load(file)
+    threshold_config = load_yaml_config(
+        config_name="threshold_config.yaml",
+        user_path=args.threshold_config
+    )
+    target_label = threshold_config.get('target_label', 'sepsis_case')
 
     recommended_thresholds = threshold_config.get('thresholds', {})
     stewardship_results = []

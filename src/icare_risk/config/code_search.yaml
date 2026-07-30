@@ -1,0 +1,16 @@
+# config/code_search.yaml
+search_campaigns:
+  - category: "Myocardial Infarction"
+    include_keywords: ["myocardial", "infarction", "heart attack"]
+    exclude_keywords: ["old", "history"]
+    target_charlson: "Myocardial infarction"
+
+  - category: "Dementia"
+    include_keywords: ["dementia", "alzheimer", "senile"]
+    exclude_keywords: ["family history"]
+    target_charlson: "Dementia"
+
+  - category: "Renal Disease"
+    include_keywords: ["renal", "kidney", "nephropathy", "dialysis"]
+    exclude_keywords: []
+    target_charlson: "Moderate to severe renal disease"

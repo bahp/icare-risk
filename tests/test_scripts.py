@@ -25,17 +25,19 @@ def test_entire_pipeline_sequentially(tmp_path):
 
     # Define the exact order of the pipeline
     pipeline = [
-        "scripts.01_generate_data",
-        "scripts.02_build_features_icare",
-        "scripts.03_evaluate_scores",
-        "scripts.04_evaluate_thresholds",
-        "scripts.05_validate_scores",
-        "scripts.06_find_clinical_codes",
+        "icare_risk.scripts.a_generate_data",
+        "icare_risk.scripts.b_build_features_icare",
+        "icare_risk.scripts.c_evaluate_scores",
+        "icare_risk.scripts.d_evaluate_thresholds",
+        "icare_risk.scripts.e_validate_scores",
+        "icare_risk.scripts.f_find_clinical_codes",
         #"scripts.main"
     ]
 
     env = os.environ.copy()
-    env["PYTHONPATH"] = str(project_root)
+    #env["PYTHONPATH"] = str(project_root)
+
+    env["PYTHONPATH"] = str(project_root / "src") + os.pathsep + str(project_root)
 
     for module in pipeline:
         result = subprocess.run(
