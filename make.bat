@@ -24,6 +24,7 @@ if "%1"=="validate" goto validate
 if "%1"=="search" goto search
 if "%1"=="test" goto test
 if "%1"=="clean" goto clean
+if "%1"=="publish" goto publish
 if "%1"=="build-pkg" goto build_pkg
 if "%1"=="test-pkg" goto test_pkg
 goto menu
