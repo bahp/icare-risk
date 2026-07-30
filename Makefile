@@ -82,7 +82,7 @@ clean:
 
 publish:
 	@echo "Tagging and triggering PyPI release..."
-	$(eval TAG := v$(shell date +'%Y.%m.%d.%H'))
+	$(eval TAG := v$(shell date +'%Y.%m.%d.%H.%M'))
 	git tag $(TAG)
 	git push origin $(TAG)
 	@echo "Release $(TAG) pushed!"

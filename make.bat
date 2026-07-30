@@ -131,7 +131,7 @@ goto :eof
 echo Tagging and triggering PyPI release...
 :: Get current date/time parts for Windows
 for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set dt=%%I
-set TAG=v%dt:~0,4%.%dt:~4,2%.%dt:~6,2%.%dt:~8,2%
+set TAG=v%dt:~0,4%.%dt:~4,2%.%dt:~6,2%.%dt:~8,2%.%dt:~10,2%
 git tag %TAG%
 git push origin %TAG%
 echo Release %TAG% pushed!
