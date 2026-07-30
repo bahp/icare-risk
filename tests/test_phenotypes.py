@@ -2,7 +2,7 @@
 import pandas as pd
 import pytest
 
-from src.icare_risk.phenotypes import (
+from icare_risk.phenotypes import (
     derive_pitt_fever_status,
     derive_sirs_tachycardia,
     derive_sirs_tachypnea,

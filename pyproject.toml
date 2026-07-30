@@ -28,7 +28,7 @@ where = ["src"]
 include = ["icare_risk", "icare_risk.*"]
 
 [tool.setuptools.package-data]
-"icare_risk.config" = ["*.yaml"]
+"icare_risk.config" = ["*.yaml", "tests/fixtures/*.csv"]
 
 [tool.setuptools_scm]
 fallback_version = "0.0.0-dev"

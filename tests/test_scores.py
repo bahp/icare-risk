@@ -1,9 +1,8 @@
 # tests/test_scores.py
-import sys
 import pytest
-import yaml
 import pandas as pd
 from pathlib import Path
+from importlib.resources import files
 
 # Ensure src is in the path
 #project_root = Path(__file__).resolve().parent.parent
@@ -34,11 +33,19 @@ def score_configs():
     config = load_yaml_config(config_name="feature_config.yaml")
     return config.get('custom_scores', {})
 
+
 def get_test_data():
-    """Helper to load the CSV test cases."""
-    project_root = Path.cwd()
-    csv_path = project_root / 'tests' / 'cases.csv'
-    return pd.read_csv(csv_path)
+    """Safely loads cases.csv from the packaged data resources."""
+    try:
+        # Load from installed package resources
+        csv_path = files('icare_risk').joinpath('tests/fixtures/cases.csv')
+        with csv_path.open('r', encoding='utf-8') as f:
+            return pd.read_csv(f)
+    except (FileNotFoundError, ModuleNotFoundError):
+        # Fallback for direct local repository development
+        project_root = Path(__file__).resolve().parent.parent
+        csv_path = project_root / 'tests' / 'cases.csv'
+        return pd.read_csv(csv_path)
 
 
 # =============================================================================
