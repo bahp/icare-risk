@@ -6,8 +6,10 @@ on:
       - 'v*'  # <--- Action triggers ONLY when a tag starting with 'v' is pushed
 
 jobs:
-  deploy:
+  pypi-publish:
+    name: Upload release to PyPI
     runs-on: ubuntu-latest
+    environment: pypi
     permissions:
       id-token: write  # <--- This is required for tokenless publishing
     steps:
