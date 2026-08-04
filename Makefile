@@ -32,6 +32,8 @@ help:
 	@echo "  make search     - Discover Clinical Codes (Keywords)"
 	@echo "  make test       - Run Pytest Suite"
 	@echo "  make clean      - Remove old reports"
+	@echo "  make docs-serve - Serve Zensical Docs Locally"
+	@echo "  make docs-build - Build Zensical Docs"
 	@echo ""
 	@echo "OPTIONS:"
 	@echo "  local           - Run natively on your machine instead of Docker"
@@ -73,9 +75,20 @@ test:
 	$(RUN) $(PYTHON) -m pytest tests/ $(ARGS)
 
 clean:
-	@echo "\n--- 🧹 Cleaning up reports ---"
+	@echo "\n--- Cleaning up reports ---"
 	rm -f reports/*.log reports/*.txt
 	@echo "Done."
+
+.PHONY: docs-serve docs-build
+
+docs-serve:
+	@echo "\n--- 📖 Serving Documentation Locally ---"
+	$(RUN) zensical serve -a 0.0.0.0:8000
+
+docs-build:
+	@echo "\n--- 📖 Building Documentation ---"
+	$(RUN) zensical build --clean
+
 
 
 .PHONY: publish

@@ -27,6 +27,8 @@ if "%1"=="clean" goto clean
 if "%1"=="publish" goto publish
 if "%1"=="build-pkg" goto build_pkg
 if "%1"=="test-pkg" goto test_pkg
+if "%1"=="docs-serve" goto docs_serve
+if "%1"=="docs-build" goto docs_build
 goto menu
 
 :menu
@@ -44,6 +46,8 @@ echo   8. test       - Run Pytest Suite
 echo   9. clean      - Remove old reports
 echo   10. build-pkg - Build PyPI Package
 echo   11. test-pkg  - Verify Package in Isolated Venv
+echo   12. docs-serve - Serve Zensical Docs Locally
+echo   13. docs-build - Build Zensical Docs
 echo   0. exit       - Close the manager
 echo ============================================================
 echo NOTE: Commands run in Docker by default.
@@ -125,6 +129,19 @@ if exist reports\*.log del /q reports\*.log
 if exist reports\*.txt del /q reports\*.txt
 echo Done.
 timeout /t 2 >nul
+goto :eof
+
+
+:docs_serve
+echo.
+echo --- Serving Documentation Locally ---
+%RUN% zensical serve -a 0.0.0.0:8000
+goto :eof
+
+:docs_build
+echo.
+echo --- Building Documentation ---
+%RUN% zensical build --clean
 goto :eof
 
 :publish

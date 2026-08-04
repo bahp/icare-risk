@@ -1,0 +1,24 @@
+site_name: iCARE Risk Documentation
+site_description: Documentation and guides for the iCARE Risk pipeline
+site_url: https://<your-username>.github.io/<your-repo-name>/
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for automatic light/dark mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Azure ML Guide: docs/azure-ml-guide.md
