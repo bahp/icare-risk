@@ -1,31 +1,44 @@
-# 📖 Guide: Synthetic Clinical Data Generator
+# Synthetic Clinical Data Generator
 
-This tool allows you to generate fake patient data. Instead of hard-coding values, the system uses a flexible **blueprint** (`data_config.yaml`) to build a relational database of patients, vitals, labs, and medications.
+This tool allows you to generate fake patient data. Instead of hard-coding values, 
+the system uses a flexible **blueprint** (`data_config.yaml`) to build a relational 
+database of patients, vitals, labs, and medications.
 
-> 💡 **For Dummies:** Think of this tool as a factory.
->
-> The `data_config.yaml` file is the **recipe book** that tells the factory what to build. The Python scripts are the **machines** that actually build it.
+!!! tip "For Dummies: Think of this tool as a factory"
+    The `data_config.yaml` file is the **recipe book** that tells the factory what 
+    to build. The Python scripts are the **machines** that actually build it.
 
 ---
 
 ## 1. Global Parameters (The "Big Picture")
 
-At the very top of your `data_config.yaml` file, you will find `generation_params`. This dictates the size and scope of your fake hospital.
+At the very top of your `data_config.yaml` file, you will find the `data_source`,
+`paths` and `generation_params`. This latter dictates the size and scope of your 
+fake hospital.
 
 ```yaml
+data_source: "synthetic"            # Generate synthetic data
+
+paths:
+  synthetic_dir: "data/synthetic"   # Path to save synthetic data
+  external_dir: "data/external"
+  processed_dir: "data/processed"
+
 generation_params:
-    n_patients: 100          # How many fake patients to create
-    days: 10                 # How many days of data to simulate
-    freq: '4h'               # How often to check vitals (every 4 hours)
-    output_format: 'tidy'    # The shape of the final data
-    default_missing_rate: 0.5 # 50% chance a test isn't taken (makes data realistic)
+  n_patients: 100           # How many fake patients to create
+  days: 10                  # How many days of data to simulate
+  freq: '4h'                # How often to check vitals (every 4 hours)
+  output_format: 'tidy'     # The shape of the final data
+  default_missing_rate: 0.5 # 50% chance a test isn't taken (makes data realistic)
 ```
 
 ---
 
 ## 2. The Clinical Dictionary (The "Menu")
 
-Before building tables, we define universal medical concepts under `clinical_concepts`. This ensures the generator never creates impossible scenarios (like a body temperature of 100°C) and standardizes coding.
+Before building tables, we define universal medical concepts under `clinical_concepts`. 
+This ensures the generator never creates impossible scenarios (like a body temperature 
+of 100°C) and standardizes coding.
 
 Concepts are grouped into:
 
@@ -35,18 +48,20 @@ Concepts are grouped into:
 
 Each concept defines:
 
-| Property        | Description                                                                                      |
-| --------------- | ------------------------------------------------------------------------------------------------ |
-| `code` & `name` | The LOINC code and human-readable string (e.g., `"LOINC-8867-4"`, `"Heart Rate"`).               |
-| `unit`          | Measurement unit (e.g., `'bpm'`, `'mg/dL'`).                                                     |
-| `prob`          | The probability this specific test is ordered/recorded. This overrides the default missing rate. |
-| `range`         | The absolute `[min, max]` bounds for generated values.                                           |
+| Property  | Description                                                                                      |
+|-----------|--------------------------------------------------------------------------------------------------|
+| `code`    | The LOINC code (e.g., `"LOINC-8867-4"` for heart rate)                                           |
+| `name`    | The human-readable string (e.g. `"Heart Rate"`)                                                  |
+| `unit`    | Measurement unit (e.g., `'bpm'`, `'mg/dL'`).                                                     |
+| `prob`    | The probability this specific test is ordered/recorded. This overrides the default missing rate. |
+| `range`   | The absolute `[min, max]` bounds for generated values.                                           |
 
 ---
 
 ## 3. Table Architectures
 
-> ⚙️ **Under the Hood:** The `tables` section dictates how CSVs are structured and how they relate.
+!!! info "Under the Hood"
+    The `tables` section dictates how CSVs are structured and how they relate.
 
 Let's break down the core architectural rules.
 
@@ -56,13 +71,14 @@ Every table must define its basic structural behavior.
 
 #### `type: "relational"`
 
-A standard spreadsheet where each row is a distinct event, such as an admission or a prescribed drug.
+A standard spreadsheet where each row is a distinct event, (e.g. admission or a prescribed drug).
 
 #### `type: "eav_timeseries"`
 
 Entity-Attribute-Value format.
 
-This is used for repeating measurements such as heart rate over time. It makes one long table where the **test name** and **result** are stacked in rows rather than spread across many different columns.
+This is used for repeating measurements such as heart rate over time. It makes one long table where the **test name**
+and **result** are stacked in rows rather than spread across many different columns.
 
 #### `rows_per_patient_range: [1, 5]`
 
@@ -101,23 +117,21 @@ OBSERVATION_RESULT_CLEAN:
 
 ## 4. Column Types Deep-Dive
 
-Inside the `schema` of a table, you define your columns. Here is what each column configuration does.
+Inside the `schema` of a table, you define your columns. Here is what each column 
+configuration does with soeme examples included.
 
 ### 1. The Combo Meal: `categorical_tuple`
 
-This is crucial for clinical accuracy.
-
-If a patient has diabetes, their diagnosis code should always match the description. If you generated them separately, you might accidentally give a patient an Asthma code with a Diabetes description.
-
-A `categorical_tuple` locks them together.
+This is crucial for clinical accuracy. If a patient has diabetes, their diagnosis code should 
+always match the description. If you generated them separately, you might accidentally give a 
+patient an Asthma code with a Diabetes description. A `categorical_tuple` locks them together.
 
 ```yaml
 PROBLEM_TUPLE:
   type: "categorical_tuple"
   columns: [ "PROBLEM_CODE", "PROBLEM_DESC" ]
   values:
-    # If the generator picks line 1, it inserts both
-    # "E11.9" and the Diabetes text safely.
+    # If the generator picks line 1, it inserts both "E11.9" and Diabetes text safely.
     - [ "E11.9", "Type 2 diabetes mellitus" ]
     - [ "I10", "Essential (primary) hypertension" ]
     - [ "J44.9", "Chronic obstructive pulmonary disease" ]
@@ -127,9 +141,8 @@ PROBLEM_TUPLE:
 
 ### 2. Time Travel Prevention: `date` and `date_offset`
 
-Medical data must follow a timeline. You can't resolve a medical problem before you've diagnosed it.
-
-The generator uses offsets to enforce this logic.
+Medical data must follow a timeline. You can't resolve a medical problem before you've 
+diagnosed it. The generator uses offsets to enforce this logic.
 
 ```yaml
 PROBLEM_DT_TM:
@@ -143,9 +156,9 @@ UPDATE_DT_TM:
   days_range: [ 0, 90 ]     # ...and add anywhere from 0 to 90 days to it.
 ```
 
-**Result:** If the problem started on January 1st, the update date is mathematically guaranteed to happen between January 1st and April 1st.
-
-No time paradoxes!
+!!! success "Result"
+    If the problem started on January 1st, the update date is mathematically guaranteed to happen between
+    January 1st and April 1st. No time paradoxes!
 
 ---
 
@@ -171,13 +184,13 @@ This tells the script:
 
 The generator also provides several simple column types:
 
-| Type         | Description                                                                                                                         |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `unique_id`  | Generates a random 7-digit number (e.g., `8472910`).                                                                                |
-| `enumerated` | Randomly selects a value from a defined list, such as `["yes", "no", "none"]`.                                                      |
-| `boolean`    | Flips a coin. `probability: 0.70` means there is a 70% chance of generating `1` (True), and a 30% chance of generating `0` (False). |
-| `int`        | Generates random whole numbers within a provided `range: [min, max]`.                                                               |
-| `float`      | Generates random decimal numbers within a provided `range: [min, max]`.                                                             |
+| Type         | Description                                                                    |
+|--------------|--------------------------------------------------------------------------------|
+| `unique_id`  | Generates a random 7-digit number (e.g., `8472910`).                           |
+| `enumerated` | Randomly selects a value from a defined list, such as `["yes", "no", "none"]`. |
+| `boolean`    | Flips a coin. `probability: 0.70` means 70% chance of generating `1` (True).   |
+| `int`        | Generates random whole numbers within a provided `range: [min, max]`.          |
+| `float`      | Generates random decimal numbers within a provided `range: [min, max]`.        |
 
 ---
 
@@ -186,7 +199,7 @@ The generator also provides several simple column types:
 The `data_config.yaml` currently builds **6 interconnected tables** for your cohort.
 
 | # | Table Name                            | Description                                                                                 |
-| - | ------------------------------------- | ------------------------------------------------------------------------------------------- |
+|---|---------------------------------------|---------------------------------------------------------------------------------------------|
 | 1 | **`ICARE_EPISODES_ANON`**             | The anchor table. Records admissions, discharges, age, and deprivation deciles.             |
 | 2 | **`ICARE_MICROBIOLOGY_ANON`**         | Tracks blood/urine cultures, organism growth (e.g., *E. coli*, MRSA), and sensitivities.    |
 | 3 | **`ICARE_VITAL_SIGNS_ANON`**          | Dense time-series of heart rate, temperature, blood pressure, etc., tracked longitudinally. |
@@ -200,7 +213,8 @@ The `data_config.yaml` currently builds **6 interconnected tables** for your coh
 
 The Python backend (`src/generators.py`) executes the YAML blueprint sequentially.
 
-It establishes parent tables, such as **Episodes**, first so child tables, such as **Pharmacy** and **Vitals**, can safely inherit foreign keys.
+It establishes parent tables, such as **Episodes**, first so child tables, such as **Pharmacy** and **Vitals**, can
+safely inherit foreign keys.
 
 It then applies:
 
@@ -216,11 +230,8 @@ This produces highly realistic synthetic datasets.
 
 Use the unified orchestration suite to execute data generation.
 
-This automatically routes through Docker, or runs locally if specified, and outputs your CSVs to a timestamped folder in:
-
-```text
-data/synthetic/
-```
+This automatically routes through Docker, or runs locally if specified, and outputs 
+your CSVs to a timestamped folder in `data/synthetic/`.
 
 ### Default — Docker
 
@@ -236,14 +247,15 @@ make generate
 make generate local
 ```
 
-> **Note for Windows users:** Use `.\make.bat generate`.
+!!! note "Note for Windows users"
+    Use `.\make.bat generate`.
 
 ---
 
 ## Quick Reference
 
 | Area                         | Key Configuration / Command              |
-| ---------------------------- | ---------------------------------------- |
+|------------------------------|------------------------------------------|
 | Number of patients           | `generation_params.n_patients`           |
 | Simulation duration          | `generation_params.days`                 |
 | Measurement frequency        | `generation_params.freq`                 |

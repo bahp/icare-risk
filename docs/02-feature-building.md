@@ -1,12 +1,15 @@
-# 📖 Guide: Feature & Phenotype Builder
+# Feature & Phenotype Builder
 
 Welcome to the **Feature Pipeline**!
 
 Raw hospital data is incredibly messy—patients miss lab tests, doctors use different diagnosis codes, and vitals are recorded at random times. Before we can build predictive AI models, we must translate this raw data into clean, mathematical signals.
 
-> 💡 **For Dummies:** Think of `feature_config.yaml` as the **control panel**.
->
-> Instead of writing hundreds of lines of complex Python code to clean data and search for ICD-10 codes, you simply declare what you want in this file. The background Python scripts act as an automated factory that reads your rules and builds the final dataset.
+!!! tip "For Dummies"
+    Think of `feature_config.yaml` as the **control panel**.
+    
+    Instead of writing hundreds of lines of complex Python code to clean data and search for 
+    ICD-10 codes, you simply declare what you want in this file. The background Python scripts 
+    act as an automated factory that reads your rules and builds the final dataset.
 
 The pipeline operates in **four strict phases**, moving from simple cleaning to complex medical algorithms:
 

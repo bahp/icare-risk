@@ -1,10 +1,10 @@
-# 📖 Guide: Running `icare_risk` Entrypoints in Azure ML
+# Running `icare_risk` scripts in Azure ML
 
 When running custom CLI entrypoints (like `icare-risk-generate`) inside Azure ML, Jupyter notebooks and the terminal often have conflicting environment paths. This guide provides solutions for resolving these conflicts depending on how you prefer to run the code.
 
 ---
 
-## 1. Running purely in Python (Recommended)
+## 1. Running purely in Python
 
 Jupyter kernels automatically inject background connection parameters into `sys.argv`. This causes `argparse` to crash with a `SystemExit 2` error because it does not recognize the Jupyter background flags.
 

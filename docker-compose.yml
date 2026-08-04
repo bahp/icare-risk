@@ -5,3 +5,6 @@ services:
     volumes:
       # Mount the local project to the container so data/outputs sync instantly
       - .:/app
+    ports:
+      # Expose port 8000 for the Zensical local documentation server
+      - "8000:8000"

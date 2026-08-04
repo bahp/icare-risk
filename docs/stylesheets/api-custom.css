@@ -1,0 +1,18 @@
+/* 1. Make the main paragraph explanations inside docstrings smaller */
+.doc-md-description p {
+    font-size: 0.85em;
+    color: #555;      /* Slightly dims the text so it looks cleaner */
+    line-height: 1.5;
+}
+
+/* 2. Completely hide the repetitive Parameters and Returns sections */
+.doc-section-parameters,
+.doc-section-returns,
+.doc-section-raises {
+    display: none !important;
+}
+
+/* 3. (Optional) Make the function signatures themselves a bit smaller */
+.doc-heading code {
+    font-size: 0.85em;
+}

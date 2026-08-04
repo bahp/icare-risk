@@ -1,9 +1,16 @@
-site_name: iCARE Risk Documentation
+site_name: iCARE-RISK Documentation
 site_description: Documentation and guides for the iCARE Risk pipeline
 site_url: https://<your-username>.github.io/<your-repo-name>/
 
+dev_addr: '0.0.0.0:8000'
+
 theme:
   name: material
+  #logo: assets/logo.pny
+  #favicon: assets/logo.png
+  font:
+      text: Inter      # A very clean, modern reading font
+      code: Fira Code  # A beautiful, monospaced font for your Python blocks
   palette:
     # Palette toggle for automatic light/dark mode
     - media: "(prefers-color-scheme: light)"
@@ -18,7 +25,49 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+  features:
+    - content.code.copy      # 📋 Adds a copy-to-clipboard button
+    - content.code.annotate  # ➕ Allows you to add pop-up notes to code lines
+    - content.tabs.link      # 🔗 Links tab selections across the whole site
 
 nav:
   - Home: index.md
-  - Azure ML Guide: docs/azure-ml-guide.md
+  - Data Generation: 01-data-generation.md
+  - Feature Pipeline: 02-feature-building.md
+  - Pipeline Execution: 03-pipeline-execution.md
+  - Pipeline Evaluation: 04-pipeline-evaluationn.md
+  - Pipeline Validation: 05-pipeline-validation.md
+  - Azure ML Guide: 06-azure-ml-guide.md
+  - API Reference: api-reference.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src] # Tells it to look inside the src/ folder
+          options:
+            docstring_style: numpy # Or 'numpy' / 'sphinx'
+            summary: true
+            show_source: true        # This includes the source code toggle
+            show_root_heading: true
+            show_signature_annotations: false
+
+markdown_extensions:
+  - admonition               # Enables colored warning/info boxes
+  - pymdownx.details         # Enables collapsible dropdown boxes
+  - pymdownx.inlinehilite    # Highlights inline code snippets
+  - pymdownx.snippets        # Allows pulling code directly from external files
+  - pymdownx.superfences     # Required for advanced code block formatting
+  - pymdownx.highlight:      # The main syntax highlighter
+      anchor_linenums: true  # Creates clickable links for line numbers
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.tabbed:         # Enables grouping code blocks into tabs
+      alternate_style: true
+  - footnotes
+  - attr_list
+  - md_in_html
+
+extra_css:
+  - stylesheets/api-custom.css

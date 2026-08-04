@@ -23,3 +23,7 @@ seaborn
 
 # Testing
 pytest
+
+# Documentation
+mkdocstrings[python]
+zensical

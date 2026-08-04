@@ -1,4 +1,4 @@
-# 📖 Guide: Pipeline Execution
+# Pipeline Execution
 
 Now that your YAML configuration files are set up, it is time to run the pipeline.
 
