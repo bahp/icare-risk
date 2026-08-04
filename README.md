@@ -387,3 +387,11 @@ python -m pytest tests/test_scores.py -k "test_all_scores_from_csv and index2"
 
 
 
+## Troubleshooting
+
+**Running in Azure ML?**
+If you are running the `icare-risk-generate` pipeline inside an Azure ML Jupyter notebook or 
+terminal and encounter `command not found` or `SystemExit 2` errors, see our [Azure ML Setup Guide](docs.html) 
+to quickly resolve the environment path conflicts.
+
+
