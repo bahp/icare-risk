@@ -151,6 +151,10 @@ tables:
         end: "2024-01-01"
       ADMISSION_TIME:
         type: "time"
+      # ADMISSION_METHOD
+      # ADMISSION_METHOD_DESC
+      # ADMISSION_SOURCE
+      # ADMISSION_SOURCE_DESC
       AGE_AT_ADMISSION:
         type: "int"
         range: [18, 95]
@@ -158,6 +162,15 @@ tables:
         type: "date_offset"
         base_col: "ADMISSION_DATE"
         days_range: [1, 30]
+      # DISCHARGE_TIME
+      # DISCHARGE_DESTINATION
+      # DISCHARGE_DESTINATION_DESC
+      # DISCHARGE_METHOD
+      # DISCHARGE_METHOD_DESC
+      # EPISODE_START_DATE
+      # EPISODE_START_TIME
+      # EPISODE_END_DATE
+      # EPISODE_END_TIME
       MAIN_SPECIALTY:
         type: "categorical_tuple"
         columns: ["MAIN_SPECIALTY_CODE", "MAIN_SPECIALTY_CODE_DESC"]
@@ -166,9 +179,13 @@ tables:
           - [300, "general medicine"]
           - [301, "gastroenterology"]
           - [320, "cardiology"]
+      # ORDER_NO_OF_EPISODE
+      # POSTCODE_ON_ADMISSION
       INDEX_OF_MULTIPLE_DEPRIVATION_DECILE:
         type: "enumerated"
         values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "unknown", "none"]
+      # TREATMENT_FUNCTION_CODE
+      # TREATMENT_FUNCTION_CODE_DES
 
 
   ICARE_MICROBIOLOGY_ANON:
@@ -212,6 +229,8 @@ tables:
       SENSITIVITY:
         type: "enumerated"
         values: [ "Susceptible", "Resistant", "Intermediate", "Not Applicable" ]
+      # FLAG
+      # UPDATE_DT_TM # Timestamp
 
 
   ICARE_VITAL_SIGNS_ANON:
@@ -237,6 +256,7 @@ tables:
         map_to: "value"
       OBSERVATION_UNIT:
         map_to: "concept.unit"
+      #UPDATE_DT_TM
 
 
   ICARE_PROBLEMS_ANON:
@@ -290,6 +310,7 @@ tables:
       # Groups the drug details together for clinical accuracy
       MEDICATION_TUPLE:
         type: "categorical_tuple"
+        # MISSING ORDERED_DOSE, ORDERED_FREQUENCY inside this instead of outside?
         columns: [
           "MEDICATION_NAME",
           "MEDICATION_NAME_SHORT",
@@ -321,6 +342,7 @@ tables:
       PRESCRIPTION_TYPE:
         type: "enumerated"
         values: [ "Standard", "PRN", "Stat", "Continuous" ]
+      # UPDATE_DT_TM
 
 
   ICARE_PATHOLOGY_BLOOD_ANON:
@@ -339,6 +361,8 @@ tables:
         map_to: "concept.order_name"
       RESULT_CLEANED:
         map_to: "value"
+      # RESULT_FLAG
+      # RESULT_NUM_FLAG
       RESULT_LOWER_RANGE:
         map_to: "concept.normal_low"
       RESULT_UPPER_RANGE:
@@ -355,3 +379,5 @@ tables:
         map_to: "concept.name"
       TEST_RESULT_UNIT:
         map_to: "concept.unit"
+      # STAFF_FLAG
+      # UPDATE_DT_TM
