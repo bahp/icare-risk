@@ -27,7 +27,8 @@ jobs:
           python-version: 3.x
 
       - name: Install Zensical
-        pip install zensical mkdocstrings-python
+        run: |
+          pip install zensical mkdocstrings-python
 
       - name: Build site
         # The --clean flag ensures a fresh build
