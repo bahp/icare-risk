@@ -389,23 +389,10 @@ def calculate_increment_esbl_v2(df, age_col='age',
     """
     Computes the INCREMENT-ESBL predictive score for mortality.
 
-    Reference: Palacios-Baena et al., J Antimicrob Chemother, 2017.
-
     This score is designed to predict 30-day mortality in patients with bloodstream
     infections (BSI) due to extended-spectrum beta-lactamase (ESBL)-producing
     Enterobacteriaceae. The function calculates a total score based on demographic,
     clinical severity, microbiological, and treatment variables.
-
-    Clinical Criteria & Point Allocation:
-    | Clinical Variable                      | Condition Evaluated               | Points |
-    |----------------------------------------|-----------------------------------|--------|
-    | Demographics                           | Age > 50 years                    |   +3   |
-    | Chronic Conditions / Comorbidities     | Severe (e.g., Charlson > 3)       |   +4   |
-    | Acute Underlying Severity              | High Pitt bacteremia score        |   +3   |
-    | Source of Bloodstream Infection (BSI)  | Origin is NOT urinary             |   +3   |
-    | SIRS Severity                          | Severe SIRS / Shock present       |   +4   |
-    | Microorganism                          | Non-E. coli (e.g., Klebsiella)    |   +2   |
-    | Antibiotic Therapy                     | Inappropriate empirical/targeted  |   +2   |
 
     Parameters
     ----------
@@ -413,14 +400,14 @@ def calculate_increment_esbl_v2(df, age_col='age',
         The patient dataframe containing the required clinical columns.
     age_col : str, default='age'
         Column name for patient age (numeric).
-    severe_comorb_col : str, default='severe_comorbidities'
-        Column name for severe comorbidities flag (binary 1/0).
-    high_pitt_col : str, default='high_pitt_score'
-        Column name for high Pitt bacteremia score flag (binary 1/0).
+    charlson_col : str, default='charlson_score'
+        Column name for Charlson comorbidity score (numeric).
+    pitt_col : str, default='pitt_score'
+        Column name for Pitt bacteremia score (numeric).
+    sirs_col : str, default='sirs_count'
+        Column name for SIRS criteria count (numeric).
     bsi_source_col : str, default='bsi_source'
         Column name for infection source (string).
-    severe_sirs_col : str, default='severe_sirs_or_shock'
-        Column name for severe SIRS/shock flag (binary 1/0).
     microorganism_col : str, default='microorganism'
         Column name for isolated organism (string).
     inapprop_abx_col : str, default='inappropriate_abx'
@@ -431,6 +418,26 @@ def calculate_increment_esbl_v2(df, age_col='age',
     pd.Series
         A pandas Series containing the computed INCREMENT-ESBL score (integers)
         for each patient, matching the input DataFrame index.
+
+    Notes
+    -----
+    **Clinical Criteria & Point Allocation**
+
+    | Clinical Variable                      | Condition Evaluated               | Points |
+    | :------------------------------------- | :-------------------------------- | :----: |
+    | Demographics                           | Age > 50 years                    |   +3   |
+    | Chronic Conditions / Comorbidities     | Severe (e.g., Charlson > 3)       |   +4   |
+    | Acute Underlying Severity              | High Pitt bacteremia score (>=6)  |   +3   |
+    | Source of Bloodstream Infection (BSI)  | Origin is NOT urinary             |   +3   |
+    | SIRS Severity                          | Severe SIRS / Shock present       |   +4   |
+    | Microorganism                          | Non-E. coli (e.g., Klebsiella)    |   +2   |
+    | Antibiotic Therapy                     | Inappropriate empirical/targeted  |   +2   |
+
+    References
+    ----------
+    Palacios-Baena Z, et al. Development and validation of the INCREMENT-ESBL
+    predictive score for mortality in patients with bloodstream infections.
+    J Antimicrob Chemother. 2017;72(3):906-913.
     """
 
 
@@ -481,25 +488,14 @@ def calculate_increment_esbl(df,
                              **kwargs):
     """
     Computes the INCREMENT-ESBL predictive score for mortality.
-    Reference: Palacios-Baena et al., J Antimicrob Chemother, 2017.
+
 
     This score is designed to predict 30-day mortality in patients with bloodstream
     infections (BSI) due to extended-spectrum beta-lactamase (ESBL)-producing
     Enterobacteriaceae. The function calculates a total score based on demographic,
     clinical severity, microbiological, and treatment variables.
 
-    Clinical Criteria & Point Allocation:
-    | Clinical Variable                      | Condition Evaluated               | Points |
-    |----------------------------------------|-----------------------------------|--------|
-    | Demographics                           | Age > 50 years                    |   +3   |
-    | Chronic Conditions / Comorbidities     | Severe (e.g., Charlson > 3)       |   +4   |
-    | Acute Underlying Severity              | High Pitt bacteremia score (>= 6) |   +3   |
-    | Source of Bloodstream Infection (BSI)  | Origin is NOT urinary             |   +3   |
-    | SIRS Severity                          | Severe SIRS / Shock (SIRS >= 2)   |   +4   |
-    | Microorganism                          | Non-E. coli (e.g., Klebsiella)    |   +2   |
-    | Antibiotic Therapy                     | Inappropriate empirical/targeted  |   +2   |
-
-   Parameters
+    Parameters
     ----------
     df : pd.DataFrame
         The patient dataframe containing the required clinical columns.
@@ -523,7 +519,28 @@ def calculate_increment_esbl(df,
     pd.Series
         A pandas Series containing the computed INCREMENT-ESBL score (integers)
         for each patient, matching the input DataFrame index.
+
+    Notes
+    -----
+    **Clinical Criteria & Point Allocation:**
+
+    | Clinical Variable                      | Condition Evaluated               | Points |
+    | :------------------------------------- | :-------------------------------- | :----: |
+    | Demographics                           | Age > 50 years                    |   +3   |
+    | Chronic Conditions / Comorbidities     | Severe (e.g., Charlson > 3)       |   +4   |
+    | Acute Underlying Severity              | High Pitt bacteremia score (>= 6) |   +3   |
+    | Source of Bloodstream Infection (BSI)  | Origin is NOT urinary             |   +3   |
+    | SIRS Severity                          | Severe SIRS / Shock (SIRS >= 2)   |   +4   |
+    | Microorganism                          | Non-E. coli (e.g., Klebsiella)    |   +2   |
+    | Antibiotic Therapy                     | Inappropriate empirical/targeted  |   +2   |
+
+    References
+    ----------
+    Palacios-Baena Z, et al. Development and validation of the INCREMENT-ESBL
+    predictive score for mortality in patients with bloodstream infections.
+    J Antimicrob Chemother. 2017;72(3):906-913.
     """
+
     # Safely extract logging options from kwargs
     verbose = kwargs.get('verbose', False)
     logger = kwargs.get('logger', None)
@@ -557,16 +574,42 @@ def calculate_holmgren_score(df,
                              **kwargs):
     """
     Computes the Holmgren score (2020) for 3GCR Enterobacterales bacteraemia.
-    Reference: Holmgren et al., "An easy-to-use scoring system...", 2020.
 
-    Clinical Criteria & Point Allocation:
+    Interpretation: Score >= 1 is considered "High Risk" in low-resistance settings.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The patient dataframe containing the required clinical columns.
+    hosp_abroad_col : str, default='hx_hosp_abroad_12m'
+        Column name for hospitalization abroad in last 12 months.
+    prev_culture_col : str, default='hx_prev_3gcr_culture'
+        Column name for previous 3GCR culture.
+    prev_swab_col : str, default='hx_prev_3gcr_rectal_swab'
+        Column name for previous 3GCR rectal swab.
+    **kwargs
+        Additional keyword arguments for logging options.
+
+    Returns
+    -------
+    pd.Series
+        A pandas Series containing the computed score for each patient.
+
+    Notes
+    -----
+    **Clinical Criteria & Point Allocation**
+
     | Clinical Variable                    | Condition Evaluated                    | Points |
-    |--------------------------------------|----------------------------------------|--------|
+    | :----------------------------------- | :------------------------------------- | :----: |
     | Hospital care abroad                 | Hospitalized abroad in last 12 months  |   +1   |
     | Previous 3GCR Culture                | Previous 3GCR in blood or urine        |   +1   |
     | Previous 3GCR Rectal Swab            | Previous 3GCR in rectal swab           |   +1   |
 
     Interpretation: Score >= 1 is considered "High Risk" in low-resistance settings.
+
+    References
+    ----------
+    Holmgren et al., "An easy-to-use scoring system...", 2020.
     """
     # Safely extract logging options from kwargs
     verbose = kwargs.get('verbose', False)
@@ -597,19 +640,47 @@ def calculate_gavaghan_score(df,
                              **kwargs):
     """
     Computes the Gavaghan et al. (2025) ESBL Risk Score.
-    Reference: Gavaghan et al., Antimicrob Steward Healthc Epidemiol, 2025.
 
     The Gavaghan et al. (2025) score is a contemporary tool developed specifically for
     risk assessment of ESBL-producing Enterobacterales bacteremia in a tertiary setting.
 
-    Clinical Variable & Point Allocation:
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The patient dataframe containing the required clinical columns.
+    age_col : str, default='AGE_AT_ADMISSION'
+        Column name for patient age.
+    prior_esbl_col : str, default='hx_prior_esbl_365d'
+        Column name for prior ESBL organism within 365 days.
+    nursing_home_col : str, default='hx_nursing_home_resident'
+        Column name for nursing home resident flag.
+    urinary_catheter_col : str, default='hx_urinary_catheter_present'
+        Column name for indwelling urinary catheter flag.
+    prior_abx_col : str, default='hx_prior_fc_abx_90d'
+        Column name for prior antibiotics within 90 days.
+    **kwargs
+        Additional keyword arguments for logging options.
+
+    Returns
+    -------
+    pd.Series
+        A pandas Series containing the computed score for each patient.
+
+    Notes
+    -----
+    **Clinical Variable & Point Allocation**
+
     | Clinical Variable                    | Condition Evaluated                       | Points |
-    |--------------------------------------|-------------------------------------------|--------|
+    | :----------------------------------- | :---------------------------------------- | :----: |
     | Prior ESBL                           | Any ESBL organism within 365 days         |   +4   |
     | Age                                  | Age >= 65 years                           |   +1   |
     | Nursing Home Resident                | Lives in a long-term care facility        |   +2   |
-    | Urinary Catheter                     | Indwelling catheter at presentation      |   +1   |
+    | Urinary Catheter                     | Indwelling catheter at presentation       |   +1   |
     | Prior Antibiotics                    | Fluoroquinolone or Cephalosporin (90d)    |   +2   |
+
+    References
+    ----------
+    Gavaghan et al., Antimicrob Steward Healthc Epidemiol, 2025.
     """
     # Safely extract logging options from kwargs
     verbose = kwargs.get('verbose', False)
@@ -645,20 +716,46 @@ def calculate_jones_score(df,
                           **kwargs):
     """
     Computes the Jones et al. (2025) ESBL Risk Score for Non-Urinary Isolates.
-    Reference: Jones et al., Pharmacotherapy, 2025.
 
     The Jones et al. (2025) score is a specialized tool designed specifically for
     non-urinary isolates. This is a crucial distinction in clinical practice, as
     risk factors for ESBL in bloodstream or respiratory infections often differ
     from those in simple UTIs.
 
-    Clinical Variable & Point Allocation:
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The patient dataframe containing the required clinical columns.
+    prior_esbl_col : str, default='hx_prior_esbl_180d'
+        Column name for prior ESBL within 180 days.
+    prior_abx_col : str, default='hx_prior_abx_30d'
+        Column name for prior antibiotic use within 30 days.
+    chronic_dialysis_col : str, default='hx_chronic_dialysis'
+        Column name for chronic dialysis flag.
+    transfer_hosp_col : str, default='hx_transfer_from_hosp'
+        Column name for transfer from another hospital flag.
+    **kwargs
+        Additional keyword arguments for logging options.
+
+    Returns
+    -------
+    pd.Series
+        A pandas Series containing the computed score for each patient.
+
+    Notes
+    -----
+    **Clinical Variable & Point Allocation**
+
     | Clinical Variable           | Condition Evaluated                       | Points |
-    |-----------------------------|-------------------------------------------|--------|
+    | :-------------------------- | :---------------------------------------- | :----: |
     | Prior ESBL                  | Positive ESBL culture within 180 days     |   +5   |
     | Prior Antibiotics           | Any antibiotic use within 30 days         |   +2   |
     | Chronic Dialysis            | Patient on hemodialysis or peritoneal     |   +2   |
     | Transfer from Hospital      | Admission via transfer from another hosp  |   +1   |
+
+    References
+    ----------
+    Jones et al., Pharmacotherapy, 2025.
     """
     # Safely extract logging options from kwargs
     verbose = kwargs.get('verbose', False)
@@ -691,21 +788,48 @@ def calculate_tumbarello_score(df,
                                **kwargs):
     """
     Computes the Tumbarello/Utrecht-Stockholm ESBL Risk Score.
-    Reference: Int J Antimicrob Agents, 2019 (Utrecht/Stockholm Cohort).
 
     This specific model is designed for community-onset sepsis, making it a vital
     baseline for patients arriving at the Emergency Department before hospital-acquired
     factors come into play.
 
-    Clinical Variable & Point Allocation:
+    Interpretation: High risk is typically defined as a score >= 3 or 4.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The patient dataframe containing the required clinical columns.
+    prior_esbl_col : str, default='hx_prior_esbl_any'
+        Column name for prior ESBL history.
+    hosp_90d_col : str, default='hx_hosp_last_90d'
+        Column name for hospitalization in the last 90 days.
+    abx_90d_col : str, default='hx_prior_abx_90d'
+        Column name for prior antibiotics in the last 90 days.
+    urinary_catheter_col : str, default='hx_urinary_catheter_present'
+        Column name for urinary catheter flag.
+    **kwargs
+        Additional keyword arguments for logging options.
+
+    Returns
+    -------
+    pd.Series
+        A pandas Series containing the computed score for each patient.
+
+    Notes
+    -----
+    **Clinical Variable & Point Allocation**
+
     | Clinical Variable           | Condition Evaluated                       | Points |
-    |-----------------------------|-------------------------------------------|--------|
+    | :-------------------------- | :---------------------------------------- | :----: |
     | Prior ESBL                  | Known colonization/infection (any time)   |   +4   |
     | Recent Hospitalization      | Hospitalized within last 90 days          |   +2   |
     | Recent Antibiotics          | Beta-lactams/Quinolones within 90 days    |   +2   |
     | Urinary Catheter            | Permanent or recent urinary catheter      |   +1   |
 
-    Interpretation: High risk is typically defined as a score >= 3 or 4.
+
+    References
+    ----------
+    Int J Antimicrob Agents, 2019 (Utrecht/Stockholm Cohort).
     """
     # Safely extract logging options from kwargs
     verbose = kwargs.get('verbose', False)
@@ -740,20 +864,48 @@ def calculate_kim_score(df,
                         **kwargs):
     """
     Computes the Kim et al. (2019) ESBL Risk Score.
-    Reference: Kim et al., J Korean Med Sci, 2019.
 
     It focuses on identifying risk factors specifically for community-onset BSIs caused
     by ESBL-producing E. coli and Klebsiella species. This model is particularly useful
     for differentiating resistant from susceptible strains right at the point of admission.
 
-    Clinical Variable & Point Allocation:
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The patient dataframe containing the required clinical columns.
+    prior_esbl_col : str, default='hx_prior_esbl_any'
+        Column name for prior ESBL history.
+    hosp_1y_col : str, default='hx_hosp_last_365d'
+        Column name for hospitalization in the last 1 year.
+    nursing_home_col : str, default='hx_nursing_home_resident'
+        Column name for nursing home resident flag.
+    urinary_catheter_col : str, default='hx_urinary_catheter_present'
+        Column name for urinary catheter use.
+    prior_abx_90d_col : str, default='hx_prior_abx_90d'
+        Column name for antibiotic use within 90 days.
+    **kwargs
+        Additional keyword arguments for logging options.
+
+    Returns
+    -------
+    pd.Series
+        A pandas Series containing the computed score for each patient
+
+    Notes
+    -----
+    **Clinical Variable & Point Allocation**
+
     | Clinical Variable           | Condition Evaluated                       | Points |
-    |-----------------------------|-------------------------------------------|--------|
+    | :-------------------------- | :---------------------------------------- | :----: |
     | Prior ESBL                  | Prior ESBL colonization or infection      |   +5   |
     | Recent Hospitalization      | Hospitalization within the last 1 year    |   +2   |
     | Nursing Home Resident       | Resident in a long-term care facility     |   +2   |
     | Urinary Catheter            | Use of indwelling urinary catheter        |   +1   |
     | Prior Antibiotics           | Use of antibiotics within 90 days         |   +1   |
+
+    References
+    ----------
+    Kim et al., J Korean Med Sci, 2019.
     """
     # Safely extract logging options from kwargs
     verbose = kwargs.get('verbose', False)
@@ -789,7 +941,34 @@ def calculate_consensus_2023_meta(df,
                                   logger=None):
     """
     Weighted Consensus Score based on the Timbrook & Fowler (2023) Meta-Analysis.
+
     Weights are derived from the most common aORs reported in the review.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The patient dataframe.
+    prior_esbl_col : str, default='prior_esbl_history'
+        Column name for prior ESBL history.
+    prior_abx_col : str, default='prior_abx_90d'
+        Column name for prior antibiotic exposure.
+    hosp_col : str, default='recent_hospitalization'
+        Column name for recent hospitalization.
+    invasive_proc_col : str, default='recent_procedure'
+        Column name for recent invasive procedure.
+    verbose : bool, default=False
+        Whether to print verbose logs.
+    logger : logging.Logger, optional
+        Logger instance.
+
+    Returns
+    -------
+    pd.Series
+        A pandas Series containing the computed score for each patient.
+
+    References
+    ----------
+    Timbrook & Fowler (2023) Meta-Analysis.
     """
     # Added validation for consistency with the other scoring functions
     validate_required_columns(df,

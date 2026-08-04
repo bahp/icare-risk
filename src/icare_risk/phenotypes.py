@@ -1137,7 +1137,8 @@ def derive_ground_truth(df, **kwargs):
     **kwargs:
         seed (int): Random seed for reproducibility. Defaults to 42.
 
-    Returns:
+    Returns
+    -------
         np.ndarray: A binary array (1/0) aligned with df.index.
     """
     seed = kwargs.get('seed', 42)

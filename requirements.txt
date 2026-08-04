@@ -25,5 +25,6 @@ seaborn
 pytest
 
 # Documentation
-mkdocstrings[python]
+mkdocstrings
+mkdocstrings-python
 zensical

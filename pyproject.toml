@@ -21,6 +21,9 @@ dependencies = [
     "scipy",
     "matplotlib",
     "seaborn",
+    "mkdocs-material",
+    "mkdocstrings",
+    "mkdocstrings-python"
 ]
 
 [tool.setuptools.packages.find]
