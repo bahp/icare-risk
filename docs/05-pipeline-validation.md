@@ -4,9 +4,11 @@ In clinical machine learning, a single logic error can have cascading effects. I
 
 **Checking that each individual step is working correctly is the most critical part of the pipeline.**
 
-!!! danger "⚠️ Garbage In, Garbage Out"
+!!! danger "Garbage In, Garbage Out"
 
-    A predictive model is only as intelligent as the features it is trained on. Before evaluating model performance (AUROC, AUPRC, etc.), you must first guarantee that every clinical score and phenotype is being calculated correctly.
+    A predictive model is only as intelligent as the features it is trained on. Before 
+    evaluating model performance (AUROC, AUPRC, etc.), you must first guarantee that every 
+    clinical score and phenotype is being calculated correctly.
 
 ---
 

@@ -35,7 +35,7 @@ nav:
   - Data Generation: 01-data-generation.md
   - Feature Pipeline: 02-feature-building.md
   - Pipeline Execution: 03-pipeline-execution.md
-  - Pipeline Evaluation: 04-pipeline-evaluationn.md
+  - Pipeline Evaluation: 04-pipeline-evaluation.md
   - Pipeline Validation: 05-pipeline-validation.md
   - Azure ML Guide: 06-azure-ml-guide.md
   - API Reference: api-reference.md

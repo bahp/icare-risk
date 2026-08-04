@@ -12,6 +12,13 @@ The architecture is split into **three distinct steps** to ensure modularity and
 
 ## 1. The Golden Rule of Execution
 
+!!! warning "Important"
+
+    Because the pipeline relies on shared resources, such as the `src/` directory and the 
+    `config/` files, you must **always run these scripts from the root directory of your 
+    project**.
+
+
 > ⚠️ **Important:** Because the pipeline relies on shared resources, such as the `src/` directory and the `config/` files, you must **always run these scripts from the root directory of your project**.
 
 Furthermore, you must run them as **Python modules using the `-m` flag**.
@@ -406,6 +413,8 @@ Always:
 4. Keep the generated timestamps aligned between synthetic and processed data.
 5. Check `outputs/` for the final metrics and plots.
 
-> 🎉 **You're Ready for Publication!**
->
-> The `master_summary.csv` contains the stratified metrics, while the `plots/` directory holds the generated curves ready to be used in a clinical research paper or dashboard.
+
+!!! success "You're Ready for Publication!"
+
+    The `master_summary.csv` contains the stratified metrics, while the `plots/` directory 
+    holds the generated curves ready to be used in a clinical research paper or dashboard.

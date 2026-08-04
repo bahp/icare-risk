@@ -4,9 +4,13 @@ This tool allows you to generate fake patient data. Instead of hard-coding value
 the system uses a flexible **blueprint** (`data_config.yaml`) to build a relational 
 database of patients, vitals, labs, and medications.
 
-!!! tip "For Dummies: Think of this tool as a factory"
-    The `data_config.yaml` file is the **recipe book** that tells the factory what 
-    to build. The Python scripts are the **machines** that actually build it.
+!!! tip "For Dummies" 
+    Think of this tool as a fully automated factory.
+
+    The `data_config.yaml` serves as the master **recipe book** that dictates
+    exactly what the factory should build, while the Python scripts act sas the
+    **machines** that actually manufacture the data and build it.
+
 
 ---
 

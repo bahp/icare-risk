@@ -78,6 +78,11 @@ crp_is_missing
 
 The resulting column contains `1`s and `0`s.
 
+!!! info "Why this matters"
+
+    The fact that a doctor forgot to order a test can itself be a strong signal.
+
+
 > 💡 **Why this matters:** The fact that a doctor forgot to order a test can itself be a strong signal.
 
 ---

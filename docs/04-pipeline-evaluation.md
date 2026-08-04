@@ -8,9 +8,12 @@ You have generated raw hospital data and engineered complex clinical features. N
 
 The evaluation pipeline is entirely **configuration-driven**. Instead of rewriting Python code every time you want to change an experiment, you define your experiment in `eval_config.yaml`.
 
-> 💡 **The "God Config" Concept:** In the past, changing an experiment required rewriting Python code. Now, this pipeline is 100% configuration-driven.
->
-> The Python script acts as a **"Dumb Dispatcher."** It simply reads your instructions from `eval_config.yaml` and builds the exact experiment you ask for.
+!!! info "The 'God Config' Concept"
+
+    In the past, changing an experiment required rewriting Python code. Now, this 
+    pipeline is 100% configuration-driven. The Python script acts as a **"Dumb Dispatcher."** 
+    It simply reads your instructions from `eval_config.yaml` and builds the exact experiment 
+    you ask for.
 
 Your `eval_config.yaml` acts as the **Mission Control panel** for the evaluation pipeline.
 
@@ -226,7 +229,9 @@ For example, suppose one sick patient has 30 rows of observations.
 
 If all 30 predictions are treated as independent observations, that one patient effectively contributes 30 "correct" or "incorrect" predictions.
 
-> ⚠️ **Use continuous mode carefully when interpreting performance metrics.**
+!!! warning "Continuous Mode Warning"
+
+    Use continuous mode carefully when interpreting performance metrics.
 
 ---
 
@@ -542,7 +547,10 @@ A longitudinal line graph showing AUROC performance over time.
 
 # 7. The Master Summary
 
-> 🎉 **Master Summary:** The `master_summary.csv` is your **golden ticket**.
+!!! success "Master Summary"
+
+    The `master_summary.csv` is your **golden ticket**.
+
 
 This file allows you to compare experiments in one place.
 
@@ -650,8 +658,9 @@ The entire evaluation process can be thought of as a series of filters and exper
 6. **Check both metrics and plots.** Numerical summaries and visualizations provide complementary views of performance.
 7. **Use `master_summary.csv` as your central comparison table.**
 
-> 🎯 **The Goal**
->
-> The purpose of this step is not simply to find the highest AUROC.
->
-> The goal is to understand **when**, **where**, and **for whom** your clinical scores perform well — and where their limitations may lie.
+!!! abstract "The Goal"
+
+    The purpose of this step is not simply to find the highest AUROC.
+
+    The goal is to understand **when**, **where**, and **for whom** your clinical 
+    scores perform well — and where their limitations may lie.
