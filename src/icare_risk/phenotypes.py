@@ -450,9 +450,18 @@ def derive_diabetes_status(df, insulin_col='med_insulin_given', glucose_col='Glu
 
 
 def derive_liver_disease(df, ast_col='AST', alt_col='ALT', cirrhosis_med_col='med_lactulose'):
-    """
-    Example 2: Deriving Liver Disease based on severely elevated liver enzymes
+    """Derives severe liver disease based on severely elevated liver enzymes
     or the administration of Lactulose (a common medication for hepatic encephalopathy).
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The patient dataframe.
+
+    Returns
+    -------
+    pandas.Series
+        A pandas Series flagging the presence of severe liver disease.
     """
     status = pd.Series(0, index=df.index)
 
@@ -687,7 +696,7 @@ def derive_pitt_fever_status(df, **kwargs):
 
 def derive_pitt_hypotension_status(df, **kwargs):
     """
-    Derives the hypotension component of the Pitt Bacteremia Score.
+    Derives hypotension component of the Pitt Bacteremia Score.
 
     Returns 2 points if SBP < 90 OR if the vasopressor flag is 1.
 

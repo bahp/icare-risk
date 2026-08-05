@@ -5,6 +5,8 @@ site_url = "https://<your-username>.github.io/<your-repo-name>/"
 
 dev_addr = "0.0.0.0:8000"
 
+extra_css = ["stylesheets/api-custom.css"]
+
 nav = [
     { "Home" = "index.md" },
     { "Data Generation" = "01-data-generation.md" },
