@@ -1,0 +1,74 @@
+[project]
+site_name = "iCARE-RISK Documentation (Zensical)"
+site_description = "Documentation and guides for the iCARE Risk pipeline"
+site_url = "https://<your-username>.github.io/<your-repo-name>/"
+
+dev_addr = "0.0.0.0:8000"
+
+nav = [
+    { "Home" = "index.md" },
+    { "Data Generation" = "01-data-generation.md" },
+    { "Feature Pipeline" = "02-feature-building.md" },
+    { "Pipeline Execution" = "03-pipeline-execution.md" },
+    { "Pipeline Evaluation" = "04-pipeline-evaluation.md" },
+    { "Pipeline Validation" = "05-pipeline-validation.md" },
+    { "Azure ML Guide" = "06-azure-ml-guide.md" },
+    { "API Reference" = [
+        { "Overview" = "api/index.md" },
+        { "Phenotypes" = "api/phenotypes.md" },
+        { "Scores" = "api/scores.md" },
+    ] },
+]
+
+[project.theme]
+variant = "modern"
+
+[project.theme.palette]
+scheme = "default"
+primary = "indigo"
+
+[project.theme.palette.toggle]
+icon = "lucide/moon"
+name = "Switch to dark mode"
+
+[project.theme.palette.dark]
+scheme = "slate"
+primary = "indigo"
+
+[project.theme.palette.dark.toggle]
+icon = "lucide/sun"
+name = "Switch to light mode"
+
+[project.markdown_extensions]
+admonition = {}
+footnotes = {}
+attr_list = {}
+md_in_html = {}
+
+[project.markdown_extensions.pymdownx.details]
+[project.markdown_extensions.pymdownx.inlinehilite]
+[project.markdown_extensions.pymdownx.superfences]
+
+[project.markdown_extensions.pymdownx.highlight]
+anchor_linenums = true
+line_spans = "__span"
+pygments_lang_class = true
+
+[project.markdown_extensions.pymdownx.tabbed]
+alternate_style = true
+
+[project.markdown_extensions.pymdownx.snippets]
+base_path = [".", "src"]
+check_paths = true
+
+[project.plugins.search]
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["src"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "numpy"
+summary = true
+show_source = true
+show_root_heading = true
+show_signature_annotations = false

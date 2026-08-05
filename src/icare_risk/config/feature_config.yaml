@@ -566,6 +566,7 @@ custom_scores:
       aids_col: 'hx_aids'
       renal_sev_col: 'hx_renal_mod_sev'
 
+  # --8<-- [start:pitt_config]
   pitt_score:
     module: 'icare_risk.scores'
     function: 'calculate_pitt_score'
@@ -575,6 +576,7 @@ custom_scores:
       vent_col: 'pitt_mech_vent_flag'
       arrest_col: 'pitt_cardiac_arrest_flag'
       mental_col: 'pitt_mental_status_score'
+  # --8<-- [end:pitt_config]
 
   sirs_count:
     module: 'icare_risk.scores'
@@ -594,6 +596,7 @@ custom_scores:
       sbp_col: 'sbp_24h_min'     # SBP MEWS points are mostly for low BP
       temp_col: 'temp_24h_max'
 
+  # --8<-- [start:increment_esbl_config]
   increment_esbl_score:
     module: 'icare_risk.scores'
     function: 'calculate_increment_esbl'
@@ -605,7 +608,9 @@ custom_scores:
       bsi_not_urinary_col: 'increment_bsi_not_urinary_flag'
       is_non_ecoli_col: 'increment_is_non_ecoli_flag'
       inapprop_abx_col: 'increment_abx_inappropriate_flag'
+  # --8<-- [end:increment_esbl_config]
 
+  # --8<-- [start:holmgren_config]
   holmgren_score:
     module: 'icare_risk.scores'
     function: 'calculate_holmgren_score'
@@ -613,7 +618,9 @@ custom_scores:
       hosp_abroad_col: 'hx_hosp_abroad_12m'
       prev_culture_col: 'hx_prev_3gcr_culture'
       prev_swab_col: 'hx_prev_3gcr_rectal_swab'
+  # --8<-- [end:holmgren_config]
 
+  # --8<-- [start:gavaghan_config]
   gavaghan_score:
     module: 'icare_risk.scores'
     function: 'calculate_gavaghan_score'
@@ -623,7 +630,9 @@ custom_scores:
       nursing_home_col: 'hx_nursing_home_resident'
       urinary_catheter_col: 'hx_urinary_catheter_present'
       prior_abx_col: 'hx_prior_fc_abx_90d'
+  # --8<-- [end:gavaghan_config]
 
+  # --8<-- [start:jones_config]
   jones_score:
     module: 'icare_risk.scores'
     function: 'calculate_jones_score'
@@ -632,7 +641,9 @@ custom_scores:
       prior_abx_col: 'hx_prior_abx_30d'
       chronic_dialysis_col: 'hx_chronic_dialysis'
       transfer_hosp_col: 'hx_transfer_from_hosp'
+  # --8<-- [end:jones_config]
 
+  # --8<-- [start:tumbarello_config]
   tumbarello_score:
     module: 'icare_risk.scores'
     function: 'calculate_tumbarello_score'
@@ -641,6 +652,7 @@ custom_scores:
       hosp_90d_col: 'hx_hosp_last_90d'
       abx_90d_col: 'hx_prior_abx_90d'
       urinary_catheter_col: 'hx_urinary_catheter_present'
+  # --8<-- [end:tumbarello_config]
 
   kim_score:
     module: 'icare_risk.scores'

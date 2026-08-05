@@ -2,29 +2,29 @@
 
 <div class="grid cards" markdown>
 
-- :material-database-plus: **Data Generation**
+- 🗄️ **Data Generation**
 
-  ---
+    ---
 
-  Learn how the synthetic clinical data factory builds patients, vitals, and pharmacy records.
+    Learn how the synthetic clinical data factory builds patients, vitals, and pharmacy records.
 
-  [:octicons-arrow-right-24: Read the Guide](01-data-generation.md)
+    [Read the Data Generation Guide →](01-data-generation.md)
 
-- :material-brain: **Feature Pipeline**
+- 🧠 **Feature Pipeline**
 
-  ---
+    ---
 
-  Discover how raw data is translated into predictive phenotypes and rolling windows.
+    Discover how raw data is translated into predictive phenotypes and rolling windows.
 
-  [:octicons-arrow-right-24: Read the Guide](02-feature-building.md)
+    [Read the Feature Pipeline Guide →](02-feature-building.md)
 
-- :material-chart-bell-curve-cumulative: **Model Evaluation**
+- 📊 **Pipeline Evaluation**
 
-  ---
+    ---
 
-  View the evaluation metrics, AUROC curves, and cohort analyses.
+    View evaluation metrics, performance curves, and cohort analyses.
 
-  [:octicons-arrow-right-24: Read the Guide](03-pipeline-execution.md)
+    [Read the Evaluation Guide →](04-pipeline-evaluation.md)
 
 </div>
 

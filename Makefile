@@ -83,7 +83,7 @@ clean:
 
 docs-serve:
 	@echo "\n--- 📖 Serving Documentation Locally ---"
-	$(RUN) zensical serve -a 0.0.0.0:8000
+	$(RUN) zensical serve
 
 docs-build:
 	@echo "\n--- 📖 Building Documentation ---"

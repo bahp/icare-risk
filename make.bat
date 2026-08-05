@@ -135,7 +135,7 @@ goto :eof
 :docs_serve
 echo.
 echo --- Serving Documentation Locally ---
-%RUN% zensical serve -a 0.0.0.0:8000
+%RUN% zensical serve
 goto :eof
 
 :docs_build
