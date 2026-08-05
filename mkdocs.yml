@@ -38,10 +38,15 @@ nav:
   - Pipeline Evaluation: 04-pipeline-evaluation.md
   - Pipeline Validation: 05-pipeline-validation.md
   - Azure ML Guide: 06-azure-ml-guide.md
-  - API Reference: api-reference.md
+  - API Reference:
+      - Overview: api/index.md
+      - Phenotypes: api/phenotypes.md
+      - Scores: api/scores.md
 
 plugins:
   - search
+  - codeinclude:
+      title_mode: mkdocs-material
   - mkdocstrings:
       handlers:
         python:
@@ -57,7 +62,9 @@ markdown_extensions:
   - admonition               # Enables colored warning/info boxes
   - pymdownx.details         # Enables collapsible dropdown boxes
   - pymdownx.inlinehilite    # Highlights inline code snippets
-  - pymdownx.snippets        # Allows pulling code directly from external files
+  - pymdownx.snippets:       # Allows pulling code directly from external files
+      base_path: ["."]
+      check_paths: true
   - pymdownx.superfences     # Required for advanced code block formatting
   - pymdownx.highlight:      # The main syntax highlighter
       anchor_linenums: true  # Creates clickable links for line numbers

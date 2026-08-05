@@ -27,4 +27,5 @@ pytest
 # Documentation
 mkdocstrings
 mkdocstrings-python
+mkdocs-codeinclude-plugin
 zensical

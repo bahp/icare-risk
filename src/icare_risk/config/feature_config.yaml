@@ -144,6 +144,9 @@ custom_features:
     kwargs:
       wbc_col: 'wbc'
       bands_col: 'bands'
+      wbc_high: 12.0    # Change to 12000.0 if using absolute counts
+      wbc_low: 4.0      # Change to 4000.0 if using absolute counts
+      bands_threshold: 10.0
 
   # ---------------------------------------------
   # Partials for Charlson / Charslson quan score
@@ -506,6 +509,7 @@ custom_features:
 # arguments expected by the mathematical scoring functions in `src/scores.py`.
 custom_scores:
 
+  # --8<-- [start:charlson_config]
   charlson_score:
     module: 'icare_risk.scores'
     function: 'calculate_charlson'
@@ -535,6 +539,7 @@ custom_scores:
         # 6 Points
         hx_cancer_met: 6
         hx_aids: 6
+  # --8<-- [end:charlson_config]
 
   charlson_quan_score:
     module: 'icare_risk.scores'

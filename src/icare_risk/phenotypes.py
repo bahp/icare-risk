@@ -310,8 +310,12 @@ def _get_prescriptions_in_window(df, context_dfs, window_hours=24):
 
 def derive_historical_condition(df, **kwargs):
     """
-    Identifies if a patient has a specific condition in their medical
-    history (1=Yes, 0=No).
+    Identifies if a patient has a specific condition in their medical history.
+
+    !!! warning "Missing Context Assumption"
+        If `target_codes` is empty or the required `context_dfs` are missing from
+        the pipeline, the function assumes the condition is absent and defaults to
+        0 for all patients.
 
     This function acts as a centralized extractor for chronic comorbidities by
     searching multiple iCARE contextual sources. It prioritizes the 'problems'
@@ -319,33 +323,42 @@ def derive_historical_condition(df, **kwargs):
     summaries/secondary diagnoses). It is the primary engine used to populate
     the 17 binary flags required for the Charlson Comorbidity Index (CCI).
 
-    Clinical Logic:
-    - Returns 1 if any medical code in the patient's history starts with a code
-      provided in `target_codes`.
-    - Merges results from both the current Problem List and historical Episode Diagnoses.
+    ??? note "Clinical Logic & iCARE Mapping (Click to expand)"
+        **Clinical Logic:**
 
-    iCARE Mapping:
-    - Source 1: `icare_problems_anon` (Columns: `SUBJECT`, `PROBLEM_CODE`)
-    - Source 2: `icare_episodes_diagnosis_anon` (Columns: `SUBJECT`, `DIAGNOSIS_CODE`)
+        * Returns 1 if any medical code in the patient's history starts with a code
+          provided in `target_codes`.
+        * Merges results from both the current Problem List (active problems) and
+          historical Episode Diagnoses (discharge summaries/secondary diagnoses).
 
-    Notes:
-        - The function relies on the internal `_patient_has_historical_codes` helper
+        **iCARE Mapping:**
+
+        * **Source 1:** `icare_problems_anon` (Columns: `SUBJECT`, `PROBLEM_CODE`)
+        * **Source 2:** `icare_episodes_diagnosis_anon` (Columns: `SUBJECT`, `DIAGNOSIS_CODE`)
+
+
+    Notes
+    -----
+        * The function relies on the internal `_patient_has_historical_codes` helper
           to perform the string-prefix matching.
-        - If `target_codes` is empty or the required contexts are missing, the
+        * If `target_codes` is empty or the required contexts are missing, the
           function defaults to 0 for all patients.
 
     Parameters
     ----------
-    df (pd.DataFrame): The primary features DataFrame (pivoted time-series).
-    **kwargs: Arbitrary keyword arguments containing:
-        context_dfs (dict): Dictionary of supporting DataFrames (must contain
-            'problems' and optionally 'diagnoses').
-        target_codes (list of str): The ICD-10 or Read-code prefixes to
-            identify the condition (e.g., ['I21', 'I22'] for MI).
+    df : pandas.DataFrame
+        The primary features DataFrame (typically pivoted time-series).
+    **kwargs
+        Arbitrary keyword arguments containing:
+        * `context_dfs` (dict): Dictionary of supporting DataFrames (must contain
+          'problems' and optionally 'diagnoses').
+        * `target_codes` (list of str): The ICD-10 or Read-code prefixes to
+          identify the condition (e.g., `['I21', 'I22']` for MI).
 
     Returns
     -------
-    np.ndarray: An array of integers (1 or 0) aligned with `df.index`.
+    np.ndarray
+        An array of integers (1 or 0) aligned with `df.index`.
     """
     flag = pd.Series(0, index=df.index)
     context = kwargs.get('context_dfs', {})
@@ -466,18 +479,15 @@ def derive_liver_disease(df, ast_col='AST', alt_col='ALT', cirrhosis_med_col='me
 # Charlson ME, et al. "A new method of classifying prognostic comorbidity in
 # longitudinal studies: development and validation." J Chronic Dis. 1987;40(5):373-83.
 def has_myocardial_infarction(df, **kwargs):
-    """""
-    Identifies history of MI.
+    """Identifies if a patient has a history of myocardial infarction (MI).
+
     Codes: Use 'MI' category from CCI Gold CSV (e.g., 323..00, G30..00).
     Search: `icare_problem_anon` and `icare_episodes_diagnosis_anon`.
-    pass
     """
     pass
 
 def has_congestive_heart_failure(df, **kwargs):
     """
-    @Example:
-
     Determines if a patient has a history of Congestive Heart Failure (CHF).
 
     Clinical Logic:
@@ -499,31 +509,31 @@ def has_congestive_heart_failure(df, **kwargs):
     pass
 
 def has_peripheral_vascular_disease(df, **kwargs):
-    """"""
+    """Identifies if a patient has a history of peripheral vascular disease."""
     pass
 
 def has_cerebrovascular_disease(df, **kwargs):
-    """"""
+    """Identifies if a patient has a history of cerebrovascular disease."""
     pass
 
 def has_dementia(df, **kwargs):
-    """"""
+    """Identifies if a patient has a documented history of dementia."""
     pass
 
 def has_chronic_pulmonary_disease(df, **kwargs):
-    """"""
+    """Identifies if a patient has a history of chronic pulmonary disease."""
     pass
 
 def has_connective_tissue_disease(df, **kwargs):
-    """"""
+    """Identifies if a patient has a history of connective tissue disease."""
     pass
 
 def has_peptic_ulcer_disease(df, **kwargs):
-    """"""
+    """Identifies if a patient has a history of peptic ulcer disease."""
     pass
 
 def has_mild_liver_disease(df, **kwargs):
-    """
+    """Identifies if a patient has mild liver disease.
 
     Clinical Logic:
     1. Explicit History: (Fill this out)
@@ -543,19 +553,17 @@ def has_mild_liver_disease(df, **kwargs):
 
 
 def has_diabetes(df, config=None):
-    """
-    @Example:
+    """Determines if a patient has diabetes using a multi-modal data approach.
 
-    Determines if a patient has diabetes using a multi-modal data approach.
-
-    Clinical Logic defined by the student:
+    Clinical Logic:
     We consider a patient to have diabetes if ANY of the following are true:
     1. Explicit History: The `diabetes_history` boolean column is exactly 1.
     2. ICD-10 Codes: The `diagnosis_codes` column contains E10, E11, or E14.
     3. Medications: The `medications_given` column contains 'insulin' or 'metformin'.
     4. Lab Values: The rolling maximum glucose (`glucose_max_24h`) is > 200 mg/dL.
 
-    Returns:
+    Returns
+    -------
     pd.Series of integers (1 for has_diabetes, 0 for no diabetes).
     """
     # 1. Extract signals using helpers
@@ -571,35 +579,35 @@ def has_diabetes(df, config=None):
     return combined_signal.astype(int)
 
 def has_diabetes_without_complications(df, **kwargs):
-    """"""
+    """Identifies if a patient has diabetes without chronic complications."""
     pass
 
 def has_diabetes_with_complications(df, **kwargs):
-    """"""
+    """Identifies if a patient has diabetes with chronic complications."""
     pass
 
 def has_hemiplegia_or_paraplegia(df, **kwargs):
-    """"""
+    """Identifies if a patient has a history of hemiplegia or paraplegia."""
     pass
 
 def has_moderate_to_severe_renal_disease(df, **kwargs):
-    """"""
+    """Identifies if a patient has moderate to severe renal disease."""
     pass
 
 def has_malignancy(df, **kwargs):
-    """"""
+    """Identifies if a patient has a history of malignancy."""
     pass
 
 def has_moderate_to_severe_liver_disease(df, **kwargs):
-    """"""
+    """Identifies if a patient has moderate to severe liver disease."""
     pass
 
 def has_metastatic_solid_tumor(df, **kwargs):
-    """"""
+    """Identifies if a patient has a history of a metastatic solid tumor."""
     pass
 
 def has_aids(df, **kwargs):
-    """"""
+    """Identifies if a patient has a documented history of AIDS."""
     pass
 
 
@@ -635,7 +643,8 @@ def derive_mental_status_score(df, **kwargs):
     pass
 
 def derive_pitt_fever_status(df, **kwargs):
-    """
+    """Derives the fever status component of the Pitt Bacteremia Score
+
     Clinical Logic:
     - 36.1°C – 38.9°C: 0 pts
     - 35.1°C – 36.0°C or 39.0°C – 39.9°C: 1 pt
@@ -679,6 +688,7 @@ def derive_pitt_fever_status(df, **kwargs):
 def derive_pitt_hypotension_status(df, **kwargs):
     """
     Derives the hypotension component of the Pitt Bacteremia Score.
+
     Returns 2 points if SBP < 90 OR if the vasopressor flag is 1.
 
     Clinical Logic:
@@ -830,8 +840,7 @@ def derive_sirs_tachypnea(df, **kwargs):
 
 
 def derive_sirs_abnormal_temp(df, **kwargs):
-    """"
-    Identifies if a patient meets the temperature criteria for SIRS.
+    """Identifies if a patient meets the temperature criteria for SIRS.
 
     Clinical Logic:
     - Returns 1 if Temperature > 38.0°C (Fever) or < 36.0°C (Hypothermia).
@@ -876,58 +885,70 @@ def derive_sirs_abnormal_wbc(df, **kwargs):
     """
     Identifies if a patient meets the leukocyte (WBC) criteria for SIRS.
 
+    !!! warning "Unit Assumption"
+        This function assumes the WBC unit is **10^9/L** (e.g., a value of 12.5 represents
+        12,500 cells/µL). If the raw data uses absolute counts or a different unit, the
+        thresholds must be manually adjusted in the code (e.g. to 12000 and 4000).
+
     The SIRS criteria define an abnormal White Blood Cell count as a significant
     leukocytosis, leukopenia, or a shift to immature forms (bandemia). This
     function evaluates the primary WBC count and, if available, the percentage
     of band neutrophils.
 
-    Clinical Logic (SIRS 1992 Consensus):
-        - WBC count > 12.0 x 10^9/L (Leukocytosis) OR
-        - WBC count < 4.0 x 10^9/L (Leukopenia) OR
-        - Immature neutrophils (Bands) > 10%
+    ??? note "Clinical Logic & iCARE Mapping (Click to expand)"
+        **Clinical Logic (SIRS 1992 Consensus):**
 
-    iCARE Mapping:
-        - Table: `icare_pathology_blood_anon`
-        - Filter: `test_code` contains 'wbc'
-        - Value: `result_cleaned`
+        * **Leukocytosis:** WBC count > 12.0 x 10^9/L
+        * **Leukopenia:** WBC count < 4.0 x 10^9/L
+        * **Bandemia:** Immature neutrophils (Bands) > 10%
 
-    Notes:
-        - The function assumes the WBC unit is 10^9/L (e.g., a value of 12.5
-          represents 12,500 cells/µL). If the raw data uses absolute counts,
-          the thresholds (12.0 and 4.0) must be adjusted to 12000 and 4000.
-        - `pd.to_numeric` with `errors='coerce'` is used to handle non-numeric
-          artifacts in the lab results.
+        **iCARE Mapping:**
+
+        * **Table:** `icare_pathology_blood_anon`
+        * **Filter:** `test_code` contains 'wbc'
+        * **Value:** `result_cleaned`
+
+        **Implementation Notes:**
+
+        * `pd.to_numeric` with `errors='coerce'` is used to handle non-numeric
+          artifacts safely in the lab results.
 
     Parameters
     ----------
-    df (pd.DataFrame):
+    df : pandas.DataFrame
         The primary features DataFrame containing pivoted laboratory values.
-    **kwargs: Arbitrary keyword arguments containing:
-        wbc_col (str, optional):
-            The column name for the WBC count. Defaults to 'wbc'.
-        bands_col (str, optional):
-            The column name for the immature band percentage. Defaults to 'bands'.
+    **kwargs
+        Arbitrary keyword arguments containing:
+        * `wbc_col` (str): Column name for the WBC count. Defaults to 'wbc'.
+        * `bands_col` (str): Column name for the immature band percentage. Defaults to 'bands'.
+        * `wbc_high` (float): The upper threshold for leukocytosis. Defaults to 12.0.
+        * `wbc_low` (float): The lower threshold for leukopenia. Defaults to 4.0.
+        * `bands_threshold` (float): The threshold for bandemia. Defaults to 10.0.
 
     Returns
     -------
-    np.ndarray: An array of integers (1 or 0) aligned with `df.index`,
-        where 1 indicates the patient meets the SIRS WBC criteria.
+    numpy.ndarray
+        An array of integers (1 or 0) aligned with `df.index`, where 1 indicates
+        the patient meets the SIRS WBC criteria.
     """
     flag = pd.Series(0, index=df.index)
 
+    # 1. Get column names
     wbc_col = kwargs.get('wbc_col', 'wbc')
     bands_col = kwargs.get('bands_col', 'bands')  # Optional, if available
 
+    # 2. Get dynamic thresholds (with safe clinical defaults)
+    wbc_high = kwargs.get('wbc_high', 12.0)
+    wbc_low = kwargs.get('wbc_low', 4.0)
+    bands_threshold = kwargs.get('bands_threshold', 10.0)
+
     if wbc_col in df.columns:
         wbc = pd.to_numeric(df[wbc_col], errors='coerce')
-        # NOTE: This assumes your WBC is stored in thousands (e.g., 12.0). 
-        # If your raw iCARE data stores absolute values (e.g., 12000), 
-        # change the thresholds below to 12000.0 and 4000.0.
-        flag.loc[(wbc > 12.0) | (wbc < 4.0)] = 1
+        flag.loc[(wbc > wbc_high) | (wbc < wbc_low)] = 1
 
     if bands_col in df.columns:
         bands = pd.to_numeric(df[bands_col], errors='coerce')
-        flag.loc[bands > 10.0] = 1
+        flag.loc[bands > bands_threshold] = 1
 
     return flag
 
@@ -943,11 +964,14 @@ def derive_sirs_abnormal_wbc(df, **kwargs):
 # score for mortality in patients with bloodstream infections..." J Antimicrob Chemother.
 # 2017;72(3):906-913.
 def derive_age_at_admission(df, **kwargs):
-    """Already available.
+    """Computes the patient's age at the time of admission.
 
-    iCARE Mapping:
-    - Table: `icare_episodes_anon`
-    - Column: `age_at_admission`
+    Notes
+    -----
+    This metric does not require complex derivation, as it is already
+    pre-calculated and directly available within the source database.
+
+    iCARE Mapping: `icare_episodes_anon.age_at_admission`
     """
     pass
 
@@ -955,36 +979,40 @@ def derive_age_at_admission(df, **kwargs):
 def derive_bsi_not_urinary(df, **kwargs):
     """
     Determines if the source of the Bloodstream Infection (BSI) is NON-urinary.
+
     In the INCREMENT-ESBL score, non-urinary sources (respiratory, abdominal, etc.)
     are associated with higher mortality and receive +3 points.
 
-    Clinical Logic:
-    A patient is flagged as having a NON-urinary source (returns 1) UNLESS we can
-    prove the source was urinary. We assume urinary if:
-    1. Explicit Flag: The `bsi_source` column explicitly equals 'Urinary'.
-    2. Concurrent Cultures: A urine culture (`urine_culture_result`) drawn within 48h
-       grew the same organism.
-    3. ICD-10 Proxy: The patient was billed for a UTI (e.g., 'N39.0') on admission.
+    ??? note "Clinical Logic & iCARE Mapping (Click to expand)"
+        A patient is flagged as having a NON-urinary source (returns 1) UNLESS we can
+        prove the source was urinary. We assume urinary if:
 
-    If none of the urinary criteria are met, we default to NON-urinary (1).
+        1. **Explicit Flag:** The `bsi_source` column explicitly equals 'Urinary'.
+        2. **Concurrent Cultures:** A urine culture (`urine_culture_result`) drawn within 48h
+           grew the same organism.
+        3. **ICD-10 Proxy:** The patient was billed for a UTI (e.g., 'N39.0') on admission.
 
-    Required Columns in df:
-    - `bsi_source` (String)
-    - `urine_culture_result` (String)
-    - `diagnosis_codes` (String/List)
+        If none of the urinary criteria are met, the function defaults to non-urinary (1).
 
-    iCARE mapping:
-    iCARE Mapping:
-    - Table: `icare_episodes_diagnosis_anon`
-    - Column: `diagnosis_code_snomed`
-    - Logic: use the diagnosis icd-10 codes
-    - J15.8, J15.9, J18.0, J18.1, J18.9, J85.1, N39.0, N10,
-      N13.6, N30.0, N30.9 (to cover sputum and urine, for example).
+        **iCARE Mapping:**
+
+        * **Table:** `icare_episodes_diagnosis_anon`
+        * **Column:** `diagnosis_code_snomed`
+        * **Logic:** Use the diagnosis ICD-10 codes: J15.8, J15.9, J18.0, J18.1, J18.9,
+          J85.1, N39.0, N10, N13.6, N30.0, N30.9 (to cover sputum and urine).
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The patient dataframe. Must contain the following columns:
+        * `bsi_source` (String)
+        * `urine_culture_result` (String)
+        * `diagnosis_codes` (String/List)
 
     Returns
     -------
-    pd.Series (int)
-        1 if source is non-urinary, 0 if urinary.
+    pandas.Series
+        A binary series of integers (1 if source is non-urinary, 0 if urinary).
     """
     urine_code = kwargs.get('urine_culture_code', 'LOINC-630-4')
     merged = _get_nearest_micro_record(df, kwargs.get('context_dfs', {}), ['ORDER_CODE'])
@@ -1035,49 +1063,55 @@ def derive_is_non_ecoli(df, **kwargs):
 
 def derive_abx_inappropriate(df, **kwargs):
     """
-    Determines if the empirical antibiotic therapy administered was INAPPROPRIATE.
-
-    Clinical Logic:
-    Empirical therapy is the drug given *before* the final lab results come back.
-    Therapy is considered INAPPROPRIATE (returns 1) if:
-    1. Resistance: The `empiric_abx_given` (medication given in the first 24h)
-       matches a drug listed in the `abx_resistant_to` column (from the lab report).
-    2. No Coverage: The patient received no active anti-ESBL antibiotics
-       (like carbapenems) within the first 24 hours of blood culture collection.
-    3. Explicit Flag: If an `inappropriate_abx_flag` already exists from a
-       clinical pharmacist's manual review, use it.
-
-    Required Columns in df:
-    - `empiric_abx_given` (String/List of medications)
-    - `abx_resistant_to` (String/List from susceptibility report)
-    - `inappropriate_abx_flag` (Int 1 or 0, optional)
-
-    Note:
-    This method  requires us to look at Pharmacy data (empiric_abx_given) and
-    Laboratory data (abx_resistant_to) at the same time.
-
-    iCARE Mapping:
-    - Merge `icare_microbiology_anon` with `icare_pharmacy_prescribing_anon`.
-    - Compare `sample_collected_dt` (`icare_pathology_blood_anon`)
-         with `order_dt_tm` (`icare_pharmacy_prescribing_anon`).
-    - Inappropriate if administration > 1 day from blood cultures or
-      > 4 days without targeted anti-ESBL therapy (e.g. Carbapenems)
-
-    Implementation
-    --------------
-
-    Returns 1 if NO 'Susceptible' antibiotic was given within 24h of the culture.
-
-    Evaluates if empirical antibiotic therapy was inappropriate.
+    Evaluates if the empirical antibiotic therapy administered was INAPPROPRIATE.
 
     Compares 'microbiology' sensitivity results against 'pharmacy'
     prescriptions. Inappropriate therapy (+2 points in INCREMENT-ESBL)
-    occurs if the organism is resistant to all administered drugs.
+    occurs if the organism is resistant to all administered drugs, or if
+    NO 'Susceptible' antibiotic was given within 24h of the culture.
+
+    !!! warning "Missing Data & Simplification Assumptions"
+        * **Default to Risk:** If microbiology or pharmacy context data is entirely missing for a patient, this function defaults to **1 (Inappropriate Therapy)**.
+        * **Synthetic Simplification:** In this synthetic version, if the microbiology report simply says 'Resistant', it is automatically flagged as inappropriate therapy.
+
+    ??? "Clinical Notes & iCARE Mapping (Click to expand)"
+        Empirical therapy is the drug given *before* the final lab results come back.
+        Therapy is considered **inappropriate** (returns 1) if:
+
+        1. **Resistance:** The `empiric_abx_given` (medication given in the first 24h)
+        matches a drug listed in the `abx_resistant_to` column (from the lab report).
+        2. **No Coverage:** The patient received no active anti-ESBL antibiotics
+           (like carbapenems) within the first 24 hours of blood culture collection.
+        3. **Explicit Flag:** If an `inappropriate_abx_flag` already exists from a
+           clinical pharmacist's manual review, use it.
+
+        Required Columns in df:
+        - `empiric_abx_given` (String/List of medications)
+        - `abx_resistant_to` (String/List from susceptibility report)
+        - `inappropriate_abx_flag` (Int 1 or 0, optional)
+
+        This method requires looking at Pharmacy data (`empiric_abx_given`) and
+        Laboratory data (`abx_resistant_to`) simultaneously.
+
+        **iCARE Mapping:**
+
+        * Merge `icare_microbiology_anon` with `icare_pharmacy_prescribing_anon`.
+        * Compare `sample_collected_dt` (`icare_pathology_blood_anon`)
+          with `order_dt_tm` (`icare_pharmacy_prescribing_anon`).
+        * Inappropriate if administration > 1 day from blood cultures or
+          > 4 days without targeted anti-ESBL therapy (e.g. Carbapenems).
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The patient dataframe. Must contain the following columns:
+        `empiric_abx_given` (String/List of medications), `abx_resistant_to` (String/List from susceptibility report)
+        and `inappropriate_abx_flag` (Int 1 or 0, optional)
 
     Returns
     -------
-    pd.Series (int)
-        1 if therapy was inappropriate, 0 otherwise.
+    pandas.Series
+        A binary series of integers (1 if therapy was inappropriate, 0 otherwise).
     """
 
     context = kwargs.get('context_dfs', {})
@@ -1111,21 +1145,38 @@ def derive_abx_inappropriate(df, **kwargs):
 
 
 def determine_bsi_source(df, **kwargs):
-    """Implemented above in <derive_bsi_not_urinary>."""
+    """Determines the clinical source of the bloodstream infection.
+
+    Note:
+        Implemented upstream in `derive_bsi_not_urinary`.
+    """
     pass
 
 def identify_microorganism_type(df, **kwargs):
-    """Implemented above <derive_is_non_ecoli>."""
+    """Determines the microorganism type.
+
+    Note:
+        Implemented above <derive_is_non_ecoli>.
+    """
     pass
 
 def evaluate_antibiotic_appropriateness(df, **kwargs):
-    """Implemented above <derive_abx_inappropriate>."""
+    """Determines whether antibiotic treatment is appropriate
+
+    Note:
+        Implemented above <derive_abx_inappropriate>.
+    """
     pass
 
 
 def derive_ground_truth(df, **kwargs):
     """
     Assigns a random binary ground truth label (1 or 0) to each patient.
+
+    !!! warning "Synthetic Data Generation"
+        This function generates **random labels** based on a fixed seed. It
+        is strictly for testing pipeline infrastructure and stay-level
+        classification logic, NOT for actual clinical evaluation.
 
     This ensures that all rows belonging to the same patient have the
     exact same label, which is required for stay-level classification
