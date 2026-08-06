@@ -30,6 +30,7 @@ if "%1"=="build-pkg" goto build_pkg
 if "%1"=="test-pkg" goto test_pkg
 if "%1"=="docs-serve" goto docs_serve
 if "%1"=="docs-build" goto docs_build
+if "%1"=="sandbox" goto sandbox
 goto menu
 
 :menu
@@ -118,6 +119,13 @@ echo.
 echo --- Discover Clinical Codes (Keywords) ---
 %RUN% %PYTHON% -m %SCRIPTS_PKG%.f_find_clinical_codes %EXTRA_ARGS%
 timeout /t 2 >nul
+goto :eof
+
+
+:sandbox
+echo.
+echo --- 🧪 Launching Sandbox ---
+%RUN% %PYTHON% -m icare_risk.scripts.g_sandbox %EXTRA_ARGS%
 goto :eof
 
 :clean

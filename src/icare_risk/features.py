@@ -7,9 +7,10 @@ from pathlib import Path
 
 
 class FeaturePipeline:
-    def __init__(self, config_dict=None, context_dfs=None):
+    def __init__(self, config_dict=None, context_dfs=None, targets=None):
         self.config = config_dict or {}
         self.context_dfs = context_dfs or {}  # Holds micro, pharmacy, etc.
+        self.targets = targets or []
 
     def process(self, df_static, df_ts):
         """Main orchestration method.
@@ -17,8 +18,6 @@ class FeaturePipeline:
         # df_ts is your pivoted vitals/labs
         """
         #df = df_ts.reset_index()
-
-        # Order time series
         df = df_ts \
             .sort_values(['patient_id', 'date']) \
             .set_index(['patient_id', 'date'])
@@ -84,6 +83,10 @@ class FeaturePipeline:
         """Executes the custom_features block from YAML (Phenotypes)."""
         custom_feats = self.config.get('custom_features', {})
         for feat_name, meta in custom_feats.items():
+
+            if self.targets and feat_name not in self.targets:
+                continue
+
             module_name = meta.get('module', 'icare_risk.phenotypes')
             func_name = meta.get('function')
             kwargs = meta.get('kwargs', {})
@@ -99,8 +102,13 @@ class FeaturePipeline:
                 df[feat_name] = pd.Series(result, index=df.index)
                 print(f"     ✅ {feat_name} added. Unique values: {df[feat_name].unique()}")
             except Exception as e:
-                print(f"⚠️ Warning: Failed to compute phenotype '{feat_name}'. Error: {e}")
+                msg = f"⚠️ Warning: Failed to compute phenotype '{feat_name}'. Error: {e}"
+                if self.config.get('strict_mode', True):
+                    raise RuntimeError(f"❌ {msg}") from e
+                else:
+                    print(f"⚠️ Warning: {msg}")
         return df
+
 
     def _compute_expressions(self, df):
         """Dynamically evaluates string expressions to create new features/scores.
@@ -109,16 +117,24 @@ class FeaturePipeline:
                 tell Pandas to use the standard Python engine so it can safely
                 add boolean flags (True + True = 2) without numexpr complaining!
                 df[feature_name] = df.eval(expr, engine='python')
+
+        Parameters
+        ----------
+
+        Returns
+        -------
         """
         expressions = self.config.get('computed_features', {})
-
         for feature_name, expr in expressions.items():
+            if self.targets and feature_name not in self.targets:
+                continue
             try:
-                df[feature_name] = df.eval(expr)
+                df[feature_name] = df.eval(expr, engine='python')
             except Exception as e:
                 print(f"Warning: Failed to compute '{feature_name}'. Error: {e}")
 
         return df
+
 
     def _compute_custom_scores(self, df):
         """Dynamically imports and executes external Python scoring functions."""
@@ -127,6 +143,9 @@ class FeaturePipeline:
         custom_scores = self.config.get('custom_scores', {})
 
         for score_name, meta in custom_scores.items():
+            if self.targets and score_name not in self.targets:
+                continue
+
             module_name = meta.get('module', 'scores')
             func_name = meta.get('function')
             kwargs = meta.get('kwargs', {})
@@ -169,7 +188,11 @@ class FeaturePipeline:
             #        f"   💡 Hint: Check if this column is generated in Step 1 or defined in your 'custom_features' YAML block.")
 
             except Exception as e:
-                print(f"⚠️ Warning: Failed to compute custom score '{score_name}'. Error: {e}")
+                msg = f"⚠️ Warning: Failed to compute custom score '{score_name}'. Error: {e}"
+                if self.config.get('strict_mode', True):
+                    raise RuntimeError(f"❌ {msg}") from e
+                else:
+                    print(f"⚠️ Warning: {msg}")
 
         return df
 

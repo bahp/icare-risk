@@ -70,7 +70,9 @@ search:
 	@echo "\n--- Discover Clinical Codes (Keywords) ---"
 	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).f_find_clinical_codes $(ARGS)
 
-
+sandbox:
+	@echo "\n--- 🧪 Launching Sandbox ---"
+	$(RUN) $(PYTHON) -m icare_risk.scripts.g_sandbox $(ARGS)
 
 
 

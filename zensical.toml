@@ -15,6 +15,7 @@ nav = [
     { "Pipeline Evaluation" = "04-pipeline-evaluation.md" },
     { "Pipeline Validation" = "05-pipeline-validation.md" },
     { "Azure ML Guide" = "06-azure-ml-guide.md" },
+    { "Local Development" = "07-local-feature-development.md" },
     { "API Reference" = [
         { "Overview" = "api/index.md" },
         { "Phenotypes" = "api/phenotypes.md" },

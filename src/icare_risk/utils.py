@@ -97,27 +97,40 @@ def load_yaml_config(config_name="data_config.yaml",
 #        return yaml.safe_load(file)
 
 
-def get_latest_data_dir(user_config_path=None,
-                        loaded_config=None):
+def get_latest_data_dir(user_config_path=None, loaded_config=None, exact_dir=None):
     """
-    Finds the most recently created raw data directory inside data/synthetic/
-    or data/external/ depending on the 'data_source' key in data_config.yaml.
+    Finds the most recently created raw data directory, or uses an explicit path.
     """
+    # --- NEW: Allow overriding the search entirely ---
+    if exact_dir:
+        target_path = Path(exact_dir)
+        if target_path.exists():
+            print(f"🔄 Active Data Source: [EXPLICIT] -> Reading from '{target_path.resolve()}'")
+            return target_path
+        else:
+            raise FileNotFoundError(f"Explicit path provided does not exist: {target_path}")
+
+    # 1. Use the pre-loaded config if provided, otherwise load it
     if loaded_config is not None:
         config = loaded_config
     else:
         config = load_yaml_config("data_config.yaml", user_config_path)
 
     source = config.get('data_source', 'synthetic').lower()
-
-    # Determine base directory based on config
     paths = config.get('paths', {})
+
     if source == 'external':
         rel_path = paths.get('external_dir', 'data/external')
     else:
         rel_path = paths.get('synthetic_dir', 'data/synthetic')
 
-    synthetic_dir = Path.cwd() / rel_path
+    # --- NEW: Environment-aware root resolution ---
+    root_dir = Path.cwd()
+    # If the script is executed from inside 'notebooks' or 'scripts', step up one level
+    if root_dir.name in ['notebooks', 'scripts']:
+        root_dir = root_dir.parent
+
+    synthetic_dir = root_dir / rel_path
 
     if not synthetic_dir.exists():
         raise FileNotFoundError(

@@ -1,5 +1,12 @@
 # config/feature_config.yaml
 # =============================================================================
+# PIPELINE EXECUTION SETTINGS
+# =============================================================================
+# If true, the pipeline will halt completely if any feature or score fails to compute.
+# If false, it will print a warning, skip the failed column, and continue.
+strict_mode: true
+
+# =============================================================================
 # 1. BASE FEATURES (Time-Series Cleaning & Windowing)
 # =============================================================================
 # This section automates the processing of raw, messy time-series data (like vitals).
@@ -166,16 +173,25 @@ custom_features:
     module: 'icare_risk.phenotypes'
     function: 'derive_historical_condition'
     kwargs:
+      icd10_codes: []
+      snomed_codes: []
       icare_codes: [
         '57054005', '22298006', '1755008', '70211005', '401303003', '22298006',
         '401314000', '16837681000119100']
       target_codes: ['I21', 'I22', 'I25.2', '323..00', 'G30..00']
+      sources:
+        - context_name: 'problems'
+          patient_col: 'SUBJECT'
+          code_col: 'PROBLEM_CODE'
+          vocab_key: 'icd10_codes'
+          match_type: 'prefix'      # ICD-10 needs prefix matching
 
   # has_congestive_heart_failure
   hx_chf:
     module: 'icare_risk.phenotypes'
     function: 'derive_historical_condition'
     kwargs:
+      icd10_codes: []
       icare_codes: [
         '446221000', '703273002', '42343007', '390884006', '161505003', '84114007', '424404003',
         '128404006', '703272007', '446221000', '418304008', '446221000', '10633002', '48447003',

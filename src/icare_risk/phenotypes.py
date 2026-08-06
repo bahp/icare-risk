@@ -154,7 +154,9 @@ def has_medication_in_window(df, **kwargs):
     context = kwargs.get('context_dfs', {})
 
     # Use your existing helper to get the list of meds for each row
-    prescribed_series = _get_prescriptions_in_window(df, context, window_hours=window_hours)
+    prescribed_series = _get_prescriptions_in_window(df,
+        context, window_hours=window_hours
+    )
 
     if prescribed_series is None:
         return pd.Series(0, index=df.index).values

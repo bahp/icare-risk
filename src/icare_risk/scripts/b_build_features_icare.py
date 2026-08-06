@@ -87,6 +87,8 @@ def main():
         type=str, default=None, help='Path to data YAML override')
     parser.add_argument('--feature-config',
         type=str, default=None, help='Path to feature YAML override')
+    parser.add_argument('--only',
+        type=str, default=None, help='Comma-separated list of specific features or scores to compute (e.g., "hx_mi,pitt_score")')
     args = parser.parse_args()
 
     print("==================================================")
@@ -134,15 +136,26 @@ def main():
     }
     """
 
-    context_paths = {
-        'microbiology': latest_data_dir / 'icare_microbiology_anon.csv',
-        'pharmacy': latest_data_dir / 'icare_pharmacy_prescribing_anon.csv',
-        'problems': latest_data_dir / 'icare_problems_anon.csv',
-        #'episodes': latest_data_dir / 'icare_episodes_anon.csv',
-        #'vitals': latest_data_dir / 'icare_vital_signs_anon.csv',
-        #'labs': latest_data_dir / 'icare_pathology_blood_anon.csv',
-        'episodes': df_episodes
-    }
+    #context_paths = {
+    #    'microbiology': latest_data_dir / 'icare_microbiology_anon.csv',
+    #    'pharmacy': latest_data_dir / 'icare_pharmacy_prescribing_anon.csv',
+    #    'problems': latest_data_dir / 'icare_problems_anon.csv',
+    #    #'episodes': latest_data_dir / 'icare_episodes_anon.csv',
+    #    #'vitals': latest_data_dir / 'icare_vital_signs_anon.csv',
+    #    #'labs': latest_data_dir / 'icare_pathology_blood_anon.csv',
+    #    'episodes': df_episodes
+    #}
+
+    # 6. Set up Context for Features dynamically
+    context_paths = {}
+
+    # Read the file mappings from the data config
+    file_mappings = data_config.get('context_files', {})
+
+    for context_name, file_name in file_mappings.items():
+        context_paths[context_name] = latest_data_dir / file_name
+
+    context = LazyContextDict(context_paths)
 
     # Load feature config
     feature_config = load_yaml_config(
@@ -150,9 +163,14 @@ def main():
         user_path=args.feature_config
     )
 
+    # Parse the target list if provided
+    targets = [t.strip() for t in args.only.split(',')] if args.only else None
+    if targets:
+        print(f"🎯 Target Isolation Mode Active: Computing ONLY -> {targets}")
 
-    context = LazyContextDict(context_paths)
-    pipeline = FeaturePipeline(config_dict=feature_config, context_dfs=context)
+    pipeline = FeaturePipeline(config_dict=feature_config,
+                               context_dfs=context,
+                               targets=targets)
 
     print("\n🚀 Starting Feature Pipeline...")
     final_features = pipeline.process(df_static, df_ts_wide)

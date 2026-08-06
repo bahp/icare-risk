@@ -9,6 +9,13 @@ paths:
   external_dir: "data/external"
   processed_dir: "data/processed"
 
+context_files:
+  microbiology: 'icare_microbiology_anon.csv'
+  pharmacy: 'icare_pharmacy_prescribing_anon.csv'
+  problems: 'icare_problems_anon.csv'
+  diagnoses: 'icare_episodes_diagnosis_anon.csv'
+  episodes: 'icare_episodes_anon.csv'
+
 # =============================================================================
 # GENERATION PARAMETERS (Used when data_source = 'synthetic')
 # =============================================================================
