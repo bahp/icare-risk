@@ -23,6 +23,7 @@ if "%1"=="thresholds" goto thresholds
 if "%1"=="validate" goto validate
 if "%1"=="search" goto search
 if "%1"=="test" goto test
+if "%1"=="test-path" goto test_path
 if "%1"=="clean" goto clean
 if "%1"=="publish" goto publish
 if "%1"=="build-pkg" goto build_pkg
@@ -35,20 +36,21 @@ goto menu
 echo ============================================================
 echo           CLINICAL PIPELINE MANAGER (Windows)
 echo ============================================================
-echo   1. all        - Run entire pipeline
-echo   2. generate   - Step 1: Generate Synthetic iCARE Data
-echo   3. features   - Step 2: Build Phenotypes (SIRS/Pitt)
-echo   4. evaluate   - Step 3: Compute Clinical Scores
-echo   5. thresholds - Step 4: Evaluate Stewardship Thresholds
-echo   6. validate   - Step 5: Run Clinical Audit (cases.csv)
-echo   7. search     - Discover Clinical Codes (Keywords)
-echo   8. test       - Run Pytest Suite
-echo   9. clean      - Remove old reports
-echo   10. build-pkg - Build PyPI Package
-echo   11. test-pkg  - Verify Package in Isolated Venv
-echo   12. docs-serve - Serve Zensical Docs Locally
-echo   13. docs-build - Build Zensical Docs
-echo   0. exit       - Close the manager
+echo   1. all         - Run entire pipeline
+echo   2. generate    - Step 1: Generate Synthetic iCARE Data
+echo   3. features    - Step 2: Build Phenotypes (SIRS/Pitt)
+echo   4. evaluate    -  Step 3: Compute Clinical Scores
+echo   5. thresholds  - Step 4: Evaluate Stewardship Thresholds
+echo   6. validate    - Step 5: Run Clinical Audit (cases.csv)
+echo   7. search      - Discover Clinical Codes (Keywords)
+echo   8. test        - Run Pytest Suite
+echo   9. test-path   - Run Specific Test (pass path as arg)
+echo   10. clean      - Remove old reports
+echo   11. build-pkg  - Build PyPI Package
+echo   12. test-pkg   - Verify Package in Isolated Venv
+echo   13. docs-serve - Serve Zensical Docs Locally
+echo   14. docs-build - Build Zensical Docs
+echo   0. exit        - Close the manager
 echo ============================================================
 echo NOTE: Commands run in Docker by default.
 echo       To run locally, type: make.bat generate local
@@ -63,9 +65,12 @@ if "%choice%"=="5" goto thresholds
 if "%choice%"=="6" goto validate
 if "%choice%"=="7" goto search
 if "%choice%"=="8" goto test
-if "%choice%"=="9" goto clean
-if "%choice%"=="10" goto build_pkg
-if "%choice%"=="11" goto test_pkg
+if "%choice%"=="9" goto test_path
+if "%choice%"=="10" goto clean
+if "%choice%"=="11" goto build_pkg
+if "%choice%"=="12" goto test_pkg
+if "%choice%"=="13" goto docs_serve
+if "%choice%"=="14" goto docs_build
 if "%choice%"=="0" goto :eof
 goto menu
 
@@ -108,13 +113,6 @@ echo --- Step 5: Validating Scores (Clinical Audit) ---
 timeout /t 2 >nul
 goto :eof
 
-:test
-echo.
-echo --- Running Unit Tests ---
-%RUN% %PYTHON% -m pytest tests/ %EXTRA_ARGS%
-timeout /t 2 >nul
-goto :eof
-
 :search
 echo.
 echo --- Discover Clinical Codes (Keywords) ---
@@ -132,6 +130,27 @@ timeout /t 2 >nul
 goto :eof
 
 
+
+:test
+echo.
+echo --- Running Unit Tests ---
+%RUN% %PYTHON% -m pytest tests/ %EXTRA_ARGS%
+timeout /t 2 >nul
+goto :eof
+
+:test_path
+echo.
+echo --- Running Specific Test ---
+if "%EXTRA_ARGS%"=="    " (
+    echo Error: You must provide a test path.
+    echo Example: make.bat test-path local epi/tests/test_local_logic.py
+) else (
+    %RUN% %PYTHON% -m pytest %EXTRA_ARGS%
+)
+timeout /t 2 >nul
+goto :eof
+
+
 :docs_serve
 echo.
 echo --- Serving Documentation Locally ---
@@ -144,6 +163,9 @@ echo --- Building Documentation ---
 %RUN% zensical build --clean
 goto :eof
 
+
+
+
 :publish
 echo Tagging and triggering PyPI release...
 :: Get current date/time parts for Windows
@@ -153,6 +175,9 @@ git tag %TAG%
 git push origin %TAG%
 echo Release %TAG% pushed!
 goto :eof
+
+
+
 
 
 :build_pkg

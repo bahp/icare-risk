@@ -93,11 +93,18 @@ def main():
     print("⚙️  [Step 2] Feature Engineering: ICARE Edition")
     print("==================================================\n")
 
-    latest_data_dir = get_latest_data_dir()
+    # 1. Load the Data Config FIRST
+    data_config = load_yaml_config(
+        config_name="data_config.yaml",
+        user_path=args.data_config
+    )
+
+    # 2. Pass the loaded config to find the data directory
+    latest_data_dir = get_latest_data_dir(loaded_config=data_config)
     run_id = latest_data_dir.name
     print(f"📂 Loading data from run: {run_id}")
 
-    # 1. Load Data
+    # 3. Load Data
     try:
         df_episodes = pd.read_csv(latest_data_dir / 'icare_episodes_anon.csv')
         df_vitals = pd.read_csv(latest_data_dir / 'icare_vital_signs_anon.csv',
@@ -108,12 +115,6 @@ def main():
     except FileNotFoundError as e:
         print(f"❌ Error: Could not find required CSV files: {e}")
         return
-
-    # Load data config
-    data_config = load_yaml_config(
-        config_name="data_config.yaml",
-        user_path=args.data_config
-    )
 
     # 2. Prepare Time-Series
     df_ts_wide = prepare_icare_ts(df_vitals, df_labs, data_config)

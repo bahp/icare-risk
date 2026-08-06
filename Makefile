@@ -16,7 +16,7 @@ endif
 local:
 	@:
 
-.PHONY: help all generate features evaluate thresholds validate search test clean local
+.PHONY: help all generate features evaluate thresholds validate searchclean local
 
 help:
 	@echo "============================================================"
@@ -70,14 +70,31 @@ search:
 	@echo "\n--- Discover Clinical Codes (Keywords) ---"
 	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).f_find_clinical_codes $(ARGS)
 
-test:
-	@echo "\n--- Running Unit Tests ---"
-	$(RUN) $(PYTHON) -m pytest tests/ $(ARGS)
+
+
+
+
 
 clean:
 	@echo "\n--- Cleaning up reports ---"
 	rm -f reports/*.log reports/*.txt
 	@echo "Done."
+
+
+
+
+.PHONY: test test-path
+
+test:
+	@echo "\n--- Running All Unit Tests ---"
+	$(RUN) $(PYTHON) -m pytest tests/ $(ARGS)
+
+test-path:
+	@echo "\n--- Running Specific Test ---"
+	@if [ -z "$(TEST_PATH)" ]; then echo "Error: TEST_PATH is not set. Use: make test-path TEST_PATH=path/to/test.py"; exit 1; fi
+	$(RUN) $(PYTHON) -m pytest $(TEST_PATH) $(ARGS)
+
+
 
 .PHONY: docs-serve docs-build
 
@@ -91,6 +108,7 @@ docs-build:
 
 
 
+
 .PHONY: publish
 
 publish:
@@ -99,6 +117,9 @@ publish:
 	git tag $(TAG)
 	git push origin $(TAG)
 	@echo "Release $(TAG) pushed!"
+
+
+
 
 
 .PHONY: build-pkg test-pkg

@@ -1,0 +1,44 @@
+# config/feature_config.yaml
+
+# ----------------------------------------------------------------------
+# 1. BASE FEATURES
+# Handles imputation, missing indicators, rolling windows and deltas that
+# are applied to the raw columns.
+# ----------------------------------------------------------------------
+base_features:
+  HR:
+    missing_indicator: true   # Creates a new 'HR_is_missing' binary column
+    impute: 'ffill'           # Forward-fills missing values for this patient
+    delta: true               # Creates a 'HR_delta' column (current - previous)
+
+
+# ----------------------------------------------------------------------
+# 2. COMPUTED FEATURES (Expressions)
+# Evaluates fast string-based mathematical expressions.
+# ----------------------------------------------------------------------
+computed_features:
+  HR_to_Temp_Ratio: "hr / temp"
+
+# ----------------------------------------------------------------------
+# 3. CUSTOM FEATURES (Phenotypes)
+# Dynamically loads and executes Python functions to create complex flags.
+# ----------------------------------------------------------------------
+custom_features:
+  local_stress_flag:
+    module: "local.features.stress"
+    function: "derive_local_stress_phenotype"
+    kwargs:
+      hr_col: "hr"
+      tamp_col: "temp"
+
+# ----------------------------------------------------------------------
+# 4. CUSTOM SCORES
+# Dynamically loads risk scoring functions after all features are built.
+# ----------------------------------------------------------------------
+custom_scores:
+  local_ward_triage_score:
+    module: "local.scores.triage"
+    function: "calculate_local_ward_triage_score"
+    kwargs:
+      age_col: "AGE_AT_ADMISSION"
+      stress_col: "local_stress_flag"

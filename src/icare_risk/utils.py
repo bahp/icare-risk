@@ -5,24 +5,65 @@ from pathlib import Path
 from importlib.resources import files
 
 
-def deep_merge(base_dict, override_dict):
-    """Recursively deep-merges override_dict into base_dict."""
+def deep_merge(base_dict, override_dict, path=None, strict=False):
+    """
+    Recursively deep-merges override_dict into base_dict.
+    Alerts the user if a key from override_dict overwrites an
+    existing key in base_dict.
+
+    Parameters
+    ----------
+    base_dict : dict
+        The default package configuration.
+    override_dict : dict
+        The user's local override configuration.
+    path : list, optional
+        Used internally to track the key hierarchy for logging.
+    strict : bool, default=False
+        If True, raises a ValueError on duplicate keys instead of just warning.
+    """
+    if path is None:
+        path = []
+
     for key, value in override_dict.items():
-        if (isinstance(value, dict) and
-            key in base_dict and
-            isinstance(base_dict[key], dict)):
-            deep_merge(base_dict[key], value)
+        current_path = path + [str(key)]
+
+        # If the key exists in both dictionaries
+        if key in base_dict:
+            # If both are dictionaries, recurse deeper
+            if isinstance(base_dict[key], dict) and isinstance(value, dict):
+                deep_merge(base_dict[key], value, current_path, strict)
+
+            # If they are not both dictionaries, an overwrite is happening
+            else:
+                key_string = " -> ".join(current_path)
+                msg = f"⚠️ Override Alert: The key '{key_string}' in your local config is overwriting the default iCARE setting."
+
+                if strict:
+                    raise ValueError(f"❌ Strict Mode Error: {msg}")
+                else:
+                    print(msg)
+
+                # Perform the overwrite
+                base_dict[key] = value
+
+        # If the key is entirely new, simply add it
         else:
             base_dict[key] = value
+
     return base_dict
 
 
-def load_yaml_config(config_name="data_config.yaml", user_path=None):
+def load_yaml_config(config_name="data_config.yaml",
+                     user_path=None,
+                     strict_merge=False):
     """
     Loads a default YAML from the package and deep-merges user overrides.
     """
     # 1. Read the default YAML from inside the installed package
     default_yaml = files('icare_risk.config').joinpath(config_name)
+    print(f"⚙️ Loaded default config from: {default_yaml}")
+
 
     with default_yaml.open('r') as f:
         config = yaml.safe_load(f)
@@ -31,13 +72,15 @@ def load_yaml_config(config_name="data_config.yaml", user_path=None):
     if user_path:
         user_file = Path(user_path)
         if user_file.is_file():
-            print(f"⚙️ Merging local overrides from: {user_file.name}")
+            print(f"⚙️ Overriding default config using: {user_file.resolve()}")
             with user_file.open('r') as f:
                 user_overrides = yaml.safe_load(f) or {}
 
-            config = deep_merge(config, user_overrides)
+            config = deep_merge(config, user_overrides, strict=strict_merge)
         else:
             print(f"⚠️ Warning: Override file '{user_path}' not found. Using defaults.")
+    else:
+        print(f"⚙️ No override config provided. Running solely on defaults.")
 
     return config
 
@@ -54,12 +97,17 @@ def load_yaml_config(config_name="data_config.yaml", user_path=None):
 #        return yaml.safe_load(file)
 
 
-def get_latest_data_dir(user_config_path=None):
+def get_latest_data_dir(user_config_path=None,
+                        loaded_config=None):
     """
     Finds the most recently created raw data directory inside data/synthetic/
     or data/external/ depending on the 'data_source' key in data_config.yaml.
     """
-    config = load_yaml_config("data_config.yaml", user_config_path)
+    if loaded_config is not None:
+        config = loaded_config
+    else:
+        config = load_yaml_config("data_config.yaml", user_config_path)
+
     source = config.get('data_source', 'synthetic').lower()
 
     # Determine base directory based on config
