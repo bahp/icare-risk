@@ -20,11 +20,21 @@ dependencies = [
     "scikit-learn",
     "scipy",
     "matplotlib",
-    "seaborn",
+    "seaborn"
+]
+
+[project.optional-dependencies]
+# Optional dependencies go here, grouped by a name you choose (e.g., 'docs', 'dev')
+docs = [
     "mkdocs-material",
     "mkdocstrings",
     "mkdocstrings-python"
 ]
+dev = [
+    "pytest",
+]
+# You can also combine them
+all = ["your-package[docs,dev]"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
