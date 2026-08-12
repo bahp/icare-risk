@@ -56,7 +56,7 @@ echo ============================================================
 echo NOTE: Commands run in Docker by default.
 echo       To run locally, type: make.bat generate local
 echo ============================================================
-set /p choice="Enter choice (0-11): "
+set /p choice="Enter choice (0-14): "
 
 if "%choice%"=="1" goto all
 if "%choice%"=="2" goto generate

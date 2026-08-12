@@ -16,7 +16,7 @@ endif
 local:
 	@:
 
-.PHONY: help all generate features evaluate thresholds validate searchclean local
+.PHONY: help all generate features evaluate thresholds validate search clean local
 
 help:
 	@echo "============================================================"
@@ -42,6 +42,7 @@ help:
 	@echo "EXAMPLES:"
 	@echo "  make generate local"
 	@echo "  make evaluate ARGS=\"--eval-config custom_eval.yaml\""
+	@echo "  make search ARGS=\"--config config/multi_code_search.yaml --out reports/code_search.txt\""
 	@echo "============================================================"
 
 all: generate features evaluate thresholds validate
