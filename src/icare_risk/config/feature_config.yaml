@@ -557,6 +557,7 @@ custom_scores:
         hx_aids: 6
   # --8<-- [end:charlson_config]
 
+  # --8<-- [start:charlson_quan_config]
   charlson_quan_score:
     module: 'icare_risk.scores'
     function: 'calculate_charlson_quan'
@@ -581,6 +582,7 @@ custom_scores:
       hiv_col: 'hx_hiv'
       aids_col: 'hx_aids'
       renal_sev_col: 'hx_renal_mod_sev'
+  # --8<-- [end:charlson_quan_config]
 
   # --8<-- [start:pitt_config]
   pitt_score:

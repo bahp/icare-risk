@@ -428,8 +428,7 @@ def map_medical_codes(df, code_col, target_codes, **kwargs):
 # ---------------------------------------
 def derive_diabetes_status(df, insulin_col='med_insulin_given', glucose_col='Glucose_24h_max'):
     """
-    Derives a diabetes diagnosis (1=Yes, 0=No) based on clinical proxies
-    rather than a direct medical history column.
+    Derives a diabetes diagnosis based on clinical proxies.
 
     Rules for positive phenotype:
     1. Patient was administered insulin.
@@ -979,8 +978,7 @@ def derive_age_at_admission(df, **kwargs):
 
     Notes
     -----
-    This metric does not require complex derivation, as it is already
-    pre-calculated and directly available within the source database.
+    Already available.
 
     iCARE Mapping: `icare_episodes_anon.age_at_admission`
     """

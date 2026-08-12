@@ -263,8 +263,7 @@ def calculate_charlson(df, **kwargs):
         | **3 Points** | Moderate to Severe Liver Disease |
         | **6 Points** | Metastatic Solid Tumor, AIDS / HIV |
 
-        **Age Adjustment Component:**
-        +1 point is awarded for every decade of life starting after age 40 (i.e., +1 for ages 50–59, +2 for 60–69, +3 for 70–79, and +4 for 80 and older).
+        * **Age Adjustment:** 50-59 (+1), 60-69 (+2), 70-79 (+3), 80+ (+4)
 
         **References:** Charlson, M. E., et al. A new method of
         classifying prognostic comorbidity in longitudinal studies: Development and validation.
@@ -341,6 +340,10 @@ def calculate_charlson_quan(df, **kwargs):
         awarded. Requires **binary (1/0)** flags for conditions and **raw age**.
 
     ??? note "Clinical Logic & Point Allocation (Click to expand)"
+        ```yaml
+        --8<-- "src/icare_risk/config/feature_config.yaml:charlson_quan_config"
+        ```
+
         * **Age Adjustment:** 50-59 (+1), 60-69 (+2), 70-79 (+3), 80+ (+4)
         * **1-Point Conditions:** MI, CHF, PVD, Stroke, Dementia, Pulmonary, Rheum, PUD.
         * **Hierarchical Categories (Highest weight wins):**
