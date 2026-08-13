@@ -30,7 +30,7 @@ docs = [
     "mkdocstrings-python"
 ]
 dev = [
-    "pytest",
+    "pytest"
 ]
 # You can also combine them
 all = ["icare_risk[docs,dev]"]
