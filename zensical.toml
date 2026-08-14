@@ -1,4 +1,6 @@
 [project]
+docs_dir = "docs"
+site_dir = "site"
 site_name = "iCARE-RISK Documentation"
 site_description = "Documentation and guides for the iCARE Risk pipeline"
 site_url = "https://<your-username>.github.io/<your-repo-name>/"
@@ -10,13 +12,13 @@ extra_css = ["stylesheets/api-custom.css"]
 nav = [
     { "Home" = "index.md" },
     { "Getting Started" = "00-getting-started.md" },
+    { "Local Development" = "07-local-development.md" },
     { "Data Generation" = "01-data-generation.md" },
     { "Feature Pipeline" = "02-feature-building.md" },
     { "Pipeline Execution" = "03-pipeline-execution.md" },
     { "Pipeline Evaluation" = "04-pipeline-evaluation.md" },
     { "Pipeline Validation" = "05-pipeline-validation.md" },
     { "Azure ML Guide" = "06-azure-ml-guide.md" },
-    { "Local Development" = "07-local-feature-development.md" },
     { "API Reference" = [
         { "Overview" = "api/index.md" },
         { "Phenotypes" = "api/phenotypes.md" },
@@ -52,6 +54,9 @@ md_in_html = {}
 [project.markdown_extensions.pymdownx.details]
 [project.markdown_extensions.pymdownx.inlinehilite]
 [project.markdown_extensions.pymdownx.superfences]
+custom_fences = [
+    { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" }
+]
 
 [project.markdown_extensions.pymdownx.highlight]
 anchor_linenums = true
