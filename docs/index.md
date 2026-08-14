@@ -1,34 +1,6 @@
 # Pipeline Architecture & Orchestration
 
-<div class="grid cards" markdown>
 
-- 🗄️ **Data Generation**
-
-    ---
-
-    Learn how the synthetic clinical data factory builds patients, vitals, and pharmacy records.
-
-    [Read the Data Generation Guide →](01-data-generation.md)
-
-- 🧠 **Feature Pipeline**
-
-    ---
-
-    Discover how raw data is translated into predictive phenotypes and rolling windows.
-
-    [Read the Feature Pipeline Guide →](02-feature-building.md)
-
-- 📊 **Pipeline Evaluation**
-
-    ---
-
-    View evaluation metrics, performance curves, and cohort analyses.
-
-    [Read the Evaluation Guide →](04-pipeline-evaluation.md)
-
-</div>
-
----
 
 This document outlines the consolidated folder structure of the DM-ESBL clinical validation pipeline and explains how to utilize the unified cross-platform automation suite to execute workflows seamlessly.
 
@@ -49,49 +21,63 @@ Once the container status is active, you can utilize the orchestration suite bel
 
 The project strictly separates configuration blueprints, core modular logic, execution dispatchers, and generated artifacts to ensure complete auditability, reproducibility, and isolation of experimental setups.
 
-```text
-dm-esbl/
-├── assets/                     # Static clinical knowledge bases and maps
-│   └── res195-comorbidity-cci-gold.csv
-├── config/                     # Blueprints controlling pipeline execution (YAML)
-│   ├── code_search.yaml        # Keywords to search for interesting codes
-│   ├── data_config.yaml        # Synthetic data generation schemas
-│   ├── feature_config.yaml     # Feature windowing and phenotype definitions
-│   ├── eval_config.yaml        # Cohort stratification and evaluation rules
-│   └── threshold_config.yaml   # Literature-recommended validation cutoffs
-├── data/                       # Data storage layer (Git ignored)
-│   ├── synthetic/              # Raw synthetic cohorts (Step 1 output)
-│   └── processed/              # Patient-level analytics (Step 2 output)
-├── outputs/                    # Metrics, plots, and experiment artifacts
-│   └── <run_timestamp>/
-│       ├── metrics/            # Performance reports
-│       └── plots/              # ROC, PR, longitudinal analyses
-├── reports/                    # Validation logs and audit trails
-│   ├── score_validation.log
-│   └── code_search_results.txt
-├── scripts/                    # Pipeline entry points
-│   ├── 01_generate_data_v2.py
-│   ├── 02_build_features_icare.py
-│   ├── 03_evaluate_scores_v2.py
-│   ├── 04_evaluate_thresholds.py
-│   ├── 05_validate_scores.py
-│   └── 06_find_clinical_codes.py
-├── src/                        # Core production logic
-│   ├── generators.py           # Cohort simulation algorithms
-│   ├── features.py             # Feature engineering pipeline
-│   ├── phenotypes.py           # Clinical rule extraction
-│   ├── scores.py               # Clinical score calculations
-│   ├── metrics.py              # Statistical evaluation engines
-│   └── utils.py                # Shared helper utilities
-├── tests/                      # Regression testing suite
-│   ├── cases.csv
-│   ├── test_phenotypes.py
-│   └── test_scores.py
-├── Dockerfile
-├── docker-compose.yml
-├── Makefile
-└── make.bat
-```
+
+??? abstract "📁 View Full Project Structure"
+
+    ```text
+    dm-esbl/
+    ├── assets/                     # Static clinical knowledge bases and maps
+    │   └── lookups
+    │      └── ICD10.csv              # File with ICD10 codes and descriptions
+    │      └── res195.csv             # File with res195 codes and descriptions
+    ├── data/                       # Data storage layer (Git ignored)
+    │   ├── external/                 # Raw external data
+    │   ├── synthetic/                # Raw synthetic ddata
+    │   └── processed/                # Processed data
+    ├── docs/                       # Documentation
+    │   ├── stylesheets/               # stylesheets
+    │   ├── api/                       # Documentation API pages
+    │   ├── xx-<filename>.md           # Documentation page xx
+    │   └── index.md                   # Documentation index
+    ├── local/                      # Local development (more on this later)
+    ├── notebooks/                  # Notebooks
+    ├── outputs/                    # Metrics, plots, and experiment artifacts
+    │   └── <run_timestamp>/            # Run <timestamp>
+    │       ├── metrics/                    # Performance reports
+    │       └── plots/                      # ROC, PR, longitudinal analyses
+    ├── src/
+    │   └── icare_risk/
+    │       ├── __init__.py
+    │       ├── config/                         # Blueprints controlling pipeline execution (YAML)
+    │       │   ├── code_search.yaml                # Keywords to search for clinical concepts
+    │       │   ├── data_config.yaml                # Synthetic data generation schemas[cite: 1]
+    │       │   ├── eval_config.yaml                # Cohort stratification and evaluation rules
+    │       │   ├── feature_config.yaml             # Feature windowing and phenotype definitions
+    │       │   └── threshold_config.yaml           # Literature-recommended validation cutoffs
+    │       ├── scripts/                        # Step-by-step pipeline execution entry points[cite: 2]
+    │       │   ├── __init__.py
+    │       │   ├── a_generate_data.py              # Step 1: Generate synthetic iCARE cohort[cite: 2]
+    │       │   ├── b_build_features_icare.py       # Step 2: Build clinical features and phenotypes[cite: 2]
+    │       │   ├── c_evaluate_scores.py            # Step 3: Compute clinical scores[cite: 2]
+    │       │   ├── d_evaluate_thresholds.py        # Step 4: Evaluate stewardship thresholds[cite: 2]
+    │       │   ├── e_validate_scores.py            # Step 5: Run clinical audit and validation[cite: 2]
+    │       │   ├── f_find_clinical_codes.py        # Utility: Search clinical concepts and codes[cite: 2]
+    │       │   └── g_sandbox.py                    # Development sandbox runner[cite: 2]
+    │       ├── features.py                     # Feature engineering pipeline engine
+    │       ├── generators.py                   # Cohort simulation and data generation logic
+    │       ├── metrics.py                      # Statistical evaluation and performance engines
+    │       ├── phenotypes.py                   # Clinical rule and phenotype extractors[cite: 1]
+    │       ├── scores.py                       # Clinical score calculation logic[cite: 1]
+    │       └── utils.py                        # Shared helper utilities and I/O handlers
+    └── tests/
+    │   ├── cases.csv
+    │   ├── test_phenotypes.py
+    │   └── test_scores.py
+    ├── Dockerfile
+    ├── docker-compose.yml
+    ├── Makefile
+    └── make.bat
+    ```
 
 ---
 
@@ -99,7 +85,7 @@ dm-esbl/
 
 The project provides dual managers (`Makefile` and `make.bat`) that expose identical commands across Linux, macOS, and Windows. This abstraction allows the same workflow regardless of host operating system.
 
-!!! note "📋 CLI Target Overrides"
+!!! note "CLI Target Overrides"
 
     Running `make` or `.\make.bat` without a target automatically displays the built-in help menu showing all available automation commands.
 
@@ -107,13 +93,13 @@ The project provides dual managers (`Makefile` and `make.bat`) that expose ident
 |------|----------|-------------|
 | `make all` | `.\make.bat all` | Runs the complete pipeline (Steps 1–5). |
 | `make generate` | `.\make.bat generate` | Step 1: Generate synthetic clinical cohorts. |
-| `make features` | `.\make.bat features` | Step 2: Build features, rolling windows, phenotypes, and scores. |
+| `make features` | `.\make.bat features` | Step 2: Build features, phenotypes, and scores. |
 | `make evaluate` | `.\make.bat evaluate` | Step 3: Evaluate predictive performance metrics. |
 | `make thresholds` | `.\make.bat thresholds` | Step 4: Perform literature-based threshold validation. |
 | `make validate` | `.\make.bat validate` | Step 5: Validate gold-standard patient cases. |
 | `make search` | `.\make.bat search` | Utility: Search clinical coding classifications. |
 | `make test` | `.\make.bat test` | Utility: Execute the Pytest regression suite. |
-| `make clean` | `.\make.bat clean` | Utility: Remove generated reports and temporary artifacts. |
+| `make clean` | `.\make.bat clean` | Utility: Remove generated reports and artifacts. |
 
 ---
 
@@ -145,6 +131,10 @@ make generate local
 # Windows
 .\make.bat features local
 ```
+
+### C. Azure ML Environment
+
+See (ref)
 
 ---
 
