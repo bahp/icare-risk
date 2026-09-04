@@ -148,7 +148,6 @@ custom_features:
   local_stress_flag:
     module: "local.features.stress"
     function: "derive_local_stress_phenotype"
-
     kwargs:
       hr_col: "hr"
       temp_col: "temp"
@@ -162,7 +161,10 @@ The configuration acts as the bridge between the YAML blueprint and your Python 
 
 You do not need to rebuild every feature during development.
 
-Instead, execute only your experimental phenotype using the `--only` option.
+Instead, execute only your experimental phenotype using the `--only` option. You 
+can also compute several phenotypes at once by providing a comma-separated list. 
+This dramatically speeds up development by isolating your custom features from 
+the rest.
 
 ```bash
 icare-risk-features \
@@ -170,7 +172,8 @@ icare-risk-features \
     --only local_stress_flag
 ```
 
-This dramatically speeds up development by isolating your custom feature from the rest.
+
+
 ---
 
 ## 5. Recommended Development Workflow (Iterate Quickly)
@@ -192,14 +195,14 @@ This workflow allows rapid experimentation while keeping the core `icare-risk` c
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Install package | `pip install icare-risk` |
-| Generate synthetic data | `icare-risk-generate` |
-| Build features | `icare-risk-features` |
-| Evaluate models | `icare-risk-evaluate` |
-| Run only one feature | `icare-risk-features --only local_stress_flag` |
-| Local feature configuration | `config/local_feature_config.yaml` |
-| Local Python modules | `local/features/` |
+| Task | Command                                                 |
+|------|---------------------------------------------------------|
+| Install package | `pip install icare-risk`                                |
+| Generate synthetic data | `icare-risk-generate`                                   |
+| Build features | `icare-risk-features`                                   |
+| Evaluate models | `icare-risk-evaluate`                                   |
+| Run only one feature | `icare-risk-features --only <feature>` |
+| Local feature configuration | `config/local_feature_config.yaml`                      |
+| Local Python modules | `local/features/`                                       |
 
 ---

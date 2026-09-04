@@ -81,7 +81,7 @@ The project strictly separates configuration blueprints, core modular logic, exe
 
 ---
 
-## 2. The Unified Orchestration Suite
+## 2. The Orchestration Suite
 
 The project provides dual managers (`Makefile` and `make.bat`) that expose identical commands across Linux, macOS, and Windows. This abstraction allows the same workflow regardless of host operating system.
 
@@ -107,7 +107,7 @@ The project provides dual managers (`Makefile` and `make.bat`) that expose ident
 
 The orchestration layer supports both containerized and native execution.
 
-### A. Containerized Environment (Default)
+### A. Docker (Default)
 
 By default, every automation target executes inside the Docker container to ensure dependency isolation and reproducibility.
 
@@ -120,7 +120,7 @@ make generate
 make features
 ```
 
-### B. Native Host Environment
+### B. Native Host
 
 To execute directly on the local machine, append the `local` keyword.
 
@@ -132,7 +132,7 @@ make generate local
 .\make.bat features local
 ```
 
-### C. Azure ML Environment
+### C. Azure ML
 
 See (ref)
 

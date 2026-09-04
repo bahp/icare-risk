@@ -4,11 +4,10 @@ This tool allows you to generate fake patient data. Instead of hard-coding value
 the system uses a flexible **blueprint** (`data_config.yaml`) to build a relational 
 database of patients, vitals, labs, and medications.
 
-!!! tip "For Dummies" 
-    Think of this tool as a fully automated factory.
-
-    The `data_config.yaml` serves as the master **recipe book** that dictates
-    exactly what the factory should build, while the Python scripts act sas the
+!!! tip 
+    Think of this tool as a fully automated factory.  The `data_config.yaml` serves 
+    as the master **recipe book** that dictates exactly what the factory should build
+    (tables, columns, values, relations, ...), while the Python scripts act sas the 
     **machines** that actually manufacture the data and build it.
 
 
@@ -21,19 +20,7 @@ At the very top of your `data_config.yaml` file, you will find the `data_source`
 fake hospital.
 
 ```yaml
-data_source: "synthetic"            # Generate synthetic data
-
-paths:
-  synthetic_dir: "data/synthetic"   # Path to save synthetic data
-  external_dir: "data/external"
-  processed_dir: "data/processed"
-
-generation_params:
-  n_patients: 100           # How many fake patients to create
-  days: 10                  # How many days of data to simulate
-  freq: '4h'                # How often to check vitals (every 4 hours)
-  output_format: 'tidy'     # The shape of the final data
-  default_missing_rate: 0.5 # 50% chance a test isn't taken (makes data realistic)
+--8<-- "src/icare_risk/config/data_config.yaml:1:28"
 ```
 
 ---
