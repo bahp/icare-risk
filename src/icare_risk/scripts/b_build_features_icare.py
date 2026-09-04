@@ -39,9 +39,84 @@ class LazyContextDict(dict):
             return default
 
 
+def prepare_icare_ts(df_vitals, df_labs, df_static, data_config):
+    """Pivots ICARE tables, preserving native vitals encounters and mapping lab timestamps."""
 
-def prepare_icare_ts(df_vitals, df_labs, data_config):
-    """Pivots ICARE tables using names defined in clinical_concepts."""
+    settings = data_config.get('pipeline_settings', {})
+    pid_col = settings.get('patient_col', 'patient_id')
+    enc_col = settings.get('encounter_col', 'ENCNTR_ID')
+    adm_col = settings.get('admission_date_col', 'ADMISSION_DATE')
+    dis_col = settings.get('discharge_date_col', 'DISCHARGE_DATE')
+    date_col = settings.get('ts_date_col', 'date')
+
+    v_cfg = settings.get('tables', {}).get('vitals', {})
+    l_cfg = settings.get('tables', {}).get('labs', {})
+
+    vitals_concepts = data_config.get('clinical_concepts', {}).get('vitals', {})
+    v_map = {specs['name']: key for key, specs in vitals_concepts.items()}
+
+    labs_concepts = data_config.get('clinical_concepts', {}).get('labs', {})
+    l_map = {specs['name']: key for key, specs in labs_concepts.items()}
+
+    # 1. Pivot Vitals (Native ENCNTR_ID preserved)
+    vits_wide = df_vitals.pivot_table(
+        index=[v_cfg.get('subject_col', 'SUBJECT'), v_cfg.get('encounter_col', 'ENCNTR_ID'), v_cfg.get('date_col', 'OBSERVATION_PERFORMED_DT')],
+        columns=v_cfg.get('name_col', 'OBSERVATION_NAME'),
+        values=v_cfg.get('val_col', 'OBSERVATION_RESULT_CLEAN'),
+        aggfunc='mean'
+    ).reset_index().rename(columns={
+        v_cfg.get('date_col', 'OBSERVATION_PERFORMED_DT'): date_col,
+        v_cfg.get('subject_col', 'SUBJECT'): pid_col,
+        v_cfg.get('encounter_col', 'ENCNTR_ID'): enc_col
+    })
+    vits_wide.rename(columns=v_map, inplace=True)
+    vits_wide[date_col] = pd.to_datetime(vits_wide[date_col])
+
+    # 2. Pivot Labs (No native ENCNTR_ID)
+    labs_wide = df_labs.pivot_table(
+        index=[l_cfg.get('subject_col', 'SUBJECT'), l_cfg.get('date_col', 'SAMPLE_COLLECTED_DT')],
+        columns=l_cfg.get('name_col', 'TEST_NAME'),
+        values=l_cfg.get('val_col', 'RESULT_CLEANED'),
+        aggfunc='first'
+    ).reset_index().rename(columns={
+        l_cfg.get('date_col', 'SAMPLE_COLLECTED_DT'): date_col,
+        l_cfg.get('subject_col', 'SUBJECT'): pid_col
+    })
+    labs_wide.rename(columns=l_map, inplace=True)
+    labs_wide[date_col] = pd.to_datetime(labs_wide[date_col])
+
+    # 3. Map Labs to Encounters using Episode Boundaries
+    episodes = df_static[[pid_col, enc_col, adm_col, dis_col]].copy()
+    episodes[adm_col] = pd.to_datetime(episodes[adm_col])
+    episodes[dis_col] = pd.to_datetime(episodes[dis_col])
+
+    labs_merged = pd.merge(labs_wide, episodes, on=pid_col, how='inner')
+    labs_mapped = labs_merged[
+        (labs_merged[date_col] >= labs_merged[adm_col]) &
+        (labs_merged[date_col] <= labs_merged[dis_col])
+    ].drop(columns=[adm_col, dis_col])
+
+    # 4. Merge Vitals and Mapped Labs on patient, encounter, and date
+    df_ts = pd.merge(
+        vits_wide, labs_mapped,
+        on=[pid_col, enc_col, date_col],
+        how='outer'
+    ).sort_values([pid_col, enc_col, date_col])
+
+    print(f"  -> Synchronized Time-Series Shape: {df_ts.shape}")
+    return df_ts
+
+
+def prepare_icare_ts2(df_vitals, df_labs, data_config):
+    """Pivots ICARE tables using names defined in clinical_concepts.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    """
+
 
     vitals_concepts = data_config.get('clinical_concepts', {}).get('vitals', {})
     v_map = {specs['name']: key for key, specs in vitals_concepts.items()}
@@ -68,12 +143,18 @@ def prepare_icare_ts(df_vitals, df_labs, data_config):
     print(f"  -> Labs pivoted. Shape: {labs_wide.shape}")
 
     # Standardize time and ID columns
-    vits_wide = vits_wide.rename(columns={'OBSERVATION_PERFORMED_DT': 'date', 'SUBJECT': 'patient_id'})
-    labs_wide = labs_wide.rename(columns={'SAMPLE_COLLECTED_DT': 'date', 'SUBJECT': 'patient_id'})
+    vits_wide = vits_wide.rename(columns={
+        'OBSERVATION_PERFORMED_DT': 'date', 'SUBJECT': 'patient_id'}
+    )
+    labs_wide = labs_wide.rename(columns={
+        'SAMPLE_COLLECTED_DT': 'date', 'SUBJECT': 'patient_id'}
+    )
 
     # Stack them to ensure we don't lose rows due to mismatched timestamps
     #df_ts = pd.concat([vits_wide, labs_wide]).sort_values(['patient_id', 'date'])
-    df_ts = pd.merge(vits_wide, labs_wide, on=['patient_id', 'date'], how='outer').sort_values(['patient_id', 'date'])
+    df_ts = pd.merge(vits_wide, labs_wide,
+        on=['patient_id', 'date'], how='outer') \
+        .sort_values(['patient_id', 'date'])
     print(f"  -> Combined Time-Series Shape: {df_ts.shape}")
 
     return df_ts
@@ -119,7 +200,7 @@ def main():
         return
 
     # 2. Prepare Time-Series
-    df_ts_wide = prepare_icare_ts(df_vitals, df_labs, data_config)
+    df_ts_wide = prepare_icare_ts(df_vitals, df_labs, df_episodes, data_config)
 
     # 3. Prepare Static
     df_static = df_episodes.rename(columns={'SUBJECT': 'patient_id'})
@@ -168,9 +249,11 @@ def main():
     if targets:
         print(f"🎯 Target Isolation Mode Active: Computing ONLY -> {targets}")
 
-    pipeline = FeaturePipeline(config_dict=feature_config,
-                               context_dfs=context,
-                               targets=targets)
+    pipeline = FeaturePipeline(
+        config_dict=feature_config,
+        data_config=data_config,
+        context_dfs=context,
+        targets=targets)
 
     print("\n🚀 Starting Feature Pipeline...")
     final_features = pipeline.process(df_static, df_ts_wide)

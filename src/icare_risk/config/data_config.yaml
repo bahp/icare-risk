@@ -16,29 +16,64 @@ context_files:
   diagnoses: 'icare_episodes_diagnosis_anon.csv'
   episodes: 'icare_episodes_anon.csv'
 
+pipeline_settings:
+  patient_col: 'SUBJECT'
+  encounter_col: 'ENCNTR_ID'
+  admission_date_col: 'ADMISSION_DATE'
+  discharge_date_col: 'DISCHARGE_DATE'
+  ts_date_col: 'date'
+
+  tables:
+    problems:
+      id_col: 'SUBJECT'
+      date_col: 'PROBLEM_DT_TM'
+    microbiology:
+      id_col: 'SUBJECT'
+      date_col: 'LATEST_COLLECT_DT'
+    pharmacy:
+      id_col: 'SUBJECT'
+      date_col: 'ORDER_DT_TM'
+    diagnoses:
+      id_col: 'SUBJECT'
+      date_col: 'ADMISSION_DATE'
+    vitals:
+      subject_col: 'SUBJECT'
+      date_col: 'OBSERVATION_PERFORMED_DT'
+      name_col: 'OBSERVATION_NAME'
+      val_col: 'OBSERVATION_RESULT_CLEAN'
+      has_encounter: true  # Requires timestamp mapping
+    labs:
+      subject_col: 'SUBJECT'
+      encounter_col: 'ENCNTR_ID' # Labs have this natively
+      date_col: 'SAMPLE_COLLECTED_DT'
+      name_col: 'TEST_NAME'
+      val_col: 'RESULT_CLEANED'
+      has_encounter: false
+
+
 # =============================================================================
 # GENERATION PARAMETERS (Used when data_source = 'synthetic')
 # =============================================================================
 generation_params:
-  n_patients: 100
-  days: 10
-  freq: '4h'
-  output_format: 'tidy'
-  default_missing_rate: 0.5
+  n_patients: 100             # Total number of patients to simulate
+  days: 10                    # Duration of observation/simulation period per patient
+  freq: '4h'                  # Sampling frequency (e.g., every 4 hours)
+  output_format: 'tidy'       # Data layout structure ('tidy' / 'long')
+  default_missing_rate: 0.5   # Proportion of missing data to inject
 
 # =============================================================================
 # 1. CLINICAL DICTIONARY
 # =============================================================================
 # These are reusable confects.
 clinical_concepts:
-  vitals:
+  vitals:                       # Vital Signs
     hr:
       code: "LOINC-8867-4"      # Universal code for hear rate.
-      name: "Heart Rate"        # Observation name
-      type: 'float'
-      unit: 'bpm'
-      prob: 0.95
-      range: [30.0, 250.0]
+      name: "Heart Rate"        # Human-readable observation name
+      type: 'float'             # Data type
+      unit: 'bpm'               # Standard clinical unit
+      prob: 0.95                # Probability of being present
+      range: [30.0, 250.0]      # Physiologically plausible range
     rr:
       code: "LOINC-9279-1"
       name: "Respiratory Rate"

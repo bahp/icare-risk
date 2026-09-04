@@ -606,7 +606,7 @@ custom_scores:
       wbc_col: 'sirs_abnormal_wbc_flag'        # wbc
 
   mews_score:
-    module: 'icare_risk.scores'         # The python file (src/scores.py)
+    module: 'icare_risk.scores'  # The python file (src/scores.py)
     function: 'calculate_mews'   # The specific function to call
     kwargs:                      # The column mappings to pass to the function
       rr_col: 'rr_24h_max'

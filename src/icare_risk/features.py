@@ -7,10 +7,20 @@ from pathlib import Path
 
 
 class FeaturePipeline:
-    def __init__(self, config_dict=None, context_dfs=None, targets=None):
+    def __init__(self, config_dict=None,
+                       data_config=None,
+                       context_dfs=None,
+                       targets=None):
         self.config = config_dict or {}
-        self.context_dfs = context_dfs or {}  # Holds micro, pharmacy, etc.
+        self.data_config = data_config or {}
+        self.context_dfs = context_dfs or {}
         self.targets = targets or []
+        self.patient_col = self.data_config \
+            .get('pipeline_settings', {}) \
+            .get('patient_col')
+        self.encounter_col = self.data_config \
+            .get('pipeline_settings', {}) \
+            .get('encounter_col')
 
     def process(self, df_static, df_ts):
         """Main orchestration method.
@@ -19,8 +29,8 @@ class FeaturePipeline:
         """
         #df = df_ts.reset_index()
         df = df_ts \
-            .sort_values(['patient_id', 'date']) \
-            .set_index(['patient_id', 'date'])
+            .sort_values([self.patient_col, 'date']) \
+            .set_index([self.patient_col, 'date'])
 
         print("Processing base features...")
 
@@ -28,7 +38,7 @@ class FeaturePipeline:
         df = self._process_base_features(df)
         df = self._compute_custom_features(df)
         df = df.reset_index()
-        df = pd.merge(df, df_static, on=['patient_id'], how='left')
+        df = pd.merge(df, df_static, on=[self.patient_col], how='left')
         df = self._compute_expressions(df)
         df = self._compute_custom_scores(df)
         df = df.reset_index()
@@ -49,7 +59,7 @@ class FeaturePipeline:
                 new_columns.append(df[col].isna().astype(int).rename(f"{col}_is_missing"))
 
             # B. Imputation (grouped by patient to prevent cross-contamination)
-            grp = df.groupby(level='patient_id')[col]
+            grp = df.groupby(level=self.patient_col)[col]
 
             if rules.get('impute') == 'ffill':
                 df[col] = grp.ffill()
@@ -66,10 +76,10 @@ class FeaturePipeline:
             # D. Rolling Time-Windows
             if 'rolling' in rules:
                 # For time-aware rolling, date must be the only index
-                temp_df = df[[col]].reset_index(level='patient_id')
+                temp_df = df[[col]].reset_index(level=self.patient_col)
 
                 for window in rules['rolling'].get('windows', []):
-                    rolled = temp_df.groupby('patient_id')[col].rolling(window).agg(rules['rolling']['aggs'])
+                    rolled = temp_df.groupby(self.patient_col)[col].rolling(window).agg(rules['rolling']['aggs'])
                     rolled.columns = [f"{col}_{window}_{agg}" for agg in rolled.columns]
                     new_columns.append(rolled)
 
@@ -80,6 +90,84 @@ class FeaturePipeline:
         return df
 
     def _compute_custom_features(self, df):
+        custom_feats = self.config.get('custom_features', {})
+        df_static = getattr(self, 'context_dfs', {}).get('episodes')
+
+        # 1. Load Centralized Settings
+        pid_col = self.patient_col
+        enc_col = self.encounter_col
+        adm_col = 'ADMISSION_DATE'
+        ts_date_col = 'date'
+
+        # Pre-import functions
+        active_features = {}
+        for feat_name, meta in custom_feats.items():
+            if self.targets and feat_name not in self.targets: continue
+            module = importlib.import_module(meta.get('module', 'icare_risk.phenotypes'))
+            active_features[feat_name] = (getattr(module, meta.get('function')), meta.get('kwargs', {}))
+
+        if not active_features:
+            return df
+
+        results = []
+
+        print(df.index)
+        print(df.columns)
+
+        # 2. Group using generic central columns
+        for (pid, enc_id), stay_df in df.groupby([pid_col, enc_col]):
+
+            print(pid)
+            print(enc_id)
+
+            stay_info = df_static[(df_static[pid_col] == pid) & (df_static[enc_col] == enc_id)]
+            if stay_info.empty:
+                results.append(stay_df)
+                continue
+
+            # Extract admission date and anchor time dynamically
+            adm_date = pd.to_datetime(stay_info[adm_col].iloc[0])
+            anchor_time = stay_df.index.get_level_values(ts_date_col).max() if ts_date_col in stay_df.index.names else \
+            stay_df[ts_date_col].max()
+
+            past_context, current_context = {}, {}
+
+            # 3. Generic Context Iteration
+            for ctx_name, ctx_df in getattr(self, 'context_dfs', {}).items():
+                if ctx_df is None or ctx_df.empty or ctx_name == 'episodes':
+                    continue
+
+                schema = schemas.get(ctx_name, {})
+                ctx_pid_col = schema.get('id_col', pid_col)
+                date_col = schema.get('date_col')
+
+                if ctx_pid_col in ctx_df.columns:
+                    p_data = ctx_df[ctx_df[ctx_pid_col] == pid].copy()
+                else:
+                    p_data = ctx_df.copy()
+
+                if date_col and date_col in p_data.columns:
+                    p_data[date_col] = pd.to_datetime(p_data[date_col])
+                    past_context[ctx_name] = p_data[p_data[date_col] < adm_date]
+                    current_context[ctx_name] = p_data[
+                        (p_data[date_col] >= adm_date) & (p_data[date_col] <= anchor_time)]
+                else:
+                    past_context[ctx_name] = p_data
+                    current_context[ctx_name] = p_data
+
+            # 4. Execute Features
+            stay_df_copy = stay_df.copy()
+            for feat_name, (func, kwargs) in active_features.items():
+                kwargs['past_context'] = past_context
+                kwargs['current_context'] = current_context
+                stay_df_copy[feat_name] = func(stay_df_copy, **kwargs)
+
+            results.append(stay_df_copy)
+
+        return pd.concat(results).sort_index() if results else df
+
+
+    def _compute_custom_features_v1(self, df):
         """Executes the custom_features block from YAML (Phenotypes)."""
         custom_feats = self.config.get('custom_features', {})
         for feat_name, meta in custom_feats.items():
@@ -213,7 +301,7 @@ if __name__ == '__main__':
     print("\n--- Pipeline Complete! ---")
     print(f"Final Shape: {final_features.shape}")
 
-    preview_cols = ['patient_id', 'date', 'HR', 'SBP', 'Shock_Index', 'qSOFA_score']
+    preview_cols = [self.patient_col, 'date', 'HR', 'SBP', 'Shock_Index', 'qSOFA_score']
     available = [c for c in preview_cols if c in final_features.columns]
     print("\nSample of Computed Scores & Ratios:")
     print(final_features[available].dropna().head())
