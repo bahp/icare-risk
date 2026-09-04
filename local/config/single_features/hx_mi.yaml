@@ -1,0 +1,25 @@
+# config/single_features/hx_mi.yaml
+# Only computes 'hx_mi', skipping all other base features,
+# computed features, and scores to maximize speed.
+
+base_features: {}
+computed_features: {}
+custom_scores: {}
+
+custom_features:
+  hx_mi: # has_myocardial_infarction
+    module: 'icare_risk.phenotypes'
+    function: 'derive_historical_condition'
+    kwargs:
+      icd10_codes: []
+      snomed_codes: []
+      icare_codes: [
+        '57054005', '22298006', '1755008', '70211005', '401303003', '22298006',
+        '401314000', '16837681000119100']
+      target_codes: ['I21', 'I22', 'I25.2', '323..00', 'G30..00']
+      sources:
+        - context_name: 'problems'
+          patient_col: 'SUBJECT'
+          code_col: 'PROBLEM_CODE'
+          vocab_key: 'icd10_codes'
+          match_type: 'prefix'      # ICD-10 needs prefix matching

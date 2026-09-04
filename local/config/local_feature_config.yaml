@@ -31,6 +31,14 @@ custom_features:
       hr_col: "hr"
       tamp_col: "temp"
 
+  local_test_phenotype:
+    module: "local.features.stress"
+    function: "derive_local_test_phenotype"
+    kwargs:
+      target_codes: [1, 2, 3]
+      tamp_col: "temp"
+
+
 # ----------------------------------------------------------------------
 # 4. CUSTOM SCORES
 # Dynamically loads risk scoring functions after all features are built.

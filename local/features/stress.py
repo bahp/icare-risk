@@ -19,3 +19,19 @@ def derive_local_stress_phenotype(df, hr_col='HR', temp_col='Temp', **kwargs):
         flag.loc[(hr > 100) & (temp > 38.0)] = 1
 
     return flag.values
+
+
+def derive_local_test_phenotype(df, past_context, current_context, **kwargs):
+    """
+
+    :param df:
+    :param past_context:
+    :param current_context:
+    :param kwargs:
+    :return:
+    """
+    print(df)
+    print(past_context)
+    print(current_context)
+    print(kwargs)
+    return pd.series(0, index=df.index)
