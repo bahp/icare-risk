@@ -275,3 +275,49 @@ def check_col_icd10(df, col_name, target_codes):
         return any(any(str(pc).startswith(str(tc)) for tc in target_codes) for pc in patient_codes)
 
     return df[col_name].apply(match_codes)
+
+
+import pandas as pd
+from pathlib import Path
+from typing import Union
+
+def convert_csvs_to_parquet(directory_path: Union[str, Path], 
+                            delete_originals: bool = False) -> None:
+    """
+    Finds all CSV files in a directory and converts them to Parquet format.
+    
+    Parameters
+    ----------
+    directory_path: 
+        The folder containing your .csv files.
+    delete_originals: 
+        If True, deletes the original .csv file after a successful conversion.
+    """
+    folder = Path(directory_path)
+    
+    # Safety check
+    if not folder.is_dir():
+        raise NotADirectoryError(f"The directory '{folder}' does not exist.")
+
+    # Find all CSVs
+    csv_files = list(folder.glob("*.csv"))
+    if not csv_files:
+        print(f"No CSV files found in {folder}")
+        return
+
+    for csv_path in csv_files:
+        parquet_path = csv_path.with_suffix('.parquet')
+        print(f"Converting: {csv_path.name} -> {parquet_path.name}")
+        
+        # Convert the file
+        df = pd.read_csv(csv_path)
+        df.to_parquet(parquet_path, engine='pyarrow')
+        
+        # Cleanup if requested
+        if delete_originals:
+            csv_path.unlink()
+            
+    print(f"Successfully converted {len(csv_files)} files.")
+
+# --- How to use it ---
+# convert_csvs_to_parquet("./data", delete_originals=False)

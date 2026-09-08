@@ -13,7 +13,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Install the package in editable mode inside the container
-RUN pip install --no-cache-dir -e .
+#RUN pip install --no-cache-dir -e .
+
+# Install the package and JupyterLab
+RUN pip install --no-cache-dir -e . jupyterlab
 
 # Default command keeps the container alive so we can run make commands inside it
 CMD ["tail", "-f", "/dev/null"]

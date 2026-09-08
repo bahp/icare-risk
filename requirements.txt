@@ -29,3 +29,6 @@ mkdocstrings
 mkdocstrings-python
 mkdocs-codeinclude-plugin
 zensical
+
+duckdb
+pyarrow

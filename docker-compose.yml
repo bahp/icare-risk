@@ -8,3 +8,8 @@ services:
     ports:
       # Expose port 8000 for the Zensical local documentation server
       - "8000:8000"
+      - "8888:8888"
+    environment:
+      - JUPYTER_TOKEN=localdev
+    # The python:slim image runs as root, so --allow-root is required
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
