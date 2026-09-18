@@ -69,7 +69,8 @@ validate:
 
 search:
 	@echo "\n--- Discover Clinical Codes (Keywords) ---"
-	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).f_find_clinical_codes $(ARGS)
+	#$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).f_find_clinical_codes $(ARGS)
+	$(RUN) code-discover $(ARGS)
 
 sandbox:
 	@echo "\n--- 🧪 Launching Sandbox ---"

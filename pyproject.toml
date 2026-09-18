@@ -32,6 +32,10 @@ docs = [
 dev = [
     "pytest"
 ]
+snowflake = [
+    "snowflake-connector-python",
+    "snowflake-sqlalchemy"
+]
 # You can also combine them
 all = ["icare_risk[docs,dev]"]
 
@@ -41,6 +45,7 @@ include = ["icare_risk", "icare_risk.*"]
 
 [tool.setuptools.package-data]
 "icare_risk.config" = ["*.yaml", "tests/fixtures/*.csv"]
+"icare_risk.config.icare" = ["*.yaml"]
 
 [tool.setuptools_scm]
 fallback_version = "0.0.0-dev"
@@ -52,3 +57,5 @@ icare-risk-evaluate = "icare_risk.scripts.c_evaluate_scores:main"
 icare-risk-thresholds = "icare_risk.scripts.d_evaluate_thresholds:main"
 icare-risk-validate = "icare_risk.scripts.e_validate_scores:main"
 icare-risk-search = "icare_risk.scripts.f_find_clinical_codes:main"
+
+code-discover = "icare_risk.tools.code_discovery:main"
