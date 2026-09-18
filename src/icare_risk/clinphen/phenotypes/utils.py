@@ -176,7 +176,7 @@ def derive_from_history_code(
         if not history_df.empty and match_codes(history_df["code"], all_target_codes).any():
             return 1
 
-            # 2. Optionally check the current admission window if the flag is enabled[cite: 9]
+        # 2. Optionally check the current admission window if the flag is enabled[cite: 9]
         if include_current:
             current_df = ctx.get_current(domain, window=window, columns=["code"])
             if not current_df.empty and match_codes(current_df["code"], all_target_codes).any():

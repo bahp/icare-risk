@@ -59,21 +59,18 @@ class FeatureMatrixBuilder:
                 domains=domains_needed,
                 index_discharge=ep.get("index_discharge"),
             )
-            row: Dict = {
-                "SUBJECT": ep["subject"],
-                "ENCNTR_ID": ep["encntr"]
-            }
-            if "spell" in ep and pd.notna(ep.get("spell")):
-                row["SPELL_IDENTIFIER"] = ep["spell"]
+            row: Dict = ep.to_dict()
 
             for spec in self.specs:
                 self._run_one(spec, ctx, row, raise_on_error)
             rows.append(row)
 
         df = pd.DataFrame(rows)
+
+        # Update your index columns to look for the logical names used by the dictionary
         index_cols = [
-            col for col in ["SPELL_IDENTIFIER", "ENCNTR_ID"]
-                if col in df.columns
+            col for col in ["spell", "encntr"]
+            if col in df.columns
         ]
         return df.set_index(index_cols) if index_cols else df
 

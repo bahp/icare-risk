@@ -5,7 +5,6 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from pathlib import Path
-from tqdm.auto import tqdm
 from datetime import datetime
 from typing import Iterator
 from sqlalchemy import MetaData, select, Table, any_
@@ -63,51 +62,6 @@ def test_snowflake_connection_v2(engine):
     print("Login completed!")
 
 
-
-
-# -------------------------
-# Utils
-# -------------------------
-def check_lengths(data_dir: str | Path, file_format: str = 'parquet'):
-    """
-    Reads files in a directory and prints their total row counts.
-
-    Parameters
-    ----------
-    data_dir : str or pathlib.Path
-        The directory path containing the target files to be evaluated.
-    file_format : str, optional
-        The format of the files to check, usually 'parquet' or 'csv'.
-        Default is 'parquet'.
-
-    Returns
-    -------
-    None
-        This function does not return a value; it prints.
-    """
-    data_dir = Path(data_dir)
-    file_format = file_format.replace('.', '').lower().strip()
-    print(f"\n--- Checking {file_format.upper()} File Lengths in {data_dir.name} ---")
-
-    if not data_dir.exists():
-        print("Directory does not exist.")
-        return
-
-    target_files = list(data_dir.rglob(f'*.{file_format}'))
-    if not target_files:
-        print(f"No .{file_format} files found in {data_dir}")
-
-    for file_path in target_files:
-        try:
-            if file_format == 'parquet':
-                metadata = pq.read_metadata(file_path)
-                row_count = metadata.num_rows
-            elif file_format == 'csv':
-                row_count = sum(len(chunk) for chunk in pd.read_csv(file_path, chunksize=250_000))
-            print(f"{file_path.name:<50} {row_count:>12,} rows")
-        except Exception as e:
-            print(f"{file_path.name:<50} ERROR reading file ({e})")
-    print("-" * 50)
 
 
 # -------------------------
@@ -217,6 +171,7 @@ def download_and_save_tables(tables: list,
     ValueError
         If the specified `file_format` is not supported (i.e., not 'parquet' or 'csv').
     """
+
     if file_format not in ['parquet', 'csv']:
         raise ValueError("file_format must be either 'parquet' or 'csv'.")
 
@@ -268,8 +223,16 @@ def download_and_save_tables(tables: list,
 # -------------------------
 # Download lookup tables
 # -------------------------
+def _ensure_parent_dir(file_path: str | Path) -> Path:
+    """Internal helper to safely create parent directories for an output file."""
+    path_obj = Path(file_path)
+    path_obj.parent.mkdir(parents=True, exist_ok=True)
+    return path_obj
+
 def export_lookup_counts(engine, table_name: str, columns: list, output_csv: str):
     """Dynamically generate a look table with row counts and saves to CSV"""
+    output_path = _ensure_parent_dir(output_csv)
+
     cols_str = ", ".join(columns)
 
     query = f"""
@@ -282,7 +245,7 @@ def export_lookup_counts(engine, table_name: str, columns: list, output_csv: str
     """
 
     df = pd.read_sql(query, engine)
-    df.to_csv(output_csv, index=False, mode='w', quoting=csv.QUOTE_ALL, na_rep="")
+    df.to_csv(output_path, index=False, mode='w', quoting=csv.QUOTE_ALL, na_rep="")
     print(f"Exported {len(df)} distinct pairs to {output_csv}")
 
 
@@ -290,6 +253,7 @@ def export_lookup_counts_informative(engine, table_name: str,
                                      code_col: str, name_col: str, value_col: str,
                                      output_csv: str, unit_col: str = None):
     """Query to extract look up table, numeric bounds and categorical strings."""
+    output_path = _ensure_parent_dir(output_csv)
 
     unit_select_raw = f"{unit_col}," if unit_col else ""
     unit_select_alias = f"{unit_col} AS unit," if unit_col else "'none' as unit,"
@@ -330,7 +294,7 @@ def export_lookup_counts_informative(engine, table_name: str,
     """
 
     df = pd.read_sql(query, engine)
-    df.to_csv(output_csv, index=False, mode='w', quoting=csv.QUOTE_ALL, na_rep="")
+    df.to_csv(output_path, index=False, mode='w', quoting=csv.QUOTE_ALL, na_rep="")
     print(f"Exported {len(df)} distinct pairs to {output_csv}")
 
 
@@ -339,6 +303,7 @@ def export_multidim_lookup(engine, table_name: str,
                            listagg_col: str = None,
                            listagg_alias: str = "string_values") -> pd.DataFrame:
     """Query to extract look up table, numeric bounds and categorical strings."""
+    output_path = _ensure_parent_dir(output_csv)
 
     select_clause = ",\n    ".join(group_cols)
     group_clause = ",\n    ".join(group_cols)
@@ -361,6 +326,6 @@ def export_multidim_lookup(engine, table_name: str,
     """
 
     df = pd.read_sql(query, engine)
-    df.to_csv(output_csv, index=False, mode='w', quoting=csv.QUOTE_ALL, na_rep="")
+    df.to_csv(output_path, index=False, mode='w', quoting=csv.QUOTE_ALL, na_rep="")
     print(f"Exported {len(df)} distinct pairs to {output_csv}")
 

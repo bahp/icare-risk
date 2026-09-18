@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import warnings
+
 from typing import Dict, Optional, List
 
 # Define base weights
@@ -33,49 +33,6 @@ CHARLSON_HIERARCHY = {
     "charlson_hx_cancer_met": ["charlson_hx_cancer_solid"],
     "charlson_hx_aids": ["charlson_hx_hiv"]
 }
-
-# ------------------------------------------------------------------------
-# Helper methods
-# ------------------------------------------------------------------------
-def validate_required_columns(
-        df: pd.DataFrame,
-        required_cols: List[str],
-        score_name: str = "Score",
-        verbose: bool = False,
-) -> List[str]:
-    """
-    Generic helper to check for missing columns in a dataframe for any
-    score function. Always flags missing columns either via warnings or
-    verbose logging.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The dataframe to check.
-    required_cols : List[str]
-        List of column names required for the score calculation.
-    score_name : str, optional
-        Name of the score for logging/warning context.
-    verbose : bool, optional
-        Whether verbose logging is enabled.
-    logger : logging.Logger, optional
-        Logger instance for audit traces.
-
-    Returns
-    -------
-    List[str]
-        A list of missing column names.
-    """
-    missing_cols = [col for col in required_cols if col not in df.columns]
-
-    if missing_cols:
-        warning_msg = f"[{score_name}] Missing expected columns in DataFrame: {missing_cols}"
-        if verbose:
-            print(f"    ⚠️ {warning_msg}")
-        else:
-            warnings.warn(warning_msg, UserWarning)
-
-    return missing_cols
 
 
 def apply_mutual_exclusivity(
@@ -268,6 +225,9 @@ def compute_charlson_score(df: pd.DataFrame,
     pd.Series
         A pandas Series containing the final computed Charlson score for each encounter.
     """
+    # Libraries
+    from icare_risk.clinphen.utils.validation import validate_required_columns
+
     active_weights = weights if weights is not None else CHARLSON_WEIGHTS
 
     # 1. Validate required columns
@@ -278,12 +238,16 @@ def compute_charlson_score(df: pd.DataFrame,
     # 2. Apply business rules (mutual exclusivity overrides)
     calc_df = apply_mutual_exclusivity(df, CHARLSON_HIERARCHY)
 
-    # 3. Compute vectorised components
+    # 3. Compute vectorized components
     comorbidity_scores = _calculate_charlson_comorbidity_points(calc_df, active_weights)
     age_scores = _calculate_charlson_age_points(df, age_col)
     total_score = comorbidity_scores + age_scores
 
     # 4. Generate debugging/audit trace if requested
-    _log_charlson_audit_trace(df, calc_df, age_col, active_weights, CHARLSON_HIERARCHY, total_score, verbose)
+    _log_charlson_audit_trace(df,
+        calc_df=calc_df, age_col=age_col, weights=active_weights,
+        hierarchy_map=CHARLSON_HIERARCHY, total_score=total_score,
+        verbose=verbose)
 
+    # Return
     return total_score

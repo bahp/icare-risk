@@ -59,12 +59,12 @@ class DuckDBSource:
         ]
         if episode_schema.spell not in (None, "None", ""):
             select_parts.append(f'"{episode_schema.spell}" AS "spell"')
-        #if episode_schema.admission_time:
-        #    select_parts.append(f'"{episode_schema.admission_time}" AS "admission_time"')
-        #if episode_schema.discharge_date:
-        #    select_parts.append(f'"{episode_schema.discharge_date}" AS "discharge_date"')
-        #for logical, phys in episode_schema.mapping.items():
-        #    select_parts.append(f'"{phys}" AS "{logical}"')
+        if episode_schema.admission_time:
+            select_parts.append(f'"{episode_schema.admission_time}" AS "admission_time"')
+        if episode_schema.discharge_date:
+            select_parts.append(f'"{episode_schema.discharge_date}" AS "discharge_date"')
+        for logical, phys in episode_schema.mapping.items():
+            select_parts.append(f'"{phys}" AS "{logical}"')
 
         src_sql = _resolve_source_sql(episode_schema.source)
         sql = f'SELECT {", ".join(select_parts)} FROM {src_sql}'
