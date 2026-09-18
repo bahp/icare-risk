@@ -1,0 +1,49 @@
+# config/multi_code_search.yaml
+targets:
+
+  # --------------------------------------------------
+  # Looking for problems based on ICD10 codes
+  # --------------------------------------------------
+  # Target 1: The ICD-10 File
+  - file: "ICD10.csv"
+    code_col: "Code"
+    search_cols: ["Description", "Detail"] # Searches both columns
+    export_cols: [ ]
+    campaigns:
+      - category: "Myocardial Infarction"
+        contains: ["myocardial", "infarction", "heart attack"]
+        exclude: ["old", "history"]
+
+
+  # --------------------------------------------------
+  # Looking for problems based on ICD10 codes
+  # --------------------------------------------------
+  # Target 2: The SNOMED File
+  - file: "snomed.csv"
+    code_col: "concept_id"
+    search_cols: ["term"] # Just one column
+    campaigns:
+      - category: "SNOMED10 - Dementia"
+        contains: ["dementia", "alzheimer", "senile"]
+        exclude: ["family history"]
+
+
+  # ------------------------------------------------
+  # Looking for comorbidities in res195.csv
+  # ------------------------------------------------
+  - file: "res195.csv"
+    code_col: "code"
+    search_cols: [ "description" ] # Searches across three columns
+    export_cols: [ ]
+    campaigns:
+      - category: "Renal Disease"
+        contains: [ "renal", "kidney", "nephropathy", "dialysis" ]
+        exclude: [ ]
+
+      - category: "Dementia"
+        contains: ["dementia", "alzheimer", "senile"]
+        exclude: ["family history"]
+
+      - category: "Myocardial Infarction"
+        contains: ["myocardial", "infarction", "heart attack"]
+        exclude: ["old", "history"]

@@ -1,0 +1,46 @@
+episodes:
+  #source: "/app/data/mock/sirs_test/episodes.csv"
+  source: "/app/notebooks/data/synthetic/notebook_test/icare_episodes_anon.csv"
+  subject: "SUBJECT"
+  encounter: "ENCNTR_ID"
+  admission_date: "ADMISSION_DATE"
+  admission_time: "ADMISSION_TIME"
+  discharge_date: "DISCHARGE_DATE"
+  spell: null
+
+domains:
+  problems:
+    #source: "/app/data/mock/sirs_test/problems.csv"
+    source: "/app/notebooks/data/synthetic/notebook_test/icare_problems_anon.csv"
+    subject: "SUBJECT"
+    timestamp: "PROBLEM_DT_TM"
+    mapping:
+      code: "PROBLEM_CODE"
+      description: "PROBLEM_DESC"
+
+  vitals:
+    #source: "/app/data/mock/sirs_test/vitals.csv"
+    source: "/app/notebooks/data/synthetic/notebook_test/icare_vital_signs_anon.csv"
+    subject: "SUBJECT"
+    timestamp: "OBSERVATION_PERFORMED_DT"
+    mapping:
+      code: "OBSERVATION_CODE"
+      value: "OBSERVATION_RESULT_CLEAN"
+
+  pathology:
+    #source: "/app/data/mock/sirs_test/pathology.csv"
+    source: "/app/notebooks/data/synthetic/notebook_test/icare_pathology_blood_anon.csv"
+    subject: "SUBJECT"
+    timestamp: "SAMPLE_COLLECTED_DT"
+    mapping:
+      code: "TEST_CODE"
+      value: "RESULT_CLEANED"
+
+  prescribing:
+    source: "/app/notebooks/data/synthetic/notebook_test/icare_pharmacy_prescribing_anon.csv"
+    subject: "SUBJECT"
+    timestamp: "ORDER_DT_TM"
+    mapping:
+      code: "MEDICATION_NAME_SHORT"
+      value: "ORDERED_DOSE"
+

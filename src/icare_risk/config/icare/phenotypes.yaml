@@ -1,0 +1,718 @@
+
+# -------------------------------------------------------------------
+# Definitions
+# -------------------------------------------------------------------
+definitions:
+  concepts:
+    # ------------------ VITALS ------------------
+    heart_rate:
+      icare: &hr_icare ['13472364']
+    systolic_bp:
+      icare: &sbp_icare ['13389125']
+    diastolic_bp:
+      icare: &dbp_icare ['13389131']
+    mean_arterial_pressure:
+      icare: &map_icare ['10933808']
+    respiratory_rate:
+      icare: &rr_icare ['9096706']
+    spo2:
+      icare: &spo2_icare ['9111827']
+    temperature:
+      icare: &temp_icare ['10933766', '49093394']
+    gcs:
+      icare: &gcs_icare ['9097010']
+    conscious_level:
+      icare: &avpu_icare ['12761333']
+
+    # ------------------ LABS --------------------
+    glucose:
+      icare: &gluc_icare
+        - 'wg'
+        - 'gl'
+        - 'glpoc'
+    wbc:
+      icare: &wbc_icare
+        - 'Lwbc'
+    bilirubin:
+      icare: &bili_icare
+        - 'bil'
+
+    congestive_heart_failure:
+      snomed: &chf_snomed
+        - '446221000'
+        - '703273002'
+        - '84114007'
+      icd10: &chf_icd10
+        - 'I50'
+        - 'I11.0'
+      icare: &chf_icare ['446221000', '703273002', '42343007', '390884006', '161505003',
+                         '84114007', '424404003', '128404006', '703272007', '446221000',
+                         '418304008', '446221000', '10633002', '48447003', '703272007' ]
+      drugs: &chf_drugs
+        - 'entresto'
+        - 'milrinone'
+        - 'dobutamine'
+
+
+# ------------------------------------------------------
+# Basic Examples
+# ------------------------------------------------------
+min_spo2_24h:
+  module: 'icare_risk.clinphen.phenotypes.windowed'
+  function: 'min_spo2_24h'
+  domains: ['vitals']
+  kwargs:
+    code: '9096705'
+    window: ['0h', '24h']
+
+min_temp_24h:
+  module: 'icare_risk.clinphen.phenotypes.windowed'
+  function: 'min_temp_24h'
+  domains: ['vitals']
+  kwargs:
+    code: '10933766'
+    window: ['0h', '24h']
+
+
+has_diabetes:
+  module: 'icare_risk.clinphen.phenotypes.multimodal'
+  function: 'derive_multimodal_phenotype'
+  domains: [ 'problems', 'prescribing', 'pathology' ]
+  category: [ 'multimodal' ]
+  kwargs:
+    code_rules:
+      # Historical problem list entries
+      - target_domains: [ 'problems' ]
+        codes: [ '44054006', '73211009', '46635009' ]
+        include_current: false
+
+      # Current admission diagnoses (ICD-10)
+      - target_domains: [ 'diagnoses' ]
+        codes: [ 'E10', 'E11', 'E14' ]
+        include_current: true
+        window: [ '0h', '24h' ]
+
+    keyword_rules:
+      # Medication history proxy matching free text
+      - domain: 'prescribing'
+        keywords: [ 'insulin', 'metformin', 'gliclazide' ]
+        text_col: 'code'
+        check_historical: true
+
+    expression_rules:
+      # Point-of-care or lab glucose threshold
+      - domain: 'pathology'
+        codes: [ 'wg', 'gl', 'glpoc' ]
+        query_expr: 'value > 200'
+        value_col: 'value'
+        code_col: 'code'
+        check_current: true
+        window: [ '0h', '24h' ]
+
+has_congestive_heart_failure:
+  module: 'icare_risk.clinphen.phenotypes.multimodal'
+  function: 'derive_multimodal_phenotype'
+  domains: [ 'problems', 'prescribing' ]
+  category: [ 'multimodal' ]
+  kwargs:
+    code_rules:
+      # Historical problem list entries
+      - target_domains: [ 'problems' ]
+        codes: *chf_icare
+        include_current: false
+
+    keyword_rules:
+      # Medication history proxy matching free text
+      - domain: 'prescribing'
+        keywords: [ 'entresto', 'milrinone', 'dobutamine' ]
+        text_col: 'code'
+        check_current: true
+
+has_mild_liver_disease:
+  module: 'icare_risk.clinphen.phenotypes.multimodal'
+  function: 'derive_multimodal_phenotype'
+  domains: [ 'problems', 'prescribing', 'pathology' ]
+  category: [ 'multimodal' ]
+  kwargs:
+    code_rules:
+      # Historical problem list entries
+      - target_domains: [ 'problems' ]
+        codes: [
+          '61977001', '111891008', '768126006', '128302006', '442685003', '62944002', '9953008']
+        include_current: false
+
+    keyword_rules:
+      # Medication history proxy matching free text
+      - domain: 'prescribing'
+        keywords: [ 'lactulose' ]
+        text_col: 'code'
+        check_current: true
+
+    expression_rules:
+      # AST or bilirubin thresholds
+      - domain: 'pathology'
+        codes: [ 'bil' ] # Bilirubin
+        query_expr: 'value > 2.0'
+        value_col: 'value'
+        code_col: 'code'
+        check_current: true
+        window: [ '0h', '24h' ]
+
+      # To add... AST > 3x normal?
+
+
+# ------------------------------------------------------
+# Charlson Comorbidity Index (CCI)
+# ------------------------------------------------------
+# --- 1 Point Categories ---
+# Myocardial Infarction
+charlson_hx_mi:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: ['problems']
+  category: ['charlson_components']
+  kwargs:
+    target_domains: ['problems']
+    codes: [
+      '57054005', '22298006', '1755008', '70211005', '401303003',
+      '22298006', '401314000', '16837681000119100']
+    res195_codes: ['I21', 'I22', 'I25.2', '323..00', 'G30..00']
+
+# Congestive Heart Failure
+charlson_hx_chf:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: ['charlson_components']
+  kwargs:
+    codes: [
+      '446221000', '703273002', '42343007', '390884006', '161505003', '84114007',
+      '424404003', '128404006', '703272007', '446221000', '418304008', '446221000',
+      '10633002', '48447003', '703272007']
+    res195_codes: ['I50', 'I11.0', 'G58..00']
+
+# Peripheral Vascular Disease
+charlson_hx_pvd:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: ['charlson_components']
+  kwargs:
+    codes: [
+      '400047006', '840580004', '399957001', '400047006', '400047006',
+      '858191000000103', '238796009', '16010871000119100', '16011271000119100',
+      '372070002' ]
+    res195_codes: ['I71', 'I73.9', 'I79.0', 'R02', 'Z95.8', 'Z95.9']
+
+# Cerebrovascular Disease
+charlson_hx_stroke:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '230690007', '1078001000000100', '817701000000103', '720191000000104', '429235008',
+      '230706003', '16002031000119100', '25133001', '39925003', '16371781000119100',
+      '422504002', '275526006', '135877001']
+    res195_codes: ['I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'G45', 'G46']
+
+# Dementia
+charlson_hx_dementia:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '702429008', '230270009', '56267009', '80098002', '52448006', '52448006', '429998004',
+      '142811000119104', '1591000119103', '425390006', '56267009', '26929004',
+      '10171000132106', '79341000119107', '135811000119107', '142811000119104', '26929004']
+    res195_codes: ['F00', 'F01', 'F02', 'F03', 'F05.1', 'G30', 'G31.1']
+
+# Chronic Pulmonary Disease
+charlson_hx_pulmonary:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '32398004', '866901000000103', '12295008', '63480004', '12295008', '40100001', '233725001',
+      '13645005', '40541001', '196001008', '13645005', '697898008', '702839006', '700030004',
+      '700250006', '706870000', '313296004', '198401000000104', '700250006', '270473001',
+      '847091000000104', '760601000000107', '195951007', '57671000052108', '204991000000107',
+      '198411000000102', '13645005', '125295001', '708030004', '87433001', '49158009']
+    res195_codes: [
+      'J40', 'J41', 'J42', 'J43', 'J44', 'J45', 'J46', 'J47', 'J60', 'J61', 'J62', 'J63',
+      'J64', 'J65', 'J66', 'J67' ]
+
+# Connective Tissue Disease
+charlson_hx_rheum:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '308143008', '23685000', '69896004', '735600005', '1148597009', '161567008', '239938009',
+      '399923009', '414821000000101', '69896004', '65323003', '69896004', '69896004', '58718002',
+      '398726004', '425481000000106', '65323003', '396332003']
+    res195_codes: [
+      'M05', 'M06', 'M31.5', 'M32', 'M33', 'M34', 'M35.1', 'M35.3', 'M36.0']
+
+# Peptic Ulcer Disease
+charlson_hx_pud:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '422183001', '9829001', '26649005', '10660471000119100', '860978005', '10635431000119100',
+      '1521000119100', '68640004', '402863005', '87481000119109', '371087003', '64766004', '238796009',
+      '690791000119107', '876782006', '238792006', '95344007', '95345008', '51868009', '27281001',
+      '225562005', '225561003', '13200003', '201251005', '56208002', '308740002', '30811009', '397825006',
+      '711168000', '10995761000119100', '405719001', '301022003', '201252003', '714664001', '703282008',
+      '308901000', '51868009', '301021005', '56208002', '788949000', '429040005', '830072004',
+      '140391000119101', '371032004', '275547005', '225561003', '308740002']
+    res195_codes: ['K25', 'K26', 'K27', 'K28']
+
+# Mild Liver Disease
+charlson_hx_liver_mild:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '61977001', '111891008', '768126006', '128302006', '442685003', '62944002', '9953008']
+    res195_codes: [
+      'B18', 'K70.0', 'K70.1', 'K70.2', 'K70.3', 'K70.9', 'K71', 'K73', 'K74', 'K76.0']
+
+# Diabetes without complications
+charlson_hx_diabetes_uncomp:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '44054006', '44054006', '73211009', '81531005', '11687002', '405751000', '73211009',
+      '164971000119101', '190372001', '170745003', '81531005', '1102351000000100', '408540003',
+      '44054006', '444110003', '858301000000107', '28032008', '44054006', '46635009', '237599002',
+      '44054006', '421468001', '46635009', '73211009', '237599002', '270445003', '46635009',
+      '46635009', '24481000000101', '472969004', '703138006', '714628002', '44054006', '11687002',
+      '23045005', '443694000', '11687002', '405749004', '170747006', '24471000000103',
+      '170746002', '314194001']
+    res195_codes: [
+      'E10.0', 'E10.1', 'E10.6', 'E10.8', 'E10.9', 'E11.0', 'E11.1', 'E11.6', 'E11.8', 'E11.9', 'E13', 'E14']
+
+# --- 2 Point Categories ---
+charlson_hx_hemiplegia:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: []
+    res195_codes: [
+      'G04.1', 'G11.4', 'G80.1', 'G80.2', 'G81', 'G82', 'G83.0', 'G83.1', 'G83.2', 'G83.3', 'G83.4', 'G83.9']
+
+# Moderate to severe renal disease
+charlson_hx_renal_mod_sev:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '236398000', '197594005', '236403004', '236403004', '441815006', '77182004', '236436003', '175902000',
+      '236436003', '161665007', '324441000000106', '324311000000101', '324281000000104', '691411000119101',
+      '714152005', '709044004', '433144002', '431857002', '324121000000109', '433146000', '707323002',
+      '431856006', '714153000', '324501000000107', '236425005', '691401000119104', '709044004', '324181000000105',
+      '236425005', '324441000000106', '700378005', '324311000000101', '709044004', '707323002', '324371000000106',
+      '324371000000106', '46177005', '46177005', '236433006', '42399005', '42399005', '90688005', '236435004',
+      '236434000', '129561000119108', '425369003', '46177005', '90688005', '14669001', '49708008', '14669001',
+      '236425005', '428982002', '709044004', '161693006', '46177005', '90708001', '236583003', '419139005',
+      '307532008', '236570004', '46177005', '472953006', '265764009', '709044004', '70536003', '46177005',
+      '46177005', '429075005', '236423003', '236578006']
+    res195_codes:  [
+        'N03', 'N05.2', 'N05.3', 'N05.4', 'N05.5', 'N05.6', 'N18', 'N19', 'N25.0', 'Z49', 'Z94.0', 'Z99.2']
+
+# Diabetes with complications
+charlson_hx_diabetes_comp:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '10660471000119100', '860970005', '420756003', '1521000119100', '87481000119109', '237632004',
+      '230572002', '90791000119104', '71701000119105', '51002006', '90771000119100', '140391000119101',
+      '368051000119109', '96441000119101', '721000119107', '127014009', '371087003', '201252003',
+      '774521000000103']
+    rest195_codes: [
+      'E10.2', 'E10.3', 'E10.4', 'E10.5', 'E10.7', 'E11.2', 'E11.3', 'E11.4', 'E11.5', 'E11.7']
+
+# Metastasic solid tumor
+charlson_hx_cancer_solid:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '254895003', '92691004', '254895003', '278054005', '90725004', '312104005', '700423003', '254878006',
+      '721716004', '255109008', '733354000', '276952000', '255029007', '25370001', '255109008', '443961001',
+      '253017000', '254838004', '1338007', '278054005', '254634000', '105121000119102', '123845008',
+      '254915003', '255071008', '254582000', '372138000', '254900004', '123845008', '27090000', '41607009',
+      '73711000119107', '28899001', '1338007', '27090000', '79282002', '109889007', '109841003', '90725004',
+      '109841003', '372141009', '372140005', '254900004', '254632001', '1701000119104', '255084004', '399490008',
+      '255084004', '35917007', '402815007', '86616005', '70179006', '128636006', '276804009', '254900004',
+      '448993007', '447882007', '285310000', '254634000', '92546004', '12400006', '254609000', '702391001',
+      '12400006', '254701007', '254651007', '68453008', '87737001', '109969005', '109969005', '128929007',
+      '1091921000000100', '1929004', '847741000000106', '55150002', '109979007', '118605002', '734076008',
+      '118600007', '14537002', '443487006', '21964009', '393563007', '420120008', '2092003', '399068003',
+      '93870000', '363358000', '363418001', '399326009', '254900004', '363402007', '363418001', '363351006',
+      '363419009', '363518003', '254837009', '363406005', '1157063004']
+    res195_codes: [
+      'C00', 'C01', 'C02', 'C03', 'C04', 'C05', 'C06', 'C07', 'C08', 'C09', 'C10', 'C11', 'C12', 'C13', 'C14',
+      'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22', 'C23', 'C24', 'C25', 'C26', 'C30', 'C31', 'C32',
+      'C33', 'C34', 'C37', 'C38', 'C39', 'C40', 'C41', 'C43', 'C45', 'C46', 'C47', 'C48', 'C49', 'C50', 'C51',
+      'C52', 'C53', 'C54', 'C55', 'C56', 'C57', 'C58', 'C60', 'C61', 'C62', 'C63', 'C64', 'C65', 'C66', 'C67',
+      'C68', 'C69', 'C70', 'C71', 'C72', 'C73', 'C74', 'C75', 'C76', 'C97' ]
+
+# Leukemia
+charlson_hx_leukemia:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: []
+    res195_codes: ['C91', 'C92', 'C93', 'C94', 'C95']
+
+charlson_hx_lymphoma:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: []
+    res195_codes: ['C81', 'C82', 'C83', 'C84', 'C85', 'C88', 'C90', 'C96']
+
+# --- 3 Point Categories ---
+charlson_hx_liver_mod_sev:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '14223005', '197279005', '328383001', '328383001', '28670008', '91109007', '91109007',
+      '41309000', '235875008', '235881000', '9953008', '420054005', '41309000', '420054005',
+      '420054005', '713181003', '89580002', '31712002', '19943007', '19943007', '19943007',
+      '831000119103', '716203000', '34742003']
+    rest195_codes: [
+      'I85.0', 'I85.9', 'I86.4', 'I98.2', 'K70.4', 'K71.1', 'K72.1', 'K72.9', 'K76.5', 'K76.6', 'K76.7']
+
+
+# --- 6 Point Categories ---
+# Metastatic Solid Tumor
+charlson_hx_cancer_met:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: [
+      '94392001', '314994000', '712849003', '94248000', '285605009', '1098961000119100', '94222008',
+      '94391008', '1691000119104', '79282002', '94222008', '94381002', '403906006', '94217008',
+      '128462008', '314994000', '254837009', '363346000', '93655004', '94101009', '236005001', '399326009',
+      '399326009', '399068003', '363418001', '363346000', '86049000', '274087000', '75109009', '254837009',
+      '314966008', '372064008', '363354003', '94381002', '21594007', '363351006', '372087000']
+    res195_codes: ['C77', 'C78', 'C79', 'C80']
+
+# AIDS
+charlson_hx_aids:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: []
+    res195_codes: ['B20', 'B21', 'B22', 'B24']
+
+#  HIV
+charlson_hx_hiv: # Note: Often weighted as 1 if not AIDS, but 6 in original Quan logic
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
+  kwargs:
+    codes: ['1142045004', '19030005', '19030005']
+    res195_codes: ['Z21']
+
+
+
+# ------------------------------------------------------
+# SIRS Score
+# ------------------------------------------------------
+# Example 1: Boolean AND (HR > 100 AND RR > 22)
+sirs_tachy_and_tachypneic_rule:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: [ 'vitals' ]
+  kwargs:
+    logic: 'and'
+    components:
+      - extractor_type: 'rules'
+        domain: 'vitals'
+        codes: [ '13472364' ] # HR Code
+        rules: [ { expr: "value > 100", points: 1 } ]
+      - extractor_type: 'rules'
+        domain: 'vitals'
+        codes: [ '9096706' ] # RR Code
+        rules: [ { expr: "value > 22", points: 1 } ]
+
+sirs_tachycardia_flag:
+  module: 'icare_risk.clinphen.phenotypes.sirs'
+  function: 'derive_sirs_tachycardia'
+  domains: ['vitals']
+  kwargs:
+    window: ['0h', '24h']
+    codes: ['13472364'] # Heart Rate
+
+sirs_tachypnea_flag:
+  module: 'icare_risk.clinphen.phenotypes.sirs'
+  function: 'derive_sirs_tachypnea'
+  domains: ['vitals', 'pathology']
+  kwargs:
+    window: ['0h', '24h']
+    rr_codes: ['9096705'] # Respiratory Rate
+    pco2_codes: ['PCO2_01'] # pCO2 codes (optional, leave empty list to ignore)
+
+sirs_abnormal_temp_flag:
+  module: 'icare_risk.clinphen.phenotypes.sirs'
+  function: 'derive_sirs_abnormal_temp'
+  domains: ['vitals']
+  kwargs:
+    window: ['0h', '24h']
+    codes: ['10933766', '486347689']
+
+sirs_abnormal_wbc_flag:
+  module: 'icare_risk.clinphen.phenotypes.sirs'
+  function: 'derive_sirs_abnormal_wbc'
+  domains: ['pathology']
+  kwargs:
+    window: ['0h', '24h']
+    wbc_codes: ['wbc']
+    bands_codes: ['bands']
+    wbc_high: 12.0
+    wbc_low: 4.0
+    bands_thresh: 10.0
+
+# Example 2: Cross-Domain SUM (SIRS Components)
+sirs_composite_score:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: [ 'vitals', 'labs' ] # Pre-loads both domains
+  kwargs:
+    logic: 'sum'
+    components:
+      - extractor_type: 'rules'
+        domain: 'vitals'
+        codes: [ 'LOINC-8867-4' ] # HR > 90
+        rules: [ { expr: "value > 90", points: 1 } ]
+      - extractor_type: 'rules'
+        domain: 'vitals'
+        codes: [ 'LOINC-8310-5' ] # Temp > 38 or < 36
+        rules: [ { expr: "value > 38 or value < 36", points: 1 } ]
+      - extractor_type: 'rules'
+        domain: 'labs'
+        codes: [ 'LOINC-26464-8' ] # WBC > 12 or < 4
+        rules: [ { expr: "value > 12 or value < 4", points: 1 } ]
+
+
+# ------------------------------------------------------
+# Pitt Bacteremia Score
+# ------------------------------------------------------
+
+# Notes:
+# 1. Careful with code 486347689 because its name is 'high temperature or fever?' so
+#    it might not be a number but a boolean flag? Double check in iCare.
+
+# ----------------------------------
+# Combo rules configurable form yaml
+# ----------------------------------
+# These phenotypes evaluate each clinical condition against the configured rules
+# to produce a binary indicator (0 or 1), which is then multiplied by the assigned
+# point weighting to compute and return the final score.
+pitt_fever_score_rule:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_score_from_rules'
+  domains: [ 'vitals' ]
+  kwargs:
+    domain: 'vitals'
+    codes: [ '10933766', '486347689' ]
+    window: [ "0h", "24h" ]
+    rules:
+      - expr: "value <= 35.0 or value >= 40.0"
+        points: 2
+      - expr: "35.1 <= value <= 36.0"
+        points: 1
+      - expr: "39.0 <= value <= 39.9"
+        points: 1
+
+pitt_mental_score_rule:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_score_from_rules'
+  domains: [ 'vitals' ]
+  kwargs:
+    domain: 'vitals'
+    codes: [ '9097010', '9268392' ]
+    window: [ "0h", "24h" ]
+    rules:
+      - expr: "value <= 9"
+        points: 4
+      - expr: "10 <= value <= 12"
+        points: 2
+      - expr: "13 <= value <= 14"
+        points: 1
+
+pitt_hypo_score_rule:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: [ 'vitals', 'prescribing' ]
+  kwargs:
+    logic: 'max'
+    components:
+      # Component A: Systolic Blood Pressure < 90
+      - extractor_type: 'rules'
+        domain: 'vitals'
+        codes: [ '13389125' ] # SBP universal code
+        rules:
+          - expr: "value < 90.0"
+            points: 2
+
+      # Component B: Vasopressor Administration
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'code'
+        keywords:
+          - 'noradrenaline'
+          - 'norepinephrine'
+          - 'epinephrine'
+          - 'dopamine'
+          - 'vasopressin'
+          - 'dobutamine'
+          # - 'propofol' ## !!!!! JUST FOR TESTING REMOVE!
+        points: 2  # Custom scaling factor for the boolean res
+
+pitt_vent_score_rule:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: [ 'vitals' ]
+  kwargs:
+    logic: 'max'
+    components:
+      # Option A: Captured as a flowsheet keyword in vitals / observations
+      - extractor_type: 'keyword'
+        domain: 'vitals'
+        text_col: 'code'
+        keywords: [ 'mechanical ventilation', 'tracheostomy', 'invasive vent', 'ventilator' ]
+        check_current: true
+        window: [ "0h", "24h" ]
+        points: 2
+
+      # Option B: Captured as an acute procedure / diagnosis code during the stay
+      - extractor_type: 'history'
+        target_domains: [ 'diagnoses' ]
+        codes: [ 'Z99.11', 'E85.1' ] # ICD-10 dependence on ventilator / OPCS invasive ventilation
+        include_current: true
+        window: [ "0h", "24h" ]
+        points: 2
+
+pitt_arrest_score_rule:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: [ 'vitals' ]
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        target_domains: [ 'diagnoses']
+        codes:
+          - 'I46'       # ICD-10 Cardiac arrest
+          - 'I46.9'     # Cardiac arrest, unspecified
+          - '410429000' # SNOMED Cardiac arrest
+          - '89666000'  # SNOMED Cardiopulmonary arrest
+        include_current: true # MUST be true to evaluate the acute event
+        window: [ "0h", "24h" ]
+        points: 4
+
+
+# ---------------------------------------------------------
+# Call an specific python function which computes the score
+# ---------------------------------------------------------
+pitt_fever_score:
+  module: 'icare_risk.clinphen.phenotypes.pitt'
+  function: 'compute_pitt_fever_score'
+  domains: ['vitals']
+  kwargs:
+    window: ['0h', '24h'] # ['0h', '24h'] / null
+    codes: ['10933766', '486347689']
+
+pitt_mental_score:
+  module: 'icare_risk.clinphen.phenotypes.pitt'
+  function: 'compute_pitt_mental_score'
+  domains: ['vitals']
+  kwargs:
+    window: ['0h', '24h']
+    codes: ['9097010', '9268392']
+
+pitt_hypo_score:
+  module: 'icare_risk.clinphen.phenotypes.pitt'
+  function: 'compute_pitt_hypo_score'
+  domains: ['vitals'] #, 'prescribing']
+  kwargs:
+    window: ['0h', '24h']
+    sbp_codes: ['13389125']
+    vasopressor_drugs:
+      - 'NOREPINEPHRINE'
+      - 'EPINEPHRINE'
+      - 'VASOPRESSIN'
+
+pitt_vent_score:
+  module: 'icare_risk.clinphen.phenotypes.pitt'
+  function: 'compute_pitt_vent_score'
+  domains: [] #['interventions']
+  kwargs:
+    window: ['0h', '24h']
+    codes: ['MECH_VENT_01']
+
+pitt_arrest_score:
+  module: 'icare_risk.clinphen.phenotypes.pitt'
+  function: 'compute_pitt_arrest_score'
+  domains: [] #['interventions']
+  kwargs:
+    window: ['0h', '24h']
+    codes: ['CARDIAC_ARREST_01']
+
+pitt_bacteremia_score:
+  module: 'icare_risk.clinphen.phenotypes.pitt'
+  function: 'compute_pitt_score'
+  domains: [ 'vitals' ] #  'prescribing', 'interventions'
+  kwargs:
+    window: [ '0h', '24h' ]
+    fever_codes: [ '10933766', '486347689' ]
+    gcs_codes: [ '9268392' ]
+    sbp_codes: [ '13389125' ]
+    vasopressor_drugs:
+      - 'NOREPINEPHRINE'
+      - 'EPINEPHRINE'
+      - 'VASOPRESSIN'
+      - 'DOPAMINE'
+    vent_codes: [ 'MECH_VENT_01' ]
+    arrest_codes: [ 'CARDIAC_ARREST_01' ]
