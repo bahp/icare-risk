@@ -41,44 +41,6 @@ def compute_pitt_mental(gcs: pd.Series) -> pd.Series:
     return pd.Series(points, index=gcs.index)
 
 
-# --------------------------------------------------------
-# Helper phenotypes
-# --------------------------------------------------------
-def is_mechanically_ventilated(dataset):
-    """Determines whether it has mechanically ventilated support.
-
-    Clinical Logic
-    --------------
-    - Receiving mechanical ventilation: +2 pts
-    - Search respiratory support flowsheets.
-
-    Returns
-    -------
-    pd.Series (int)
-        1 if ventilated, 0 otherwise.
-    """
-    pass
-
-def has_recent_cardiac_arrest(dataset):
-    """Checks whether it has cardiac arrest.
-
-     Clinical Logic
-     --------------
-    - Cardiac arrest within window: +4 pts
-    - Check resuscitation event codes.
-
-    Returns
-    -------
-    pd.Series (int)
-        1 if cardiac arrest, 0 otherwise.
-    """
-    pass
-
-
-def has_vasopressors(dataset, window_hours=24, target_meds=[]):
-    """Determines whether a patient has vasopressors."""
-    pass
-
 
 # --------------------------------------------------------
 # Score functions
@@ -249,3 +211,127 @@ def compute_pitt_score(
         "arrest": arrest_score,
         "total": total
     }
+
+
+# --------------------------------------------------------
+# Full rules defined in Yaml
+# --------------------------------------------------------
+def pitt_fever_score_rule(df, **kwargs):
+    """Evaluates patient body temperature to assign points for the Pitt Bacteremia Score.
+
+    ??? info "Clinical Definition"
+        The Pitt Bacteremia Score evaluates acute severity of illness. Points are
+        assigned based on abnormal body temperatures (both hypothermia and hyperthermia)
+        recorded during the clinical window.
+
+        **Typical Scoring Rubric:**
+
+        | Temperature Range | Points |
+        | :--- | :--- |
+        | <= 35.0°C or >= 40.0°C | 2 |
+        | 35.1°C to 36.0°C | 1 |
+        | 39.0°C to 39.9°C | 1 |
+        | 36.1°C to 38.9°C | 0 |
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_fever_score_rule"
+        ```
+    """
+    pass
+
+def pitt_mental_score_rule(df, **kwargs):
+    """Evaluates patient mental status to assign points for the Pitt Bacteremia Score.
+
+    ??? info "Clinical Definition"
+        This component evaluates neurological dysfunction using the Glasgow Coma Scale (GCS)
+        or mental status assessments. Points are assigned based on the severity of disorientation
+        or coma.
+
+        **Typical Scoring Rubric:**
+
+        | Mental Status (GCS) | Points |
+        | :--- | :--- |
+        | Comatose (GCS <= 9) | 4 |
+        | Stuporous (GCS 10-12) | 2 |
+        | Disoriented (GCS 13-14) | 1 |
+        | Alert (GCS 15) | 0 |
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_mental_score_rule"
+        ```
+    """
+    pass
+
+def pitt_hypo_score_rule(df, **kwargs):
+    """Evaluates patient hemodynamics to assign points for the Pitt Bacteremia Score.
+
+    ??? info "Clinical Definition"
+        This component evaluates cardiovascular failure. A patient receives 2 points if they
+        experience severe acute hypotension or require intravenous vasopressor support during
+        the clinical window.
+
+        **Typical Scoring Rubric:**
+
+        | Hemodynamic Status | Points |
+        | :--- | :--- |
+        | Systolic Blood Pressure (SBP) < 90 mmHg | 2 |
+        | Vasopressor Administration | 2 |
+        | No Severe Hypotension / No Vasopressors | 0 |
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_mental_score_rule"
+        ```
+    """
+    pass
+
+def pitt_vent_score_rule(df, **kwargs):
+    """Evaluates respiratory support to assign points for the Pitt Bacteremia Score.
+
+    ??? info "Clinical Definition"
+        This component checks if the patient required invasive mechanical ventilation
+        during the clinical evaluation window.
+
+        **Typical Scoring Rubric:**
+
+        | Respiratory Support | Points |
+        | :--- | :--- |
+        | Invasive Mechanical Ventilation Present | 2 |
+        | Not Mechanically Ventilated | 0 |
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_mental_score_rule"
+        ```
+    """
+    pass
+
+def pitt_arrest_score_rule(df, **kwargs):
+    """Evaluates history of cardiac arrest to assign points for the Pitt Bacteremia Score.
+
+    ??? info "Clinical Definition"
+        This component identifies if the patient suffered a cardiopulmonary arrest event
+        concurrent with or immediately preceding the bacteremia evaluation window. Because
+        it is a profound prognostic indicator, it carries the highest individual weight
+        in the score alongside coma.
+
+        **Typical Scoring Rubric:**
+
+        | Event | Points |
+        | :--- | :--- |
+        | Cardiac Arrest | 4 |
+        | No Cardiac Arrest | 0 |
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_mental_score_rule"
+        ```
+    """
+    pass

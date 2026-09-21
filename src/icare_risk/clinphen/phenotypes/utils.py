@@ -115,8 +115,10 @@ def derive_from_keyword(
     if df.empty:
         return 0
 
+    text_series = df[text_col].fillna("").astype(str)
+
     pattern = '|'.join(keywords)
-    if df[text_col].str.contains(pattern, case=False, na=False).any():
+    if text_series.str.contains(pattern, case=False, na=False).any():
         return 1
 
     return 0
@@ -320,7 +322,8 @@ def derive_composite_rules(
 
             results.append(val)
         except Exception as e:
-            print(f"Warning: Composite component failed - {e}")
+            print(f"ERROR in extractor [{extractor_type}] with config {comp}")
+            print(f"Details: {e}")
             results.append(0)
 
     # Combine the results based on the requested logic

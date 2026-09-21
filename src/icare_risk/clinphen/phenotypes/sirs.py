@@ -87,3 +87,96 @@ def derive_sirs_abnormal_wbc(
             return 1
 
     return 0
+
+
+
+# --------------------------------------------------------
+# Full rules defined in Yaml
+# --------------------------------------------------------
+def sirs_tachycardia_score_rule(df, **kwargs):
+    """Evaluates patient heart rate to assign points for the SIRS score.
+
+    ??? info "Clinical Definition"
+        Systemic Inflammatory Response Syndrome (SIRS) criteria include evaluation 
+        for tachycardia. Points are assigned based on heart rate thresholds.
+
+        **Typical Scoring Rubric:**
+
+        | Heart Rate (HR) | Points |
+        | :--- | :--- |
+        | > 90 bpm | 1 |
+        | <= 90 bpm | 0 |
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:sirs_tachycardia_score_rule"
+        ```
+    """
+    pass
+
+def sirs_tachypnea_score_rule(df, **kwargs):
+    """Evaluates respiratory rate or pCO2 to assign points for the SIRS score.
+
+    ??? info "Clinical Definition"
+        SIRS tachypnea criteria capture elevated respiratory rate or hypocapnia
+        as indicators of systemic inflammation.
+
+        **Typical Scoring Rubric:**
+
+        | Parameter | Points |
+        | :--- | :--- |
+        | Respiratory Rate > 20 breaths/min | 1 |
+        | PaCO2 < 32 mmHg | 1 |
+        | Normal Parameters | 0 |
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:sirs_tachypnea_score_rule"
+        ```
+    """
+    pass
+
+def sirs_abnormal_temp_score_rule(df, **kwargs):
+    """Evaluates body temperature extremes to assign points for the SIRS score.
+
+    ??? info "Clinical Definition"
+        SIRS temperature criteria identify acute hyperthermia (fever) or hypothermia.
+
+        **Typical Scoring Rubric:**
+
+        | Temperature Status | Points |
+        | :--- | :--- |
+        | > 38.0°C or < 36.0°C | 1 |
+        | 36.0°C to 38.0°C | 0 |
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:sirs_abnormal_temp_score_rule"
+        ```
+    """
+    pass
+
+def sirs_abnormal_wbc_score_rule(df, **kwargs):
+    """Evaluates white blood cell count abnormalities and bandemia for the SIRS score.
+
+    ??? info "Clinical Definition"
+        SIRS hematologic criteria capture leukocytosis, leukopenia, or elevated band forms.
+
+        **Typical Scoring Rubric:**
+
+        | Hematologic Marker | Points |
+        | :--- | :--- |
+        | WBC > 12.0 or < 4.0 x10^3/uL | 1 |
+        | Bandemia > 10% | 1 |
+        | Normal Range | 0 |
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:sirs_abnormal_wbc_score_rule"
+        ```
+    """
+    pass

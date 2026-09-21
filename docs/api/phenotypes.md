@@ -7,6 +7,29 @@
   }
 </style>
 
-# Phenotypes Module
+# Phenotypes API Reference
 
-::: icare_risk.phenotypes
+## Charlson
+::: icare_risk.clinphen.phenotypes.charlson
+    handler: python
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      show_source: false
+
+## Pitt
+::: icare_risk.clinphen.phenotypes.pitt
+    handler: python
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      show_source: true
+
+## SIRS
+::: icare_risk.clinphen.phenotypes.sirs
+    handler: python
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      show_source: true
+

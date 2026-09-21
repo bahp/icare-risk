@@ -8,8 +8,8 @@ def has_diabetes(
         glucose_max_col: str = "glucose_max"
 ) -> pd.Series:
     """
-    Vectorized Charlson Diabetes check using multimodal proxies[cite: 2].
-    Evaluates explicit history, medication proxies, and lab value proxies[cite: 2].
+    Vectorized Charlson Diabetes check using multimodal proxies.
+    Evaluates explicit history, medication proxies, and lab value proxies.
     """
     is_diabetic = pd.Series(False, index=df.index)
 
@@ -21,7 +21,7 @@ def has_diabetes(
     if rx_flag_col in df.columns:
         is_diabetic = is_diabetic | (df[rx_flag_col] == 1)
 
-    # 3. Lab Values Proxy (Rolling max glucose > 200 mg/dL)[cite: 2]
+    # 3. Lab Values Proxy (Rolling max glucose > 200 mg/dL)
     if glucose_max_col in df.columns:
         is_diabetic = is_diabetic | (df[glucose_max_col] > 200.0)
 

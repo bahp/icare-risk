@@ -27,7 +27,7 @@ def min_spo2_24h(ctx: EpisodeContext, code: str = None, window: tuple = ("0h", "
 @phenotype(
     name="min_temp_24h",
     domains=["vitals"],
-    category="windowed",
+    category="windowed", # baseline
     description="",
 )
 def min_temp_24h(ctx: EpisodeContext, code, window, **kwargs) -> float:
