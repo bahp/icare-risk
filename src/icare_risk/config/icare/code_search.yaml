@@ -9,10 +9,86 @@ targets:
     code_col: "Code"
     search_cols: ["Description", "Detail"] # Searches both columns
     export_cols: [ ]
-    campaigns:
+    campaigns: &charlson_campaigns
       - category: "Myocardial Infarction"
-        contains: ["myocardial", "infarction", "heart attack"]
-        exclude: ["old", "history"]
+        contains: [ "myocardial infarction", "heart attack", "stemi", "nstemi" ]
+        exclude: [ "old", "history of", "family history" ]
+
+      - category: "Congestive Heart Failure"
+        contains: [ "heart failure", "chf", "cardiac failure", "ventricular failure" ]
+        exclude: [ "family history" ]
+
+      - category: "Peripheral Vascular Disease"
+        contains: [ "peripheral vascular", "pvd", "claudication", "gangrene", "peripheral artery", "aortic aneurysm" ]
+        exclude: [ "family history" ]
+
+      - category: "Cerebrovascular Disease"
+        contains: [ "stroke", "cerebrovascular", "cva", "transient ischemic attack", "tia", "cerebral infarction", "intracerebral hemorrhage" ]
+        exclude: [ "history of", "old", "family history" ]
+
+      - category: "Dementia"
+        contains: [ "dementia", "alzheimer", "senile" ]
+        exclude: [ "family history" ]
+
+      - category: "Chronic Pulmonary Disease"
+        contains: [ "pulmonary disease", "copd", "emphysema", "chronic bronchitis", "asthma", "bronchiectasis" ]
+        exclude: [ "acute" ]
+
+      - category: "Rheumatic Disease"
+        contains: [ "rheumatoid", "lupus", "sle", "scleroderma", "polymyositis", "connective tissue" ]
+        exclude: [ "rheumatic fever" ]
+
+      - category: "Peptic Ulcer Disease"
+        contains: [ "peptic ulcer", "gastric ulcer", "duodenal ulcer" ]
+        exclude: [ "history of" ]
+
+      - category: "Mild Liver Disease"
+        contains: [ "chronic hepatitis", "cirrhosis", "liver disease", "hepatic steatosis" ]
+        exclude: [ "coma", "ascites", "varices", "failure", "severe" ]
+
+      - category: "Diabetes Uncomplicated"
+        contains: [ "diabetes", "diabetic" ]
+        exclude: [ "complication", "retinopathy", "neuropathy", "nephropathy", "ketoacidosis", "coma" ]
+
+      - category: "Hemiplegia or Paraplegia"
+        contains: [ "hemiplegia", "paraplegia", "paraparesis", "hemiparesis", "tetraplegia" ]
+        exclude: [ "sleep paralysis" ]
+
+      - category: "Renal Disease Moderate to Severe"
+        contains: [ "chronic kidney", "ckd", "renal failure", "end stage renal", "esrd", "dialysis", "nephropathy", "uremia" ]
+        exclude: [ "stone", "calculus", "mild" ]
+
+      - category: "Diabetes Complicated"
+        contains: [ "diabetic retinopathy", "diabetic neuropathy", "diabetic nephropathy", "diabetes with complication", "diabetic ketoacidosis" ]
+        exclude: [ ]
+
+      - category: "Solid Tumor"
+        contains: [ "malignant neoplasm", "carcinoma", "tumor", "cancer" ]
+        exclude: [ "metastatic", "secondary", "leukemia", "lymphoma", "benign", "history of" ]
+
+      - category: "Leukemia"
+        contains: [ "leukemia", "leukaemia" ]
+        exclude: [ "history of" ]
+
+      - category: "Lymphoma"
+        contains: [ "lymphoma", "hodgkin" ]
+        exclude: [ "history of" ]
+
+      - category: "Moderate to Severe Liver Disease"
+        contains: [ "hepatic coma", "liver cirrhosis with ascites", "esophageal varices", "hepatic failure" ]
+        exclude: [ ]
+
+      - category: "Metastatic Solid Tumor"
+        contains: [ "metastatic", "metastasis", "secondary malignant", "secondary carcinoma" ]
+        exclude: [ ]
+
+      - category: "AIDS"
+        contains: [ "aids", "acquired immune deficiency" ]
+        exclude: [ "without aids" ]
+
+      - category: "HIV"
+        contains: [ "hiv", "human immunodeficiency virus" ]
+        exclude: [ "aids", "acquired immune deficiency" ]
 
 
   # --------------------------------------------------
@@ -35,15 +111,16 @@ targets:
     code_col: "code"
     search_cols: [ "description" ] # Searches across three columns
     export_cols: [ ]
-    campaigns:
-      - category: "Renal Disease"
-        contains: [ "renal", "kidney", "nephropathy", "dialysis" ]
-        exclude: [ ]
+    campaigns: *charlson_campaigns
 
-      - category: "Dementia"
-        contains: ["dementia", "alzheimer", "senile"]
-        exclude: ["family history"]
 
-      - category: "Myocardial Infarction"
-        contains: ["myocardial", "infarction", "heart attack"]
-        exclude: ["old", "history"]
+  # --------------------------------------------------
+  # Looking for comorbidities in icareP.csv
+  # --------------------------------------------------
+  - file: "icareP.csv"
+    code_col: "code"
+    search_cols: [ "name" ]
+    export_cols: [ ]
+    campaigns: *charlson_campaigns
+
+

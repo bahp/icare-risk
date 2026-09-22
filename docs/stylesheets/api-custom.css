@@ -16,3 +16,15 @@
 .doc-heading code {
     font-size: 0.85em;
 }
+
+
+/* Tighten table padding and spacing */
+.md-typeset table {
+    font-size: 0.85rem; /* Slightly smaller text if desired */
+}
+
+.md-typeset table th,
+.md-typeset table td {
+    padding: 6px 10px !important; /* Reduces vertical and horizontal padding */
+    line-height: 1.2 !important;  /* Tightens row height */
+}

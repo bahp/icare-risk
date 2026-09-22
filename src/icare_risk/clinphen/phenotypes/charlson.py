@@ -21,17 +21,21 @@ def has_diabetes(ctx: EpisodeContext,
                  **kwargs) -> int:
     """Determines if a patient has diabetes using a multi-modal data approach.
 
-    Notes
-    -----
-    Implemented with multimodal.
+    !!! tip "Multimodal"
 
-    Clinical Logic
-    --------------
-    We consider a patient to have diabetes if ANY of the following are true:
-    1. Explicit History: The `diabetes` code appears in 'problems'.
-    2. Explicit Diagnosis: The `diabetes' code appears in 'diagnosis` -> Not implemented.
-    3. Medication Proxy: The `prescribing` table contains ['insulin', 'metformin', 'gliclazide'].
-    4. Lab Values Proxy: The rolling maximum glucose (`glucose_max_24h`) is > 200 mg/dL.
+    ??? info "Clinical Definition"
+        We consider a patient to have CHF if ANY of the following are true:
+
+        1. Explicit History: The `diabetes` code appears in 'problems'.
+        2. Explicit Diagnosis: The `diabetes' code appears in 'diagnosis` -> Not implemented.
+        3. Medication Proxy: The `prescribing` table contains ['insulin', 'metformin', 'gliclazide'].
+        4. Lab Values Proxy: The rolling maximum glucose (`glucose_max_24h`) is > 200 mg/dL.
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:has_diabetes"
+        ```
 
     Returns
     -------
@@ -57,11 +61,16 @@ def charlson_hx_chf(df, **kwargs):
     """
     Determines if a patient has a history of Congestive Heart Failure (CHF).
 
+    <!-- icare_table: charlson_hx_chf -->
+
+
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_chf"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_chf.md"
 
     ??? info "Clinical Definition"
         We consider a patient to have CHF if ANY of the following are true:
@@ -81,6 +90,8 @@ def charlson_hx_pvd(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_pvd"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_pvd.md"
     """
     pass
 
@@ -92,6 +103,8 @@ def charlson_hx_stroke(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_stroke"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_stroke.md"
     """
     pass
 
@@ -103,6 +116,8 @@ def charlson_hx_dementia(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_dementia"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_dementia.md"
     """
     pass
 
@@ -114,6 +129,8 @@ def charlson_hx_pulmonary(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_pulmonary"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_pulmonary.md"
     """
     pass
 
@@ -125,6 +142,8 @@ def charlson_hx_rheum(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_rheum"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_rheum.md"
     """
     pass
 
@@ -136,6 +155,8 @@ def charlson_hx_pud(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_pud"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_pud.md"
     """
     pass
 
@@ -147,17 +168,24 @@ def charlson_hx_mi(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_mi"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_mi.md"
     """
     pass
 
 def charlson_hx_liver_mild(df, **kwargs):
     """Determines if a patient has mild liver disease.
 
+    !!! tip "Multimodal"
+
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:has_mild_liver_disease"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_liver_mild.md"
+
 
     ??? info "Clinical Definition"
         We consider a patient to have mild liver disease if ANY of the following are true:
@@ -177,6 +205,8 @@ def charlson_hx_diabetes_uncomp(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_diabetes_uncomp"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_diabetes_uncomp.md"
     """
     pass
 
@@ -188,11 +218,15 @@ def charlson_hx_diabetes_comp(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_diabetes_comp"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_diabetes_comp.md"
     """
     pass
 
 def charlson_hx_hemiplegia(df, **kwargs):
     """Identifies if a patient has a history of hemiplegia or paraplegia.
+
+    !!! warning "Pending problem codes definitions"
 
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
@@ -210,6 +244,8 @@ def charlson_hx_renal_mod_sev(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_renal_mod_sev"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_renal_mod_sev.md"
     """
     pass
 
@@ -221,6 +257,8 @@ def charlson_hx_liver_mod_sev(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_liver_mod_sev"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_liver_mod_sev.md"
     """
     pass
 
@@ -232,6 +270,8 @@ def charlson_hx_cancer_solid(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_cancer_solid"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_cancer_solid.md"
     """
     pass
 
@@ -243,11 +283,15 @@ def charlson_hx_cancer_met(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_cancer_met"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_cancer_met.md"
     """
     pass
 
 def charlson_hx_aids(df, **kwargs):
     """Identifies if a patient has a documented history of AIDS.
+
+    !!! warning "Pending problem codes definitions"
 
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
@@ -264,6 +308,19 @@ def charlson_hx_hiv(df, **kwargs):
 
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_hiv"
+        ```
+    """
+    pass
+
+def charlson_hx_leukemia(df, **kwargs):
+    """Identifies if a patient has a documented history of leukemia.
+
+    !!! warning "Pending problem codes definitions"
+
+    ??? example "Rule Definition & Parameter Mapping (Click to expand)"
+
+        ```yaml
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_leukemia"
         ```
     """
     pass

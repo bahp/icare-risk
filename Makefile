@@ -103,10 +103,14 @@ test-path:
 .PHONY: docs-serve docs-build
 
 docs-serve:
+	@echo "\n--- 🔄 Generating Snippets ---"
+	$(RUN) $(PYTHON) src/icare_risk/scripts/build_phenotype_snippets.py
 	@echo "\n--- 📖 Serving Documentation Locally ---"
 	$(RUN) zensical serve
 
 docs-build:
+	@echo "\n--- 🔄 Generating Snippets ---"
+	$(RUN) $(PYTHON) src/icare_risk/scripts/build_phenotype_snippets.py
 	@echo "\n--- 📖 Building Documentation ---"
 	$(RUN) zensical build --clean
 

@@ -5,26 +5,26 @@ from typing import Dict, Optional, List
 
 # Define base weights
 CHARLSON_WEIGHTS = {
-    "charlson_hx_mi": 1,
-    "charlson_hx_chf": 1,
-    "charlson_hx_pvd": 1,
-    "charlson_hx_stroke": 1,
-    "charlson_hx_dementia": 1,
-    "charlson_hx_pulmonary": 1,
-    "charlson_hx_rheum": 1,
-    "charlson_hx_pud": 1,
-    "charlson_hx_liver_mild": 1,
-    "charlson_hx_diabetes_uncomp": 1,
-    "charlson_hx_hemiplegia": 2,
-    "charlson_hx_renal_mod_sev": 2,
-    "charlson_hx_diabetes_comp": 2,
-    "charlson_hx_cancer_solid": 2,
-    "charlson_hx_leukemia": 3,
+    "charlson_hx_mi": 1,              # Done
+    "charlson_hx_chf": 1,             # Done
+    "charlson_hx_pvd": 1,             # Done
+    "charlson_hx_stroke": 1,          # Done
+    "charlson_hx_dementia": 1,        # Done
+    "charlson_hx_pulmonary": 1,       # Done
+    "charlson_hx_rheum": 1,           # Done
+    "charlson_hx_pud": 1,             # Done
+    "charlson_hx_liver_mild": 1,      # Done
+    "charlson_hx_diabetes_uncomp": 1, # Done
+    "charlson_hx_hemiplegia": 2,      # Done
+    "charlson_hx_renal_mod_sev": 2,   # Done
+    "charlson_hx_diabetes_comp": 2,   # Done
+    "charlson_hx_cancer_solid": 2,    # Done
+    "charlson_hx_leukemia": 3,        # Done
     "charlson_hx_lymphoma": 6,
-    "charlson_hx_liver_mod_sev": 3,
-    "charlson_hx_cancer_met": 6,
-    "charlson_hx_aids": 6,
-    'charlson_hx_hiv': 1
+    "charlson_hx_liver_mod_sev": 3,   # Done
+    "charlson_hx_cancer_met": 6,      # Done
+    "charlson_hx_aids": 6,            # Done
+    'charlson_hx_hiv': 1              # Done
 }
 
 CHARLSON_HIERARCHY = {

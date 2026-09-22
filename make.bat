@@ -161,11 +161,17 @@ goto :eof
 
 :docs_serve
 echo.
+echo --- Generating Snippets Inside Container ---
+%RUN% python src/icare_risk/scripts/build_phenotype_snippets.py
+echo.
 echo --- Serving Documentation Locally ---
 %RUN% zensical serve
 goto :eof
 
 :docs_build
+echo.
+echo --- Generating Snippets Inside Container ---
+%RUN% python src/icare_risk/scripts/build_phenotype_snippets.py
 echo.
 echo --- Building Documentation ---
 %RUN% zensical build --clean
