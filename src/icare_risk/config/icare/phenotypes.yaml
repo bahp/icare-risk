@@ -545,7 +545,7 @@ sirs_tachycardia_score_rule:
 # --8<-- [end:sirs_tachycardia_score_rule]
 
 # --8<-- [start:sirs_tachypnea_score_rule]
-sirs_tachypnea_rule:
+sirs_tachypnea_score_rule:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_composite_rules'
   domains: [ 'vitals', 'pathology' ]
@@ -555,7 +555,7 @@ sirs_tachypnea_rule:
       # Condition A: High Respiratory Rate in Vitals
       - extractor_type: 'rules'
         domain: 'vitals'
-        codes: [ '9096705' ] # Respiratory Rate Code
+        codes: [ '9096706' ] # Respiratory Rate Code
         rules:
           - expr: "value > 20"
             points: 1
@@ -604,7 +604,7 @@ sirs_abnormal_wbc_score_rule:
         rules:
           - expr: "value > 10"
             points: 1
-# --8<-- [end:sirs_abnormal_wbc_score_score]
+# --8<-- [end:sirs_abnormal_wbc_score_rule]
 
 
 # --8<-- [start:sirs_total_score_rule]

@@ -1,163 +1,193 @@
-import re
 from pathlib import Path
+from typing import Any
 import pandas as pd
+import yaml
 
 
-def generate_icare_table(yaml_path: Path, icare_csv_path: Path, phenotype_name: str) -> str:
-    """Extracts codes from a phenotype definition and returns a Markdown table with debug output."""
-    print(f"\n[DEBUG] Processing phenotype: '{phenotype_name}'")
+class CodeExtractor:
+    """Extracts (domain, code) pairs from parsed phenotype YAML configurations based on function strategies."""
 
-    if not yaml_path.exists():
-        print(f"[ERROR] YAML file not found at: {yaml_path.absolute()}")
-        return ""
-    if not icare_csv_path.exists():
-        print(f"[ERROR] CSV file not found at: {icare_csv_path.absolute()}")
-        return ""
+    @staticmethod
+    def extract(phenotype_def: dict[str, Any]) -> dict[str, list[str]]:
+        """
+        Parses a phenotype dictionary and returns a mapping of {domain: [codes]}.
+        """
+        domain_codes: dict[str, set[str]] = {}
 
-    text = yaml_path.read_text(encoding='utf-8')
+        top_domains = phenotype_def.get("domains") or []
+        default_domain = top_domains[0] if top_domains else "problems"
 
-    # 1. Match phenotype block
-    p_pattern = rf"(?:^|\n){phenotype_name}:[\s\S]*?(?:\n[a-z_]+:|\Z)"
-    p_match = re.search(p_pattern, text)
-    if not p_match:
-        print(f"[WARNING] Could not find phenotype block for '{phenotype_name}' in YAML.")
-        return ""
+        kwargs = phenotype_def.get("kwargs", {})
 
-    block = p_match.group(0)
+        def add_code(domain: str | None, code_list: Any):
+            target_domain = domain or default_domain
+            if target_domain not in domain_codes:
+                domain_codes[target_domain] = set()
 
-    # 2. Extract codes list
-    codes_match = re.search(r"\bcode[s]?:\s*\[(.*?)\]", block, re.DOTALL)
-    if not codes_match:
-        print(f"[WARNING] Could not find 'codes: [...]' inside block for '{phenotype_name}'.")
-        return ""
+            if isinstance(code_list, (str, int)):
+                code_list = [code_list]
+            elif not isinstance(code_list, list):
+                return
 
-    codes_str = codes_match.group(1)
-    codes = re.findall(r"['\"]([^'\"]+)['\"]", codes_str)
-    print(f"[DEBUG] Extracted codes for {phenotype_name}: {codes}")
+            for c in code_list:
+                domain_codes[target_domain].add(str(c))
 
-    if not codes:
-        print(f"[WARNING] Extracted code list was empty.")
-        return ""
+        # Strategy 1: Composite rules with nested components (e.g., derive_composite_rules)
+        if "components" in kwargs and isinstance(kwargs["components"], list):
+            for comp in kwargs["components"]:
+                c_domain = comp.get("domain") or (
+                    comp.get("target_domains", [None])[0]
+                )
+                if "codes" in comp:
+                    add_code(c_domain, comp["codes"])
 
-    # 3. Load CSV and match codes
-    try:
-        df = pd.read_csv(icare_csv_path)
-        df['code'] = df['code'].astype(str)
-    except Exception as e:
-        print(f"[ERROR] Failed to read {icare_csv_path}: {e}")
-        return ""
+        # Strategy 2: Multimodal rules (e.g., code_rules, expression_rules)
+        for rule_key in ("code_rules", "expression_rules", "keyword_rules"):
+            if rule_key in kwargs and isinstance(kwargs[rule_key], list):
+                for rule in kwargs[rule_key]:
+                    r_domain = rule.get("domain") or (
+                        rule.get("target_domains", [None])[0]
+                    )
+                    if "codes" in rule:
+                        add_code(r_domain, rule["codes"])
 
-    matched = df[df['code'].isin(codes)].drop_duplicates(subset=['code'])
-    print(f"[DEBUG] Found {len(matched)} matching rows in {icare_csv_path.name} out of {len(codes)} codes searched.")
+        # Strategy 3: Standard single or multi-code kwargs (e.g., codes, wbc_codes, rr_codes)
+        for key, val in kwargs.items():
+            if key == "codes" or key.endswith("_codes"):
+                # Infer domain from top-level if not overridden
+                add_code(default_domain, val)
 
-    if matched.empty:
-        print(f"[NOTICE] Codes {codes} did not match any rows in icareP.csv.")
-        return f"*No matching entries found in `icareP` for codes: {', '.join(codes)}*"
-
-    # 4. Build Markdown table
-    md = [
-        "| Code | Name | Unit | Type | Total Occurrences |",
-        "| :--- | :--- | :--- | :--- | ---:|"
-    ]
-    for _, row in matched.iterrows():
-        md.append(f"| `{row['code']}` | {row['name']} | {row['unit']} | {row['type']} | {row['total_occurrences']:,} |")
-
-    print(f"[SUCCESS] Table generated successfully for '{phenotype_name}'.")
-    return "\n".join(md)
+        return {domain: sorted(list(codes)) for domain, codes in domain_codes.items()}
 
 
-def process_markdown_files():
-    yaml_path = Path("/app/src/icare_risk/config/icare/phenotypes.yaml")
-    icare_csv_path = Path("/app/data/lookups/standard/icareP.csv")
-    docs_dir = Path("/app/docs")
+class LookupDatabase:
+    """Loads domain CSVs into memory and queries code matches."""
 
-    if not docs_dir.exists():
-        print(f"[ERROR] 'docs/' directory not found at {docs_dir.absolute()}")
-        return
+    def __init__(self, csv_paths: dict[str, Path]):
+        self.dfs: dict[str, pd.DataFrame] = {}
+        self._load_csvs(csv_paths)
 
-    pattern = r"<!--\s*icare_table:\s*([a-zA-Z0-9_]+)\s*-->"
-    files_updated = 0
-
-    for md_file in docs_dir.glob("**/*.md"):
-        content = md_file.read_text(encoding='utf-8')
-
-        def replace_tag(match):
-            phenotype_name = match.group(1)
-            table_md = generate_icare_table(yaml_path, icare_csv_path, phenotype_name)
-            if table_md:
-                return f"\n\n{table_md}\n\n"
+    def _load_csvs(self, csv_paths: dict[str, Path]):
+        for domain, path in csv_paths.items():
+            if path.exists():
+                try:
+                    df = pd.read_csv(path)
+                    df["code"] = df["code"].astype(str)
+                    self.dfs[domain] = df
+                except Exception as e:
+                    print(f"[ERROR] Failed to read CSV for domain '{domain}' at {path}: {e}")
             else:
-                return f"\n\n*Could not generate table for `{phenotype_name}`.*\n\n"
+                print(f"[WARNING] CSV path for domain '{domain}' not found: {path}")
 
-        new_content = re.sub(pattern, replace_tag, content)
-        if new_content != content:
-            md_file.write_text(new_content, encoding='utf-8')
-            print(f"[INFO] Updated markdown file: {md_file}")
-            files_updated += 1
+    def query(self, domain: str, codes: list[str]) -> pd.DataFrame:
+        df = self.dfs.get(domain)
+        if df is None or df.empty:
+            return pd.DataFrame()
 
-    print(f"\n[DONE] Processing complete. Total markdown files updated: {files_updated}")
+        matched = df[df["code"].isin(codes)].drop_duplicates(subset=["code"])
+        return matched
+
+
+class TableRenderer:
+    """Renders dataframes into styled Markdown tables."""
+
+    @staticmethod
+    def render(matched_by_domain: dict[str, pd.DataFrame], requested_codes: dict[str, list[str]]) -> str:
+        all_rows = []
+        is_multi_domain = len(requested_codes) > 1
+
+        for domain, codes in requested_codes.items():
+            matched_df = matched_by_domain.get(domain)
+
+            if matched_df is None or matched_df.empty:
+                continue
+
+            for _, row in matched_df.iterrows():
+                all_rows.append({
+                    "domain": domain,
+                    "code": row.get("code", "N/A"),
+                    "name": row.get("name", "N/A"),
+                    "unit": row.get("unit", "none"),
+                    "type": row.get("type", "N/A"),
+                    "count": row.get("total_occurrences", 0),
+                })
+
+        if not all_rows:
+            all_missing = [f"`{c}` ({d})" for d, cs in requested_codes.items() for c in cs]
+            return f"*No matching database entries found for codes: {', '.join(all_missing)}*"
+
+        # Header definition
+        if is_multi_domain:
+            headers = ["Domain", "Code", "Name", "Unit", "Type", "Total Occurrences"]
+            align = ["| :---", "| :---", "| :---", "| :---", "| :---", "| ---:|"]
+        else:
+            headers = ["Code", "Name", "Unit", "Type", "Total Occurrences"]
+            align = ["| :---", "| :---", "| :---", "| :---", "| ---:|"]
+
+        md = ["| " + " | ".join(headers) + " |", " ".join(align)]
+
+        for r in all_rows:
+            count_formatted = f"{r['count']:,}" if isinstance(r['count'], (int, float)) else r['count']
+            if is_multi_domain:
+                line = f"| `{r['domain']}` | `{r['code']}` | {r['name']} | {r['unit']} | {r['type']} | {count_formatted} |"
+            else:
+                line = f"| `{r['code']}` | {r['name']} | {r['unit']} | {r['type']} | {count_formatted} |"
+            md.append(line)
+
+        return "\n".join(md)
 
 
 def generate_snippets():
-    # Find the repository root dynamically based on this script's location
-    # (adjust the number of .parents if needed based on your directory depth)
-    # e.g., if script is in src/icare_risk/scripts/, root is 3 levels up:
     REPO_ROOT = Path(__file__).resolve().parents[3]
 
     yaml_path = REPO_ROOT / "src/icare_risk/config/icare/phenotypes.yaml"
-    icare_csv_path = REPO_ROOT / "data/lookups/standard/icareP.csv"
     snippets_dir = REPO_ROOT / "docs" / "_snippets"
-
-    # Ensure directories exist
     snippets_dir.mkdir(parents=True, exist_ok=True)
 
-    if not yaml_path.exists() or not icare_csv_path.exists():
-        print("[ERROR] phenotypes.yaml or icareP.csv not found in root.")
+    csv_paths = {
+        "problems": REPO_ROOT / "data/lookups/standard/icareP.csv",
+        "vitals": REPO_ROOT / "data/lookups/standard/icareV.csv",
+        "pathology": REPO_ROOT / "data/lookups/standard/icareL.csv",
+    }
+
+    if not yaml_path.exists():
+        print(f"[ERROR] phenotypes.yaml not found at {yaml_path}")
         return
 
-    text = yaml_path.read_text(encoding='utf-8')
-    df = pd.read_csv(icare_csv_path)
-    df['code'] = df['code'].astype(str)
+    # Parse entire YAML file into structured Python dictionary
+    with open(yaml_path, "r", encoding="utf-8") as f:
+        try:
+            phenotypes = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            print(f"[ERROR] Failed to parse YAML file: {e}")
+            return
 
-    # Extract all top-level phenotype keys
-    phenotype_names = re.findall(r"^([a-zA-Z0-9_]+):\s*(?:\n|\r\n)", text, re.MULTILINE)
-    print(f"Found {len(phenotype_names)} phenotypes in YAML.")
+    db = LookupDatabase(csv_paths)
+    generated_count = 0
 
-    for phenotype_name in phenotype_names:
-        p_pattern = rf"(?:^|\n){phenotype_name}:[\s\S]*?(?:\n[a-z_]+:|\Z)"
-        p_match = re.search(p_pattern, text)
-        if not p_match:
+    for name, config in phenotypes.items():
+        if not isinstance(config, dict):
             continue
 
-        block = p_match.group(0)
-        codes_match = re.search(r"\bcode[s]?:\s*\[(.*?)\]", block, re.DOTALL)
-        if not codes_match:
+        # Extract domain -> codes mapping
+        domain_codes = CodeExtractor.extract(config)
+        if not domain_codes:
             continue
 
-        codes = re.findall(r"['\"]([^'\"]+)['\"]", codes_match.group(1))
-        if not codes:
-            continue
+        # Query database for each domain
+        matched_by_domain = {}
+        for domain, codes in domain_codes.items():
+            matched_by_domain[domain] = db.query(domain, codes)
 
-        matched = df[df['code'].isin(codes)].drop_duplicates(subset=['code'])
+        # Render snippet table
+        table_md = TableRenderer.render(matched_by_domain, domain_codes)
 
-        # Build Markdown table snippet
-        md = [
-            f"| Code | Name | Unit | Type | Total Occurrences |",
-            f"| :--- | :--- | :--- | :--- | ---:|"
-        ]
+        snippet_file = snippets_dir / f"{name}.md"
+        snippet_file.write_text(table_md, encoding="utf-8")
+        generated_count += 1
 
-        if matched.empty:
-            md.append(f"*No matching entries found!") # in `icareP` for codes: {', '.join(codes)}*")
-        else:
-            for _, row in matched.iterrows():
-                md.append(
-                    f"| `{row['code']}` | {row['name']} | {row['unit']} | {row['type']} | {row['total_occurrences']:,} |")
+    print(f"[SUCCESS] Successfully generated {generated_count} snippet files in `{snippets_dir}`!")
 
-        snippet_file = snippets_dir / f"{phenotype_name}.md"
-        snippet_file.write_text("\n".join(md), encoding='utf-8')
-
-    print(f"Successfully generated all snippets in `{snippets_dir}/` folder!")
 
 if __name__ == "__main__":
-    #process_markdown_files()
     generate_snippets()

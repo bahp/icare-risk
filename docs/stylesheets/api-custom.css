@@ -18,13 +18,19 @@
 }
 
 
-/* Tighten table padding and spacing */
-.md-typeset table {
-    font-size: 0.85rem; /* Slightly smaller text if desired */
+/* =========================================
+   1. COMPACT DATA TABLES
+   (Explicitly ignoring code block tables)
+   ========================================= */
+
+/* Target regular markdown tables, but exclude Pygments code tables */
+.md-typeset table:not(.highlighttable) {
+    font-size: 0.85em !important;
 }
 
-.md-typeset table th,
-.md-typeset table td {
-    padding: 6px 10px !important; /* Reduces vertical and horizontal padding */
-    line-height: 1.2 !important;  /* Tightens row height */
+.md-typeset table:not(.highlighttable) th,
+.md-typeset table:not(.highlighttable) td {
+    padding: 4px 10px !important;
+    line-height: 1.2 !important;
 }
+

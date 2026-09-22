@@ -238,6 +238,8 @@ def pitt_fever_score_rule(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_fever_score_rule"
         ```
+
+         --8<-- "docs/_snippets/pitt_fever_score_rule.md"
     """
     pass
 
@@ -263,6 +265,8 @@ def pitt_mental_score_rule(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_mental_score_rule"
         ```
+
+        --8<-- "docs/_snippets/pitt_mental_score_rule.md"
     """
     pass
 
@@ -285,8 +289,10 @@ def pitt_hypo_score_rule(df, **kwargs):
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
         ```yaml
-            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_mental_score_rule"
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_hypo_score_rule"
         ```
+
+        --8<-- "docs/_snippets/pitt_hypo_score_rule.md"
     """
     pass
 
@@ -307,8 +313,10 @@ def pitt_vent_score_rule(df, **kwargs):
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
         ```yaml
-            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_mental_score_rule"
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_vent_score_rule"
         ```
+
+        --8<-- "docs/_snippets/pitt_vent_score_rule.md"
     """
     pass
 
@@ -331,7 +339,9 @@ def pitt_arrest_score_rule(df, **kwargs):
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
         ```yaml
-            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_mental_score_rule"
+            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:pitt_arrest_score_rule"
         ```
+
+        --8<-- "docs/_snippets/pitt_arrest_score_rule.md"
     """
     pass

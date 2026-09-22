@@ -112,6 +112,8 @@ def sirs_tachycardia_score_rule(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:sirs_tachycardia_score_rule"
         ```
+
+        --8<-- "docs/_snippets/sirs_tachycardia_score_rule.md"
     """
     pass
 
@@ -135,6 +137,8 @@ def sirs_tachypnea_score_rule(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:sirs_tachypnea_score_rule"
         ```
+
+        --8<-- "docs/_snippets/sirs_tachypnea_score_rule.md"
     """
     pass
 
@@ -156,6 +160,8 @@ def sirs_abnormal_temp_score_rule(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:sirs_abnormal_temp_score_rule"
         ```
+
+        --8<-- "docs/_snippets/sirs_abnormal_temp_score_rule.md"
     """
     pass
 
@@ -178,5 +184,7 @@ def sirs_abnormal_wbc_score_rule(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:sirs_abnormal_wbc_score_rule"
         ```
+
+        --8<-- "docs/_snippets/sirs_abnormal_wbc_score_rule.md"
     """
     pass
