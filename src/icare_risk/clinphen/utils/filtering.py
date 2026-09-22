@@ -3,8 +3,10 @@ import pandas as pd
 def match_codes(series: pd.Series,
                 target_codes: list) -> pd.Series:
     """Returns a boolean mask for robust, case-insensitive string matching."""
-    targets = [str(c).upper() for c in target_codes]
-    return series.astype(str).str.upper().isin(targets)
+    # No need to upper, done when creating the phenotypes
+    # Inside the registry
+    #targets = [str(c).upper() for c in target_codes]
+    return series.astype(str).str.upper().isin(series)
 
 
 def extract_numeric(df: pd.DataFrame,

@@ -27,6 +27,13 @@ def _validate_and_build_spec(name: str, spec_def: dict) -> Optional[PhenotypeSpe
         print(f"Skipping '{name}': {type(e).__name__} - {e}")
         return None
 
+    # Extract and pre-process codes once at startup if present in kwargs
+    kwargs = spec_def.get('kwargs', {})
+    if "codes" in kwargs:
+        kwargs["codes"] = [str(c).upper() for c in kwargs["codes"]]
+    #if "res195_codes" in kwargs:
+    #    kwargs["res195_codes"] = [str(c).upper() for c in kwargs["res195_codes"]]
+
     return PhenotypeSpec(
         name=name,
         func=func,

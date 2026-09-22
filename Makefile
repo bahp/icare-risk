@@ -101,24 +101,36 @@ test-path:
 
 
 .PHONY: docs-serve docs-build
-
 docs-serve:
 	@echo "\n--- 🔄 Generating Snippets ---"
-	$(RUN) $(PYTHON) src/icare_risk/scripts/build_phenotype_snippets.py
+	$(RUN) $(PYTHON) src/icare_risk/scripts/hook_phenotype_snippets.py
 	@echo "\n--- 📖 Serving Documentation Locally ---"
 	$(RUN) zensical serve
 
 docs-build:
 	@echo "\n--- 🔄 Generating Snippets ---"
-	$(RUN) $(PYTHON) src/icare_risk/scripts/build_phenotype_snippets.py
+	$(RUN) $(PYTHON) src/icare_risk/scripts/hook_phenotype_snippets.py
+	@echo "\n--- 🔄 Copying notebooks ---"
+	$(RUN) $(PYTHON) src/icare_risk/scripts/hook_copy_notebooks.py
 	@echo "\n--- 📖 Building Documentation ---"
 	$(RUN) zensical build --clean
 
 
 
+.PHONY: profile
+profile:
+	@echo "Running feature matrix profiler..."
+	$(RUN) $(PYTHON) src/icare_risk/scripts/profile_matrix.py
+
+.PHONY: visualize
+visualize:
+	@echo "Opening profile results in SnakeViz..."
+	snakeviz feature_matrix_profile.prof
+
+.PHONY: profile-view
+profile-view: profile visualize
 
 .PHONY: publish
-
 publish:
 	@echo "Tagging and triggering PyPI release..."
 	$(eval TAG := v$(shell date +'%Y.%m.%d.%H.%M'))

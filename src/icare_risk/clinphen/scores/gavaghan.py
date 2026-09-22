@@ -3,6 +3,18 @@ import numpy as np
 
 from typing import Dict, Optional, List
 
+# Define base weights
+GAVAGHAN_WEIGHTS = {
+    "gavaghan_hx_prior_esbl_365d": 4,
+    "gavaghan_age_ge_65": 1,
+    "gavaghan_hx_nursing_home_resident": 2,
+    "gavaghan_hx_urinary_catheter": 1,
+    "gavaghan_hx_prior_antibiotics_fq_ceph_90d": 2
+
+}
+
+GAVAGHAN_HIERARCHY = {}
+
 
 def calculate_gavaghan_score(df,
                              age_col='AGE_AT_ADMISSION',

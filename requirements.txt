@@ -28,7 +28,12 @@ pytest
 mkdocstrings
 mkdocstrings-python
 mkdocs-codeinclude-plugin
+mkdocs-jupyter
 zensical
 
 duckdb
 pyarrow
+
+
+# Profiling
+snakeviz

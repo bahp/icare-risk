@@ -31,6 +31,9 @@ if "%1"=="test-pkg" goto test_pkg
 if "%1"=="docs-serve" goto docs_serve
 if "%1"=="docs-build" goto docs_build
 if "%1"=="sandbox" goto sandbox
+if "%1"=="profile" goto profile
+if "%1"=="visualize" goto visualize
+if "%1"=="profile-view" goto profile-view
 goto menu
 
 :menu
@@ -162,7 +165,7 @@ goto :eof
 :docs_serve
 echo.
 echo --- Generating Snippets Inside Container ---
-%RUN% python src/icare_risk/scripts/build_phenotype_snippets.py
+%RUN% python src/icare_risk/scripts/hook_phenotype_snippets.py
 echo.
 echo --- Serving Documentation Locally ---
 %RUN% zensical serve
@@ -171,11 +174,41 @@ goto :eof
 :docs_build
 echo.
 echo --- Generating Snippets Inside Container ---
-%RUN% python src/icare_risk/scripts/build_phenotype_snippets.py
+%RUN% python src/icare_risk/scripts/hook_phenotype_snippets.py
+echo.
+echo --- Copying notebooks ---
+%RUN% python src/icare_risk/scripts/hook_copy_notebooks.py
 echo.
 echo --- Building Documentation ---
 %RUN% zensical build --clean
 goto :eof
+
+
+:profile
+echo.
+echo --- Running Feature Matrix Profiler ---
+%RUN% %PYTHON% src/icare_risk/scripts/profile_matrix.py %EXTRA_ARGS%
+timeout /t 2 >nul
+goto :eof
+
+:visualize
+echo.
+echo --- Opening Profile Results in SnakeViz ---
+snakeviz feature_matrix_profile.prof
+goto :eof
+
+:profile-view
+:: If 'local' was passed, make sure RUN is cleared for profile as well
+if /I "%2"=="local" (
+    set RUN=
+)
+echo.
+echo --- Running Feature Matrix Profiler ---
+%RUN% %PYTHON% src/icare_risk/scripts/profile_matrix.py
+if errorlevel 1 exit /b %errorlevel%
+echo.
+echo --- Opening Profile Results in SnakeViz ---
+snakeviz feature_matrix_profile.prof
 
 
 

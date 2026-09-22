@@ -19,6 +19,17 @@ nav = [
     { "Pipeline Evaluation" = "04-pipeline-evaluation.md" },
     { "Pipeline Validation" = "05-pipeline-validation.md" },
     { "Azure ML Guide" = "06-azure-ml-guide.md" },
+    { "Tutorials & Notebooks" = "notebooks.md" },
+    #{ "Tutorials & Notebooks" = [
+    #    #{ "Quickstart" = "notebooks/tutorials/01_quickstart.ipynb" },
+    #    #{ "History Batch" = "notebooks/tutorials/02_history_batch.ipynb" },
+    #    #{ "Scores - Charlson" = "notebooks/tutorials/05_score_charlson.ipynb" },
+    #    #{ "Scores - Pitt" = "notebooks/tutorials/05_score_pitt.ipynb" },
+    #    #{ "Scores - SIRS" = "notebooks/tutorials/05_score_sirs.ipynb" },
+    #    #{ "Utils - SIRS" = "notebooks/tutorials/10_pkg_utils.ipynb" },
+    #    #{ "Tools - SIRS" = "notebooks/tutorials/11_pkg_tools.ipynb" },
+    #    { "Tutorials & Notebooks" = "notebooks.md" }
+    #] },
     { "API Reference" = [
         { "Overview" = "api/index.md" },
         { "Phenotypes" = "api/phenotypes.md" },
@@ -60,6 +71,7 @@ custom_fences = [
 ]
 
 [project.markdown_extensions.pymdownx.highlight]
+linenums = true
 anchor_linenums = true
 line_spans = "__span"
 pygments_lang_class = true
@@ -73,6 +85,13 @@ check_paths = true
 
 [project.plugins.search]
 
+[project.plugins.mkdocs-jupyter]
+include_source = true
+execute = false
+show_input = true
+no_input = false
+ignore_h1_titles = true
+
 [project.plugins.mkdocstrings.handlers.python]
 paths = ["src"]
 
@@ -82,3 +101,4 @@ summary = true
 show_source = true
 show_root_heading = true
 show_signature_annotations = false
+

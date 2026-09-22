@@ -17,6 +17,37 @@
     font-size: 0.85em;
 }
 
+/* =========================================
+   0. COMPACT RIGHT SIDE BAR
+   (Explicitly ignoring code block tables)
+   ========================================= */
+/* 1. Tighten the list item container */
+.md-nav--secondary .md-nav__item {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* 2. Reduce padding and force vertical alignment on TOC links */
+.md-nav--secondary .md-nav__link {
+  padding-top: 0.125rem !important;
+  padding-bottom: 0.125rem !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  line-height: 1.2 !important;
+}
+
+/* 3. Override mkdocstrings inner span overrides (.md-typeset / .md-ellipsis) */
+.md-nav--secondary .md-nav__link .md-ellipsis,
+.md-nav--secondary .md-nav__link .md-typeset {
+  line-height: inherit !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: inline-block !important;
+}
+
+
 
 /* =========================================
    1. COMPACT DATA TABLES
@@ -33,4 +64,5 @@
     padding: 4px 10px !important;
     line-height: 1.2 !important;
 }
+
 

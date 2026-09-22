@@ -33,3 +33,42 @@
       show_root_toc_entry: false
       show_source: true
 
+## Increment
+::: icare_risk.clinphen.phenotypes.increment
+    handler: python
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      show_source: true
+
+## Kim
+::: icare_risk.clinphen.phenotypes.kim
+    handler: python
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      show_source: true
+
+## Tumbarello
+::: icare_risk.clinphen.phenotypes.tumbarello
+    handler: python
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      show_source: true
+
+## Gavaghan
+::: icare_risk.clinphen.phenotypes.gavaghan
+    handler: python
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      show_source: true
+
+## Jones
+::: icare_risk.clinphen.phenotypes.jones
+    handler: python
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      show_source: true

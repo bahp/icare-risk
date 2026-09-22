@@ -19,36 +19,35 @@ def search_dataframe(df,
                      exclude=None):
     """Applies dynamic filters across one or more columns in the dataframe."""
 
-    # Ensure search columns exist in this specific dataframe
+    """Applies fast, vectorized regex filters across one or more columns."""
+
     valid_cols = [col for col in search_cols if col in df.columns]
     if not valid_cols:
         print(f"❌ None of the search columns {search_cols} found. Available: {list(df.columns)}")
         return pd.DataFrame()
 
-    # Concatenate text from all valid search columns into one searchable string per row
-    temp_series = df[valid_cols].fillna('').astype(str).agg(' '.join, axis=1).str.lower()
-
+    # Concatenate text from valid columns
+    temp_series = df[valid_cols].fillna('').astype(str).agg(' '.join, axis=1)
     mask = pd.Series(True, index=df.index)
 
-    # 1. Contains ANY of the keywords
+    # 1. Contains ANY of the keywords (using vectorized regex with word boundaries)
     if contains:
-        contains_lower = [k.lower() for k in contains]
-        contain_mask = temp_series.apply(lambda x: any(k in x for k in contains_lower))
-        mask = mask & contain_mask
+        # \b ensures we match whole words (e.g., "mi" won't match "family")
+        pattern = '|'.join([rf'\b{re.escape(k)}\b' for k in contains])
+        mask = mask & temp_series.str.contains(pattern, case=False, na=False, regex=True)
 
     # 2. Excludes ANY of the keywords
     if exclude:
-        exclude_lower = [k.lower() for k in exclude]
-        exclude_mask = temp_series.apply(lambda x: any(k in x for k in exclude_lower))
-        mask = mask & ~exclude_mask
+        exc_pattern = '|'.join([rf'\b{re.escape(k)}\b' for k in exclude])
+        mask = mask & ~temp_series.str.contains(exc_pattern, case=False, na=False, regex=True)
 
     # 3. Starts with specific string
     if startswith:
-        mask = mask & temp_series.str.startswith(startswith.lower())
+        mask = mask & temp_series.str.startswith(startswith, na=False)
 
     # 4. Ends with specific string
     if endswith:
-        mask = mask & temp_series.str.endswith(endswith.lower())
+        mask = mask & temp_series.str.endswith(endswith, na=False)
 
     return df[mask]
 
@@ -95,8 +94,6 @@ def process_yaml_config(config_path,
     for target in targets:
         file_name = target.get('file')
         code_col = target.get('code_col', 'code')
-
-        # Formatting columns
         search_cols_raw = target.get('search_cols', ['description'])
         search_cols = [search_cols_raw] if isinstance(search_cols_raw, str) else search_cols_raw
 
@@ -117,22 +114,22 @@ def process_yaml_config(config_path,
         report_lines.append("=" * 40)
 
         try:
-            df = pd.read_csv(file_path)
+            df = pd.read_csv(file_path, low_memory=False) # Prevent dtype warnings
         except Exception as e:
             report_lines.append(f"   ❌ Error reading file: {e}")
             continue
 
         for campaign in target.get('campaigns', []):
             cat = campaign.get('category', 'Unnamed Category')
-
-            contains = campaign.get('include_keywords') or campaign.get('contains')
-            exclude = campaign.get('exclude_keywords') or campaign.get('exclude')
+            contains = campaign.get('contains')
+            exclude = campaign.get('exclude')
             startswith = campaign.get('startswith')
             endswith = campaign.get('endswith')
 
             matches = search_dataframe(
                 df, search_cols=search_cols, contains=contains,
-                startswith=startswith, endswith=endswith, exclude=exclude
+                startswith=startswith, endswith=endswith,
+                exclude=exclude
             )
 
             report_lines.append(f"\n## CAMPAIGN: {cat}")
@@ -156,20 +153,22 @@ def process_yaml_config(config_path,
                 csv_filename = f"{file_name.replace('.csv', '')}_{safe_cat}.csv"
                 csv_path = out_dir / csv_filename
 
-                # Export the CSV
-                matches[valid_export_cols].to_csv(csv_path, index=False)
+                # Export full data to CSV silently
+                matches[valid_export_cols].to_csv(out_dir / csv_filename, index=False)
                 report_lines.append(f"  💾 Exported CSV: {csv_filename}")
 
-                # Still print to console for quick review
-                has_code_col = code_col in matches.columns
-                for _, row in matches.iterrows():
-                    code_display = row[code_col] if has_code_col else "N/A"
-                    desc_display = " | ".join([str(row[c]) for c in search_cols if c in matches.columns])
-                    report_lines.append(f"  - Code: {code_display} | Match Text: {desc_display}")
+                # Print only the first 5 rows to the summary to avoid crashing Jupyter
+                report_lines.append("  🔍 Preview (Top 5 matches):")
+                preview = matches.head(5)
+                has_code_col = code_col in preview.columns
 
-                if has_code_col:
-                    unique_codes = matches[code_col].unique().tolist()
-                    report_lines.append(f"\n  UNIQUE CODES: {unique_codes}")
+                for _, row in preview.iterrows():
+                    code_display = row[code_col] if has_code_col else "N/A"
+                    desc_display = " | ".join([str(row[c]) for c in search_cols if c in preview.columns])
+                    report_lines.append(f"      - Code: {code_display} | {desc_display[:80]}...")
+
+                if len(matches) > 5:
+                    report_lines.append(f"      ... and {len(matches) - 5} more rows (see CSV).")
 
     # Output to console and save the summary text file
     final_report = "\n".join(report_lines)

@@ -213,6 +213,14 @@ def charlson_hx_diabetes_uncomp(df, **kwargs):
 def charlson_hx_diabetes_comp(df, **kwargs):
     """Identifies if a patient has diabetes with chronic complications.
 
+    !!! warning "Pending to be properly defined!"
+
+    ??? info "Clinical Definition"
+        Refers to diabetes accompanied by chronic end-organ damage (often referred
+        to as diabetic end-organ damage). This includes diabetic microvascular or
+        macrovascular complications such as retinopathy, neuropathy, nephropathy,
+        or diabetic angiopathy (excluding simple uncomplicated routine management).
+
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
         ```yaml
@@ -220,6 +228,7 @@ def charlson_hx_diabetes_comp(df, **kwargs):
         ```
 
         --8<-- "docs/_snippets/charlson_hx_diabetes_comp.md"
+
     """
     pass
 

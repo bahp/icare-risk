@@ -57,3 +57,17 @@
       show_root_heading: false
       show_root_toc_entry: false
       show_source: false
+
+::: icare_risk.clinphen.scores.jones
+    handler: python
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      show_source: false
+
+::: icare_risk.clinphen.scores.tumbarello
+    handler: python
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      show_source: false

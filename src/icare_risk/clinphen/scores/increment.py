@@ -24,6 +24,12 @@ def calculate_increment_esbl(df,
         **intermediate computed scores** (e.g., total Charlson and Pitt scores). Ensure
         upstream intermediate scores are fully calculated before running this function.
 
+    !!! danger "Retrospective Limitation Warning"
+        Inappropriate empirical or targeted therapy status can typically only be determined
+        retrospectively once laboratory susceptibility results are finalized. Consequently,
+        this variable is not available for prospective risk stratification within the first
+        24 hours of admission.
+
     ??? note "Clinical Criteria & Point Allocation (Click to expand)"
         This score is designed to predict 30-day mortality in patients with bloodstream
         infections (BSI) due to extended-spectrum beta-lactamase (ESBL)-producing

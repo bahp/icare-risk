@@ -3,6 +3,15 @@ import numpy as np
 
 from typing import Dict, Optional, List
 
+# Define base weights
+HOLMGREM_WEIGHTS = {
+    "hx_prior_abx_30d": 4,
+    "hx_prior_fc_abx_90d": 1,
+    "hx_prior_hosp_abroad": 1
+}
+
+HOLMGREM_HIERARCHY = {}
+
 def calculate_holmgren_score(df,
                              hosp_abroad_col='hx_hosp_abroad_12m',
                              prev_culture_col='hx_prev_3gcr_culture',
@@ -22,6 +31,11 @@ def calculate_holmgren_score(df,
 
     !!! warning "Binary Inputs Required"
         This function strictly expects **binary flags (1 or 0)** for all parameters.
+
+    !!! danger "Data Complexity Warning"
+        Hospital care abroad is very difficult to compute reliably from routine electronic
+        health record (EHR) data due to fragmented international health information systems
+        and the lack of structured cross-border coding.
 
     ??? note "Clinical Criteria & Point Allocation (Click to expand)"
         | Clinical Variable                    | Condition Evaluated                    | Points |
