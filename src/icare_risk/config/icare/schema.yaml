@@ -1,6 +1,6 @@
 episodes:
   #source: "/app/data/mock/sirs_test/episodes.csv"
-  source: "/app/notebooks/data/synthetic/notebook_test/icare_episodes_anon.csv"
+  source: "/app/notebooks/data/synthetic/1000p/icare_episodes_anon.csv"
   subject: "SUBJECT"
   encounter: "ENCNTR_ID"
   admission_date: "ADMISSION_DATE"
@@ -11,7 +11,7 @@ episodes:
 domains:
   problems:
     #source: "/app/data/mock/sirs_test/problems.csv"
-    source: "/app/notebooks/data/synthetic/notebook_test/icare_problems_anon.csv"
+    source: "/app/notebooks/data/synthetic/1000p/icare_problems_anon.csv"
     subject: "SUBJECT"
     timestamp: "PROBLEM_DT_TM"
     mapping:
@@ -20,7 +20,7 @@ domains:
 
   vitals:
     #source: "/app/data/mock/sirs_test/vitals.csv"
-    source: "/app/notebooks/data/synthetic/notebook_test/icare_vital_signs_anon.csv"
+    source: "/app/notebooks/data/synthetic/1000p/icare_vital_signs_anon.csv"
     subject: "SUBJECT"
     timestamp: "OBSERVATION_PERFORMED_DT"
     mapping:
@@ -29,7 +29,7 @@ domains:
 
   pathology:
     #source: "/app/data/mock/sirs_test/pathology.csv"
-    source: "/app/notebooks/data/synthetic/notebook_test/icare_pathology_blood_anon.csv"
+    source: "/app/notebooks/data/synthetic/1000p/icare_pathology_blood_anon.csv"
     subject: "SUBJECT"
     timestamp: "SAMPLE_COLLECTED_DT"
     mapping:
@@ -37,7 +37,7 @@ domains:
       value: "RESULT_CLEANED"
 
   prescribing:
-    source: "/app/notebooks/data/synthetic/notebook_test/icare_pharmacy_prescribing_anon.csv"
+    source: "/app/notebooks/data/synthetic/1000p/icare_pharmacy_prescribing_anon.csv"
     subject: "SUBJECT"
     timestamp: "ORDER_DT_TM"
     mapping:

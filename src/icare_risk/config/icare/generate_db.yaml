@@ -55,7 +55,7 @@ pipeline_settings:
 # GENERATION PARAMETERS (Used when data_source = 'synthetic')
 # =============================================================================
 generation_params:
-  n_patients: 100            # Total number of patients to simulate
+  n_patients: 100000            # Total number of patients to simulate
   days: 10                   # Duration of observation/simulation period per patient
   freq: '4h'                  # Sampling frequency (e.g., every 4 hours)
   output_format: 'tidy'       # Data layout structure ('tidy' / 'long')

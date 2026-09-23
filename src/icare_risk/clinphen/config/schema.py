@@ -10,6 +10,8 @@ means editing this file only — zero changes anywhere else.
 from __future__ import annotations
 
 import yaml
+import pandas as pd
+
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
@@ -37,13 +39,7 @@ class TableSchema:
 
 @dataclass(frozen=True)
 class EpisodeTableSchema:
-    """Special-cased schema for the episodes / index-stay table.
-
-    Episodes define $T_{adm}$ for every phenotype window, so admission is
-    modelled explicitly here (including the common case of separate
-    admission DATE and TIME columns).
-    """
-
+    """"""
     source: str
     subject: str
     encounter: str
@@ -53,6 +49,50 @@ class EpisodeTableSchema:
     spell: Optional[str] = None
     mapping: Dict[str, str] = field(default_factory=dict)
 
+    def normalize_frame(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Normalizes the dataframe.
+
+        1. Translates physical column names to logical names.
+        2. uilds index_admission/index_discharge.
+        """
+        df = df.copy()
+
+        # 1. Build physical -> logical mapping
+        rename_map = {
+            self.subject: "subject",
+            self.encounter: "encntr",
+            self.admission_date: "admission_date",
+        }
+        if self.spell and self.spell in df.columns:
+            rename_map[self.spell] = "spell"
+        if self.admission_time and self.admission_time in df.columns:
+            rename_map[self.admission_time] = "admission_time"
+        if self.discharge_date and self.discharge_date in df.columns:
+            rename_map[self.discharge_date] = "discharge_date"
+
+        # Map custom domain fields
+        for logical_col, physical_col in self.mapping.items():
+            if physical_col in df.columns:
+                rename_map[physical_col] = logical_col
+
+        df = df.rename(columns=rename_map)
+
+        # 2. Build index_admission if missing
+        if "index_admission" not in df.columns:
+            if "admission_time" in df.columns and "admission_date" in df.columns:
+                combined = df["admission_date"].astype(str) + " " + df["admission_time"].astype(str)
+                df["index_admission"] = pd.to_datetime(combined, errors="coerce")
+            elif "admission_date" in df.columns:
+                df["index_admission"] = pd.to_datetime(df["admission_date"], errors="coerce")
+
+        # 3. Build index_discharge if missing
+        if "index_discharge" not in df.columns:
+            if "discharge_date" in df.columns:
+                df["index_discharge"] = pd.to_datetime(df["discharge_date"], errors="coerce")
+            else:
+                df["index_discharge"] = pd.NaT
+
+        return df
 
 @dataclass(frozen=True)
 class SchemaConfig:
