@@ -80,25 +80,25 @@ def derive_from_keyword(
         keywords: list,
         text_col: str = "name",
         check_historical: bool = True,
+        window: tuple = None,
         **kwargs
 ) -> int:
     """
-    Evaluates clinical text columns for the presence of specific substring keywords.
+    Evaluates a single clinical text column for the presence of specific keywords.
 
     Parameters
     ----------
     ctx : EpisodeContext
-        The temporal context object containing the patient's episode data[cite: 4].
+        The temporal context object containing the patient's episode data
     domain : str
-        The clinical domain table to query (e.g., 'medications', 'notes')[cite: 4].
+        The clinical domain table to query (e.g., 'medications', 'notes')
     keywords : list
-        A list of substring keywords to search for within the target text column.
-        The evaluation is case-insensitive.
-    text_col : str, optional
-        The dataframe column containing the text to evaluate, by default "name".
-    check_historical : bool, optional
-        If True, evaluates strictly historical records prior to admission[cite: 4].
-        If False, evaluates current records during the admission[cite: 4]. Default is True.
+        List of substring keywords to search for (case-insensitive).
+    text_col : str, default="name"
+        The specific dataframe column to evaluate.
+    window : tuple, optional
+        Relative time window tuple (start, end) relative to index admission (e.g., ("-2160h", "0h")).
+        If None, evaluates unbounded historical records prior to admission[cite: 9].
     **kwargs
         Additional keyword arguments safely absorbed by the orchestrator.
 
@@ -106,6 +106,7 @@ def derive_from_keyword(
     -------
     int
         1 if any record contains at least one of the specified keywords, otherwise 0.
+    """
     """
     if check_historical:
         df = ctx.get_historical(domain)
@@ -122,6 +123,29 @@ def derive_from_keyword(
         return 1
 
     return 0
+    """
+    if not keywords:
+        return 0
+
+    # 1. Fetch data based on domain and window
+    df = ctx.get_window(domain, window=window)
+    if df.empty:
+        return 0
+
+    # 2. Check for missing column and show a warning
+    if text_col not in df.columns:
+        print(f"Warning: Column '{text_col}' not found in '{domain}'. Available columns: {list(df.columns)}")
+        return 0
+
+    # 2. Case-insensitive substring search
+    text_series = df[text_col].fillna("").astype(str)
+    pattern = '|'.join(keywords)
+
+    if text_series.str.contains(pattern, case=False, na=False).any():
+        return 1
+
+    return 0
+
 
 
 def derive_from_history_code(
@@ -338,3 +362,5 @@ def derive_composite_rules(
         return max(results) if results else 0
 
     return 0
+
+

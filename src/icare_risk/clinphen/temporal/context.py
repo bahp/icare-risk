@@ -28,6 +28,7 @@ class EpisodeContext:
         # Add caches to avoid redundant slicing and indexing
         self._historical_cache: Dict[Tuple, pd.DataFrame] = {}
         self._current_cache: Dict[Tuple, pd.DataFrame] = {}
+        self._window_cache: Dict[Tuple, pd.DataFrame] = {}
 
     @classmethod
     def from_cache(
@@ -134,6 +135,68 @@ class EpisodeContext:
         res = self._project(df.loc[mask], columns)
         self._current_cache[cache_key] = res
         return res
+
+    def get_window(
+        self,
+        table: str,
+        window: Optional[Tuple[str, str]] = None,
+        columns: Optional[List[str]] = None
+    ) -> pd.DataFrame:
+        """
+        Retrieves records for a specific domain within a relative time window.
+
+        Parameters
+        ----------
+        table : str
+            The target domain table name.
+        window : tuple of str, optional
+            Relative time offsets (start, end) around index_admission (e.g. ("-90d", "0h")).
+            If None, returns all available records for the table without time filtering.
+        columns : list of str, optional
+            Subset of columns to project from the target table.
+        """
+        # 1. Cast window to a tuple to ensure the cache key is hashable
+        safe_window = tuple(window) if isinstance(window, list) else window
+
+        # 2. Use safe_window in the cache key
+        cache_key = (table, safe_window, tuple(columns) if columns else None)
+        if cache_key in self._window_cache:
+            return self._window_cache[cache_key]
+
+        df = self._tables.get(table)
+        if df is None or df.empty:
+            res = pd.DataFrame(columns=columns or [])
+            self._window_cache[cache_key] = res
+            return res
+
+        if window is None:
+            res = self._project(df, columns)
+            self._window_cache[cache_key] = res
+            return res
+
+        start = self.index_admission + _parse_offset(window[0]) if window[0] else None
+        end = self.index_admission + _parse_offset(window[1]) if window[1] else None
+
+        mask = pd.Series(True, index=df.index)
+        if start is not None:
+            mask &= (df["timestamp"] >= start)
+        if end is not None:
+            mask &= (df["timestamp"] < end)
+
+        res = self._project(df.loc[mask], columns)
+        self._window_cache[cache_key] = res
+        return res
+
+    # Backward-compatibility helpers mapped to get_window
+    def get_currentv1(self, table: str, window: Optional[Tuple[str, str]] = None,
+                    columns: Optional[List[str]] = None) -> pd.DataFrame:
+        return self.get_window(table, window=window, columns=columns)
+
+    def get_historicalv2(self, table: str, columns: Optional[List[str]] = None,
+                       strictly_before: bool = True) -> pd.DataFrame:
+        # Translates get_historical calls into an unbounded negative window
+        window = ("-100Y", "0h") if strictly_before else ("-100Y", "0s")
+        return self.get_window(table, window=window, columns=columns)
 
     get_relative = get_current
 

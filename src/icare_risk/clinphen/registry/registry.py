@@ -1,10 +1,13 @@
 """Phenotype registration — metadata-only decorator."""
 from __future__ import annotations
 
+import yaml
 import importlib
 import logging
+
+from pathlib import Path
 from dataclasses import dataclass, field
-from typing import Callable, Dict, List, Optional, Any
+from typing import Callable, Dict, List, Optional, Any, Union
 
 # -----------------------------------------------------------------------------
 # Helper methods
@@ -135,7 +138,45 @@ def phenotype(
 def register_from_yaml(yaml_path: str,
                        registry: PhenotypeRegistry = DEFAULT_REGISTRY):
     """Helper function to load phenotypes and runtime kwargs straight from a YAML file."""
-    import yaml
-    with open(yaml_path, 'r') as f:
-        config = yaml.safe_load(f)
-    registry.from_dict(config)
+    load_phenotypes_from_yaml(yaml_path, registry)
+    #import yaml
+    #with open(yaml_path, 'r') as f:
+    #    config = yaml.safe_load(f)
+    #registry.from_dict(config)
+
+
+
+
+def load_phenotypes_from_yaml(
+        paths: Union[str, Path, List[Union[str, Path]]],
+        registry: PhenotypeRegistry = DEFAULT_REGISTRY
+) -> PhenotypeRegistry:
+    """Helper function to load phenotypes from a single YAML file, a list of files,
+    or an entire directory containing YAML files.
+    """
+    if registry is None:
+        registry = PhenotypeRegistry()
+    resolved_paths: List[Path] = []
+
+    # Normalize inputs into a flat list of Path objects
+    inputs = [paths] if isinstance(paths, (str, Path)) else paths
+
+    for item in inputs:
+        p = Path(item)
+        if p.is_dir():
+            resolved_paths.extend(sorted(p.glob("*.yaml")))
+            resolved_paths.extend(sorted(p.glob("*.yml")))
+        elif p.is_file():
+            resolved_paths.append(p)
+        else:
+            raise FileNotFoundError(f"Path not found or invalid: {p}")
+
+    # Load each configuration file sequentially into the registry
+    for yaml_path in resolved_paths:
+        with open(yaml_path, 'r') as f:
+            config = yaml.safe_load(f)
+        if config:
+            registry.from_dict(config)
+
+    # Return
+    return registry

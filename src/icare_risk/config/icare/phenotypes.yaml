@@ -897,7 +897,8 @@ kim_hx_recent_hosp_1yr:
   domains: ['problems']
   category: ['kim_components']
   kwargs:
-    target_domains: ['encounters']
+    target_domains: ['problems']
+    codes: []
     window: ['-8760h', '0h']  # 1 year * 365 days * 24 hours
 # --8<-- [end:kim_hx_recent_hosp_1yr]
 
@@ -920,14 +921,15 @@ kim_hx_urinary_catheter:
   domains: ['problems']
   category: ['kim_components']
   kwargs:
-    target_domains: ['problems', 'diagnoses', 'procedures']
+    target_domains: ['problems']
     codes: []
     res195_codes: ['Z46.6', 'Y84.6']  # Urinary device encounters/presence
 # --8<-- [end:kim_hx_urinary_catheter]
 
+
 # --8<-- [start:kim_hx_prior_antibiotics_90d]
 kim_hx_prior_antibiotics_90d:
-  module: 'icare_risk.phenotypes'
+  module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'has_medication_in_window'
   domains: ['prescribing']
   category: ['kim_components']
@@ -943,6 +945,23 @@ kim_hx_prior_antibiotics_90d:
       - 'cefepime'
 # --8<-- [end:kim_hx_prior_antibiotics_90d]
 
+kim_recent_antibiotics_or_class:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: ['prescribing']
+  kwargs:
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'code' # medication_name
+        keywords: ['amoxicillin', 'meropenem', 'ibuprofen']
+        window: ['-9999h', '9999h']
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'THERAPEUTIC_CLASS'
+        keywords: ['antibiotics', 'antibacterials']
+        window: ['-9999h', '9999h']
 
 # ------------------------------------------------------
 #            Tumbarello Score Components
