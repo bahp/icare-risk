@@ -67,6 +67,41 @@ def test_snowflake_connection_v2(engine):
 # -------------------------
 # Fetchers
 # -------------------------
+def fetch_filtered_records_stream(
+        engine,
+        table_name: str,
+        id_list: list,
+        target_codes: list = None,
+        columns: list = None,
+        id_col: str = 'subject',
+        code_col: str = 'code'
+):
+    metadata = MetaData()
+    table = Table(table_name, metadata, autoload_with=engine)
+
+    # 1. Column Pushdown: Select only required columns
+    selected_cols = [table.c[col] for col in columns] if columns else [table]
+    stmt = select(*selected_cols).where(table.c[id_col].in_(id_list))
+
+    # 2. Code Pushdown: Filter codes directly in Snowflake query
+    if target_codes and code_col in table.columns:
+        stmt = stmt.where(table.c[code_col].in_(target_codes))
+
+    compiled_sql = str(stmt.compile(engine, compile_kwargs={"literal_binds": True}))
+    raw_conn = engine.raw_connection()
+    try:
+        cursor = raw_conn.cursor()
+        cursor.execute(compiled_sql)
+
+        for batch_num, batch_df in enumerate(cursor.fetch_pandas_batches(), start=1):
+            if verbose:
+                print(f"Downloaded batch {batch_num} ({len(batch_df):,} rows.)")
+            yield batch_df
+
+    finally:
+        cursor.close()
+        raw_conn.close()
+
 def fetch_records_stream(engine,
                          table_name: str,
                          id_list: list,

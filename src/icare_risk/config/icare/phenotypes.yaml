@@ -91,7 +91,7 @@ has_vasopressors:   # has_medication_in_window
           - 'phenylephrine'
           - 'noradrenaline'
           - 'angiotensin'
-        text_col: 'code'
+        #text_col: 'code'
         check_historical: true
 
 # --8<-- [start:has_diabetes]
@@ -117,7 +117,7 @@ has_diabetes:
       # Medication history proxy matching free text
       - domain: 'prescribing'
         keywords: [ 'insulin', 'metformin', 'gliclazide' ]
-        text_col: 'code'
+        #text_col: 'code'
         check_historical: true
 
     expression_rules:
@@ -126,7 +126,7 @@ has_diabetes:
         codes: [ 'wg', 'gl', 'glpoc' ]
         query_expr: 'value > 200'
         value_col: 'value'
-        code_col: 'code'
+        #code_col: 'code'
         check_current: true
         window: [ '0h', '24h' ]
 # --8<-- [end:has_diabetes]
@@ -147,7 +147,7 @@ has_congestive_heart_failure:
       # Medication history proxy matching free text
       - domain: 'prescribing'
         keywords: [ 'entresto', 'milrinone', 'dobutamine' ]
-        text_col: 'code'
+        #text_col: 'code'
         check_current: true
 
 # --8<-- [start:has_mild_liver_disease]
@@ -168,7 +168,7 @@ has_mild_liver_disease:
       # Medication history proxy matching free text
       - domain: 'prescribing'
         keywords: [ 'lactulose' ]
-        text_col: 'code'
+        #text_col: 'code'
         check_current: true
 
     expression_rules:
@@ -177,7 +177,7 @@ has_mild_liver_disease:
         codes: [ 'bil' ] # Bilirubin
         query_expr: 'value > 2.0'
         value_col: 'value'
-        code_col: 'code'
+        #code_col: 'code'
         check_current: true
         window: [ '0h', '24h' ]
 
@@ -195,10 +195,9 @@ has_mild_liver_disease:
 charlson_hx_mi:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
-  domains: ['problems']
   category: ['charlson_components']
+  domains: ['problems']
   kwargs:
-    target_domains: ['problems']
     codes: [
       '57054005', '22298006', '1755008', '70211005', '401303003',
       '22298006', '401314000', '16837681000119100']
@@ -210,14 +209,15 @@ charlson_hx_mi:
 charlson_hx_chf:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
-  domains: [ 'problems' ]
   category: ['charlson_components']
+  domains: ['problems']
   kwargs:
     codes: [
       '446221000', '703273002', '42343007', '390884006', '161505003', '84114007',
       '424404003', '128404006', '703272007', '446221000', '418304008', '446221000',
       '10633002', '48447003', '703272007']
-    res195_codes: ['I50', 'I11.0', 'G58..00']
+
+    #res195_codes: ['I50', 'I11.0', 'G58..00']
 # --8<-- [end:charlson_hx_chf]
 
 # --8<-- [start:charlson_hx_pvd]
@@ -225,7 +225,7 @@ charlson_hx_chf:
 charlson_hx_pvd:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
-  domains: [ 'problems' ]
+  domains: ['problems']
   category: ['charlson_components']
   kwargs:
     codes: [
@@ -240,7 +240,7 @@ charlson_hx_pvd:
 charlson_hx_stroke:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
-  domains: [ 'problems' ]
+  domains: ['problems']
   category: [ 'charlson_components' ]
   kwargs:
     codes: [
@@ -255,7 +255,7 @@ charlson_hx_stroke:
 charlson_hx_dementia:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
-  domains: [ 'problems' ]
+  domains: ['problems']
   category: [ 'charlson_components' ]
   kwargs:
     codes: [
@@ -607,10 +607,10 @@ sirs_abnormal_wbc_score_rule:
             points: 1
 # --8<-- [end:sirs_abnormal_wbc_score_rule]
 
-
 # --8<-- [start:sirs_total_score_rule]
 # Example 2: Cross-Domain SUM (SIRS Components)
 sirs_total_score:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_composite_rules'
   domains: [ 'vitals', 'pathology' ]
@@ -643,14 +643,16 @@ sirs_total_score:
 # --8<-- [end:sirs_total_score_rule]
 
 sirs_tachycardia_flag:
-  module: 'icare_risk.clinphen.phenotypes.sirs'
-  function: 'derive_sirs_tachycardia'
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_expression'
   domains: ['vitals']
   kwargs:
-    window: ['0h', '24h']
     codes: ['13472364'] # Heart Rate
+    query_expr: 'value > 90.0'
 
 sirs_tachypnea_flag:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.sirs'
   function: 'derive_sirs_tachypnea'
   domains: ['vitals', 'pathology']
@@ -660,6 +662,7 @@ sirs_tachypnea_flag:
     pco2_codes: ['PCO2_01'] # pCO2 codes (optional, leave empty list to ignore)
 
 sirs_abnormal_temp_flag:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.sirs'
   function: 'derive_sirs_abnormal_temp'
   domains: ['vitals']
@@ -668,6 +671,7 @@ sirs_abnormal_temp_flag:
     codes: ['10933766', '486347689']
 
 sirs_abnormal_wbc_flag:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.sirs'
   function: 'derive_sirs_abnormal_wbc'
   domains: ['pathology']
@@ -750,7 +754,7 @@ pitt_hypo_score_rule:
       # Component B: Vasopressor Administration (has vasopressors)
       - extractor_type: 'keyword'
         domain: 'prescribing'
-        text_col: 'code'
+        #text_col: 'code'
         keywords:
           - 'noradrenaline'
           - 'norepinephrine'
@@ -798,14 +802,12 @@ pitt_arrest_score_rule:
     logic: 'max'
     components:
       - extractor_type: 'history'
-        target_domains: [ 'diagnoses']
+        domain: 'diagnoses'
         codes:
           - 'I46'       # ICD-10 Cardiac arrest
           - 'I46.9'     # Cardiac arrest, unspecified
           - '410429000' # SNOMED Cardiac arrest
           - '89666000'  # SNOMED Cardiopulmonary arrest
-        include_current: true # MUST be true to evaluate the acute event
-        window: [ "0h", "24h" ]
         points: 4
 # --8<-- [end:pitt_arrest_score_rule]
 
@@ -885,7 +887,6 @@ kim_hx_prior_esbl:
   domains: ['problems']
   category: ['kim_components']
   kwargs:
-    target_domains: ['problems', 'diagnoses']
     codes: []
     res195_codes: ['Z22.322']  # Carrier or history of ESBL colonization/infection
 # --8<-- [end:kim_hx_prior_esbl]
@@ -897,7 +898,6 @@ kim_hx_recent_hosp_1yr:
   domains: ['problems']
   category: ['kim_components']
   kwargs:
-    target_domains: ['problems']
     codes: []
     window: ['-8760h', '0h']  # 1 year * 365 days * 24 hours
 # --8<-- [end:kim_hx_recent_hosp_1yr]
@@ -909,7 +909,6 @@ kim_hx_nursing_home_resident:
   domains: ['problems']
   category: ['kim_components']
   kwargs:
-    target_domains: ['problems', 'diagnoses']
     codes: []
     res195_codes: ['Z59.3']  # Resident in long-term care facility
 # --8<-- [end:kim_hx_nursing_home_resident]
@@ -921,28 +920,35 @@ kim_hx_urinary_catheter:
   domains: ['problems']
   category: ['kim_components']
   kwargs:
-    target_domains: ['problems']
     codes: []
     res195_codes: ['Z46.6', 'Y84.6']  # Urinary device encounters/presence
 # --8<-- [end:kim_hx_urinary_catheter]
 
-
 # --8<-- [start:kim_hx_prior_antibiotics_90d]
 kim_hx_prior_antibiotics_90d:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'has_medication_in_window'
+  function: 'derive_composite_rules'
   domains: ['prescribing']
   category: ['kim_components']
   kwargs:
-    window_hours: 2160  # 90 days * 24 hours
-    target_meds:
-      - 'amoxicillin'
-      - 'piperacillin'
-      - 'meropenem'
-      - 'ceftriaxone'
-      - 'ciprofloxacin'
-      - 'ceftazidime'
-      - 'cefepime'
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        keywords:
+          - 'amoxicillin'
+          - 'piperacillin'
+          - 'meropenem'
+          - 'ceftriaxone'
+          - 'ciprofloxacin'
+          - 'ceftazidime'
+          - 'cefepime'
+        window: ['-2160h', '0h']
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'THERAPEUTICAL_CLASS'
+        keywords: ['antibiotics', 'antibacterials']
+        window: [ '-2160h', '0h' ]
 # --8<-- [end:kim_hx_prior_antibiotics_90d]
 
 kim_recent_antibiotics_or_class:
@@ -954,14 +960,21 @@ kim_recent_antibiotics_or_class:
     components:
       - extractor_type: 'keyword'
         domain: 'prescribing'
-        text_col: 'code' # medication_name
-        keywords: ['amoxicillin', 'meropenem', 'ibuprofen']
-        window: ['-9999h', '9999h']
+        text_col: 'code'
+        keywords:
+          - 'amoxicillin'
+          - 'piperacillin'
+          - 'meropenem'
+          - 'ceftriaxone'
+          - 'ciprofloxacin'
+          - 'ceftazidime'
+          - 'cefepime'
+        window: ['-2160h', '24h']
       - extractor_type: 'keyword'
         domain: 'prescribing'
-        text_col: 'THERAPEUTIC_CLASS'
+        text_col: 'THERAPEUTICAL_CLASS'
         keywords: ['antibiotics', 'antibacterials']
-        window: ['-9999h', '9999h']
+        window: ['-2160h', '24h']
 
 # ------------------------------------------------------
 #            Tumbarello Score Components
@@ -973,39 +986,53 @@ tumbarello_hx_prior_esbl:
   domains: ['problems']
   category: ['tumbarello_components']
   kwargs:
-    target_domains: ['problems', 'diagnoses']
     codes: []
-    res195_codes: ['Z22.322']  # History/carrier of ESBL
+    res195_codes: ['Z22.322', 'Z22.3']  # History/carrier of ESBL
 # --8<-- [end:tumbarello_hx_prior_esbl]
 
 # --8<-- [start:tumbarello_hx_recent_hosp_90d]
 tumbarello_hx_recent_hosp_90d:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
-  domains: ['problems']
+  domains: ['encounters']
   category: ['tumbarello_components']
   kwargs:
-    target_domains: ['encounters']
     window: ['-2160h', '0h']  # 90 days * 24 hours
 # --8<-- [end:tumbarello_hx_recent_hosp_90d]
 
 # --8<-- [start:tumbarello_hx_recent_abx_90d]
 tumbarello_hx_recent_abx_90d:
-  module: 'icare_risk.phenotypes'
-  function: 'has_medication_in_window'
-  domains: ['prescribing']
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: [ 'prescribing' ]
   category: ['tumbarello_components']
   kwargs:
-    window_hours: 2160  # 90 days * 24 hours
-    target_meds:
-      - 'amoxicillin'
-      - 'piperacillin'
-      - 'meropenem'
-      - 'ceftriaxone'
-      - 'ceftazidime'
-      - 'cefepime'
-      - 'ciprofloxacin'
-      - 'levofloxacin'
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        keywords:
+          - 'amoxicillin'
+          - 'piperacillin'
+          - 'meropenem'
+          - 'ceftriaxone'
+          - 'ceftazidime'
+          - 'cefepime'
+          - 'ciprofloxacin'
+          - 'levofloxacin'
+        window: [ '-2160h', '0h' ]
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'THERAPEUTICAL_CLASS'
+        keywords:
+          - 'antibiotics'
+          - 'antibacterials'
+          - 'penicillins'
+          - 'cephalosporins'
+          - 'fluoroquinolones'
+          - 'carbapenems'
+        window: [ '-2160h', '0h' ]
 # --8<-- [end:tumbarello_hx_recent_abx_90d]
 
 # --8<-- [start:tumbarello_hx_urinary_catheter]
@@ -1015,7 +1042,6 @@ tumbarello_hx_urinary_catheter:
   domains: ['problems']
   category: ['tumbarello_components']
   kwargs:
-    target_domains: ['problems', 'diagnoses', 'procedures']
     codes: []
     res195_codes: ['Z46.6', 'Y84.6']  # Urinary catheter/device codes
 # --8<-- [end:tumbarello_hx_urinary_catheter]
@@ -1029,10 +1055,9 @@ tumbarello_hx_urinary_catheter:
 jones_hx_prior_esbl_180d:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
-  domains: ['problems', 'pathology']
+  domains: ['problems']
   category: ['jones_components']
   kwargs:
-    target_domains: ['problems', 'diagnoses']
     codes: []
     res195_codes: ['Z22.322']
     window: ['-4320h', '0h']  # 180 days * 24 hours
@@ -1040,22 +1065,40 @@ jones_hx_prior_esbl_180d:
 
 # --8<-- [start:jones_hx_prior_antibiotics_30d]
 jones_hx_prior_antibiotics_30d:
-  module: 'icare_risk.phenotypes'
-  function: 'has_medication_in_window'
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
   domains: ['prescribing']
   category: ['jones_components']
   kwargs:
-    window_hours: 720  # 30 days * 24 hours
-    target_meds:
-      - 'amoxicillin'
-      - 'piperacillin'
-      - 'meropenem'
-      - 'ceftriaxone'
-      - 'ceftazidime'
-      - 'cefepime'
-      - 'ciprofloxacin'
-      - 'levofloxacin'
-      - 'trimethoprim'
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'MEDICATION_NAME'
+        keywords:
+          - 'amoxicillin'
+          - 'piperacillin'
+          - 'meropenem'
+          - 'ceftriaxone'
+          - 'ceftazidime'
+          - 'cefepime'
+          - 'ciprofloxacin'
+          - 'levofloxacin'
+          - 'trimethoprim'
+        window: ['-720h', '0h']
+
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'THERAPEUTICAL_CLASS'
+        keywords:
+          - 'antibiotics'
+          - 'antibacterials'
+          - 'penicillins'
+          - 'cephalosporins'
+          - 'fluoroquinolones'
+          - 'carbapenems'
+          - 'sulfonamides'
+        window: ['-720h', '0h']
 # --8<-- [end:jones_hx_prior_antibiotics_30d]
 
 # --8<-- [start:jones_hx_chronic_dialysis]
@@ -1065,7 +1108,6 @@ jones_hx_chronic_dialysis:
   domains: ['problems']
   category: ['jones_components']
   kwargs:
-    target_domains: ['problems', 'diagnoses']
     codes: []
     res195_codes: ['Z99.2']  # Chronic dialysis status
 # --8<-- [end:jones_hx_chronic_dialysis]
@@ -1079,7 +1121,7 @@ jones_hx_transfer_from_hospital:
   kwargs:
     target_domains: ['encounters']
     codes: []
-    res195_codes: ['Z75.1']  # Transfer encounter indicators or source metadata
+    res195_codes: ['Z75.1', 'Z74.3']  # Transfer encounter indicators or source metadata
 # --8<-- [end:jones_hx_transfer_from_hospital]
 
 # ------------------------------------------------------
@@ -1090,18 +1132,18 @@ jones_hx_transfer_from_hospital:
 gavaghan_hx_prior_esbl_365d:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
-  domains: ['problems', 'pathology']
+  domains: ['problems']
   category: ['gavaghan_components']
   kwargs:
-    target_domains: ['problems', 'diagnoses']
     codes: []
-    res195_codes: ['Z22.322']
+    res195_codes: ['Z22.322', 'Z22.3']
     window: ['-8760h', '0h']  # 365 days * 24 hours
 # --8<-- [end:gavaghan_hx_prior_esbl_365d]
 
 # --8<-- [start:gavaghan_age_ge_65]
 gavaghan_age_ge_65:
-  module: 'icare_risk.phenotypes'
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_age_threshold'
   domains: ['demographics']
   category: ['gavaghan_components']
@@ -1116,7 +1158,6 @@ gavaghan_hx_nursing_home_resident:
   domains: ['problems']
   category: ['gavaghan_components']
   kwargs:
-    target_domains: ['problems', 'diagnoses']
     codes: []
     res195_codes: ['Z59.3']  # Long-term care facility resident
 # --8<-- [end:gavaghan_hx_nursing_home_resident]
@@ -1125,30 +1166,44 @@ gavaghan_hx_nursing_home_resident:
 gavaghan_hx_urinary_catheter:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
-  domains: ['problems']
+  domains: ['problems', 'diagnoses', 'procedures']
   category: ['gavaghan_components']
   kwargs:
-    target_domains: ['problems', 'diagnoses', 'procedures']
     codes: []
     res195_codes: ['Z46.6', 'Y84.6']  # Urinary catheter/device codes
 # --8<-- [end:gavaghan_hx_urinary_catheter]
 
 # --8<-- [start:gavaghan_hx_prior_antibiotics_fq_ceph_90d]
 gavaghan_hx_prior_antibiotics_fq_ceph_90d:
-  module: 'icare_risk.phenotypes'
-  function: 'has_medication_in_window'
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
   domains: ['prescribing']
   category: ['gavaghan_components']
   kwargs:
-    window_hours: 2160  # 90 days * 24 hours
-    target_meds:
-      - 'ciprofloxacin'
-      - 'levofloxacin'
-      - 'moxifloxacin'
-      - 'ceftriaxone'
-      - 'ceftazidime'
-      - 'cefepime'
-      - 'cefuroxime'
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'MEDICATION_NAME'
+        keywords:
+          - 'ciprofloxacin'
+          - 'levofloxacin'
+          - 'moxifloxacin'
+          - 'ceftriaxone'
+          - 'ceftazidime'
+          - 'cefepime'
+          - 'cefuroxime'
+        window: ['-2160h', '0h']
+
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'THERAPEUTICAL_CLASS'
+        keywords:
+          - 'fluoroquinolones'
+          - 'cephalosporins'
+          - 'antibiotics'
+          - 'antibacterials'
+        window: ['-2160h', '0h']
 # --8<-- [end:gavaghan_hx_prior_antibiotics_fq_ceph_90d]
 
 
@@ -1195,113 +1250,33 @@ holmgren_hx_previous_3gcr_rectal_swab:
 # --8<-- [end:holmgren_hx_previous_3gcr_rectal_swab]
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # -------------------------------------
 # Increment ESBL Score
 # -------------------------------------
 increment_bsi_not_urinary_flag:
-  module: 'icare_risk.phenotypes'
-  function: 'derive_bsi_not_urinary'
+  module: 'icare_risk.clinphen.phenotypes.increment'
+  function: 'derive_increment_bsi_not_urinary_flag'
+  domains: ['microbiology']
   kwargs:
-    target_col: 'bsi_source'
-    urine_culture_code: 'LOINC-630-4'
+    window: ['-24h', '24h']
 
 increment_is_non_ecoli_flag:
-  module: 'icare_risk.phenotypes'
-  function: 'derive_is_non_ecoli'
+  module: 'icare_risk.clinphen.phenotypes.increment'
+  function: 'derive_increment_is_non_ecoli_flag'
+  domains: ['microbiology']
+  category: ['increment']
   kwargs:
-    target_col: 'ORGANISM_BUG'
+    window: ['-24h', '24h']
 
 increment_abx_inappropriate_flag:
-  module: 'icare_risk.phenotypes'
-  function: 'derive_abx_inappropriate'
+  module: 'icare_risk.clinphen.phenotypes.increment'
+  function: 'derive_inappropriate_empiric_abx'
+  domains: [ 'prescribing', 'microbiology' ]
+  category: ['increment']
   kwargs:
-    window_hours: 24
+    window: ['-24h', '24h']
 
-# ---------------------------------------
-# Holmgren Score
-# ---------------------------------------
-hx_prior_abx_30d:
-  module: 'icare_risk.phenotypes'
-  function: 'has_medication_in_window'
-  kwargs:
-    window_hours: 720  # 30 days * 24 hours
-    target_meds:
-      - 'ceftriaxone'
-      - 'cefepime'
-      - 'ciprofloxacin'
-      - 'levofloxacin'
-      # ... add your specific ABX list here
 
-hx_prior_fc_abx_90d:
-  module: 'icare_risk.phenotypes'
-  function: 'has_medication_in_window'
-  kwargs:
-    window_hours: 2160  # 90 days * 24 hours
-    target_meds:
-      - 'ciprofloxacin'
-      - 'levofloxacin'
-      - 'ceftriaxone'
-      - 'ceftazidime'
-
-# ---------------------------------------
-# Gavaghan Score
-# ---------------------------------------
-hx_nursing_home_resident:
-  module: 'icare_risk.phenotypes'
-  function: 'derive_historical_condition'
-  kwargs:
-    target_codes:
-      - 'Z59.3' # ICD-10 for resident in institution
-
-hx_chronic_dialysis:
-  module: 'icare_risk.phenotypes'
-  function: 'derive_historical_condition'
-  kwargs:
-    target_codes:
-      - 'Z99.2'
-
-hx_urinary_catheter_present:
-  module: 'icare_risk.phenotypes'
-  function: 'derive_historical_condition'
-  kwargs:
-    target_codes:
-      - 'Z46.6' # ICD-10 for 'Encounter for fitting/adjustment of urinary device'
-      - 'Y84.6' # Urinary catheterization as cause of abnormal reaction
-
-# 2. Prior Antibiotics (Broad 90-day check)
-# Note: Gavaghan used 'hx_prior_fc_abx_90d' for just fluoroquinolones/cephalosporins.
-# Tumbarello/Kim usually look at a broader list of beta-lactams.
-hx_prior_abx_90d:
-  module: 'icare_risk.phenotypes'
-  function: 'has_medication_in_window'
-  kwargs:
-    window_hours: 2160  # 90 days * 24 hours
-    target_meds:
-      - 'amoxicillin'
-      - 'piperacillin'
-      - 'meropenem'
-      - 'ceftriaxone'
-      - 'ciprofloxacin'
-      # ... expand with your formulary's standard broad-spectrum ABX
 
 # -------------------------------------------------------------
 # Prior Hospitalizations (Requires an Episodes/Encounters lookup)
@@ -1310,6 +1285,7 @@ hx_prior_abx_90d:
 # If you have an explicit 'previous_admissions_count' column in your static data,
 # you don't even need a python function, you can use pandas eval!
 hx_hosp_last_90d:
+  enabled: false
   module: 'icare_risk.phenotypes'
   function: 'derive_historical_condition' # You may need to tweak this helper to check dates if it only checks codes
   kwargs:

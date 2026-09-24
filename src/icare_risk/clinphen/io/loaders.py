@@ -1,8 +1,7 @@
 """DuckDB access layer: column projection + subject-list pushdown."""
 from __future__ import annotations
 
-from typing import Iterable, List, Optional
-
+from typing import Iterable, List, Optional, Union
 import duckdb
 import pandas as pd
 
@@ -20,7 +19,7 @@ def _resolve_source_sql(source: str) -> str:
 
 
 class DuckDBSource:
-    """Thin, swappable DuckDB access layer."""
+    """Thin, performant DuckDB access layer with SQL pushdown."""
 
     def __init__(self, connection: Optional["duckdb.DuckDBPyConnection"] = None):
         self.con = connection or duckdb.connect(database=":memory:")
@@ -29,8 +28,10 @@ class DuckDBSource:
         self,
         table_schema: TableSchema,
         subjects: Optional[Iterable] = None,
+        codes: Optional[Iterable[Union[str, int]]] = None,
         columns: Optional[List[str]] = None,
     ) -> pd.DataFrame:
+        """
         all_cols = table_schema.select_columns()
         wanted = {"subject", "timestamp", *(columns or all_cols.keys())}
         select_parts = [
@@ -46,6 +47,69 @@ class DuckDBSource:
 
         df = self.con.execute(sql, params).fetchdf()
         return normalize_frame(df)
+
+        """
+        src_sql = _resolve_source_sql(table_schema.source)
+        where_clauses = []
+        params = []
+
+        load_all = columns is not None and "*" in columns
+
+        if load_all:
+            cols_sql = "*"
+        else:
+            # 1. Map Logical Names directly to Physical Names for SQL Aliasing
+            select_map = {
+                "subject": table_schema.subject,
+                "timestamp": table_schema.timestamp,
+            }
+
+            for logical, physical in table_schema.mapping.items():
+                select_map[logical] = physical
+
+            # Include any explicitly requested extra physical columns
+            if columns:
+                for col in columns:
+                    if col not in select_map:
+                        select_map[col] = col
+
+            # Build SELECT clause with aliasing: "OBSERVATION_CODE" AS "code"
+            cols_sql = ", ".join(f'"{phys}" AS "{log}"' for log, phys in select_map.items())
+
+        sql = f"SELECT {cols_sql} FROM {src_sql}"
+
+        # Note: Both sides cast to string to prevent BIGINT/VARCHAR issue.
+        # 2. Pushdown Subject Filter (Must reference physical name)
+        if subjects is not None:
+            where_clauses.append(f'CAST("{table_schema.subject}" AS VARCHAR) IN (SELECT * FROM UNNEST(?))')
+            params.append([str(s) for s in subjects])
+
+        # 3. Pushdown Code Filter (Must reference physical name)
+        if codes is not None and table_schema.code_col:
+            where_clauses.append(f'CAST("{table_schema.code_col}" AS VARCHAR) IN (SELECT * FROM UNNEST(?))')
+            params.append([str(c) for c in codes])
+
+        if where_clauses:
+            sql += " WHERE " + " AND ".join(where_clauses)
+
+        # 4. Fetch Execution
+        df = self.con.execute(sql, params).fetchdf()
+        if df.empty:
+            return df
+
+        # 5. Timestamp Casting and Fallback Aliasing (if columns=["*"] was used)
+        if load_all:
+            df["subject"] = df[table_schema.subject]
+            df["timestamp"] = pd.to_datetime(df[table_schema.timestamp], errors="coerce")
+            for logical, physical in table_schema.mapping.items():
+                if physical in df.columns and logical not in df.columns:
+                    df[logical] = df[physical]
+        else:
+            # If not load_all, the DataFrame is already perfectly aliased by DuckDB
+            df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+
+        return df
+
 
     def load_episodes(
         self,

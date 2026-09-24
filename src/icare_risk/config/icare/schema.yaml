@@ -26,6 +26,8 @@ domains:
     mapping:
       code: "OBSERVATION_CODE"
       value: "OBSERVATION_RESULT_CLEAN"
+      name: "OBSERVATION_NAME" # Remove to speed up?
+      unit: "OBSERVATION_UNIT" # Remove to speed up?
 
   pathology:
     #source: "/app/data/mock/sirs_test/pathology.csv"
@@ -42,5 +44,20 @@ domains:
     timestamp: "ORDER_DT_TM"
     mapping:
       code: "MEDICATION_NAME_SHORT"
+      name: "MEDICATION_NAME_SHORT"
       value: "ORDERED_DOSE"
+      THERAPEUTICAL_CLASS: "THERAPEUTICAL_CLASS"
+      #MEDICATION_NAME: "MEDICATION_NAME"
+
+  microbiology:
+    source: "/app/notebooks/data/synthetic/notebook_test/icare_microbiology_anon.csv"
+    subject: "SUBJECT"
+    timestamp: "LATEST_COLLECT_DT"
+    mapping:
+      site: "site"
+      code: "order_code"
+      name: "order_name"
+      value: "organism_bug"
+      organism: "organism_bug"
+      sensitivity: "sensitivity"
 

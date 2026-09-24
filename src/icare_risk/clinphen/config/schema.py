@@ -30,6 +30,11 @@ class TableSchema:
     timestamp: str
     mapping: Dict[str, str] = field(default_factory=dict)  # logical -> physical
 
+    @property
+    def code_col(self) -> Optional[str]:
+        """Returns the physical column name mapped to logical 'code'."""
+        return self.mapping.get("code")
+
     def select_columns(self) -> Dict[str, str]:
         """logical_name -> physical_name, always including subject & timestamp."""
         cols = {"subject": self.subject, "timestamp": self.timestamp}

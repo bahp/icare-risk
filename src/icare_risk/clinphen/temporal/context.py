@@ -1,13 +1,11 @@
 """EpisodeContext — the single, leakage-safe data access surface for phenotypes."""
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
-
 import pandas as pd
 
+from typing import Dict, List, Optional, Tuple
 from ..io.cohort_cache import CohortDataCache
 from ..utils.casting import normalize_frame
-
 
 def _parse_offset(token: str) -> pd.Timedelta:
     return pd.Timedelta(token)
@@ -26,8 +24,8 @@ class EpisodeContext:
         self.index_discharge = pd.Timestamp(index_discharge) if pd.notna(index_discharge) else None
         self._tables = tables
         # Add caches to avoid redundant slicing and indexing
-        self._historical_cache: Dict[Tuple, pd.DataFrame] = {}
-        self._current_cache: Dict[Tuple, pd.DataFrame] = {}
+        #self._historical_cache: Dict[Tuple, pd.DataFrame] = {}
+        #self._current_cache: Dict[Tuple, pd.DataFrame] = {}
         self._window_cache: Dict[Tuple, pd.DataFrame] = {}
 
     @classmethod
@@ -53,7 +51,7 @@ class EpisodeContext:
         tables = {name: normalize_frame(df) for name, df in frames.items()}
         return cls(subject, index_admission, tables, index_discharge=index_discharge)
 
-    def get_historical(
+    def get_historicalv3(
         self,
         table: str,
         columns: Optional[List[str]] = None,
@@ -90,7 +88,7 @@ class EpisodeContext:
         self._historical_cache[cache_key] = res
         return res
 
-    def get_current(self,
+    def get_currentv3(self,
                     table: str,
                     window: Optional[Tuple[str, str]] = None,
                     columns: Optional[List[str]] = None) -> pd.DataFrame:
@@ -139,7 +137,7 @@ class EpisodeContext:
     def get_window(
         self,
         table: str,
-        window: Optional[Tuple[str, str]] = None,
+        window: Optional[Tuple[Optional[str], Optional[str]]] = None,
         columns: Optional[List[str]] = None
     ) -> pd.DataFrame:
         """
@@ -157,9 +155,9 @@ class EpisodeContext:
         """
         # 1. Cast window to a tuple to ensure the cache key is hashable
         safe_window = tuple(window) if isinstance(window, list) else window
+        cache_key = (table, safe_window, tuple(columns) if columns else None)
 
         # 2. Use safe_window in the cache key
-        cache_key = (table, safe_window, tuple(columns) if columns else None)
         if cache_key in self._window_cache:
             return self._window_cache[cache_key]
 
@@ -174,8 +172,9 @@ class EpisodeContext:
             self._window_cache[cache_key] = res
             return res
 
-        start = self.index_admission + _parse_offset(window[0]) if window[0] else None
-        end = self.index_admission + _parse_offset(window[1]) if window[1] else None
+        start_offset, end_offset = safe_window
+        start = self.index_admission + _parse_offset(start_offset) if start_offset else None
+        end = self.index_admission + _parse_offset(end_offset) if end_offset else None
 
         mask = pd.Series(True, index=df.index)
         if start is not None:
@@ -187,18 +186,49 @@ class EpisodeContext:
         self._window_cache[cache_key] = res
         return res
 
-    # Backward-compatibility helpers mapped to get_window
-    def get_currentv1(self, table: str, window: Optional[Tuple[str, str]] = None,
-                    columns: Optional[List[str]] = None) -> pd.DataFrame:
-        return self.get_window(table, window=window, columns=columns)
+    def get_all(self, table: str,
+                      columns: Optional[List[str]] = None) -> pd.DataFrame:
+        """Retrieves all records for the patient regardless of timestamps."""
+        return self.get_window(table, window=None, columns=columns)
 
-    def get_historicalv2(self, table: str, columns: Optional[List[str]] = None,
-                       strictly_before: bool = True) -> pd.DataFrame:
-        # Translates get_historical calls into an unbounded negative window
-        window = ("-100Y", "0h") if strictly_before else ("-100Y", "0s")
-        return self.get_window(table, window=window, columns=columns)
+    def get_historical(
+            self,
+            table: str,
+            columns: Optional[List[str]] = None,
+            strictly_before: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Retrieves records occurring before the index admission.
+        """
+        # (None, "0h") means unbounded past up to the exact moment of index_admission
+        # If strictly_before is False, we add a 1-second buffer to make it inclusive (<= admission)
+        end_boundary = "0h" if strictly_before else "1s"
+        return self.get_window(table, window=(None, end_boundary), columns=columns)
 
-    get_relative = get_current
+    def get_current(
+            self,
+            table: str,
+            columns: Optional[List[str]] = None,
+            window: Optional[Tuple[str, str]] = None
+    ) -> pd.DataFrame:
+        """
+        Retrieves records for the current admission.
+        If no window is specified, retrieves data from admission up to discharge.
+        If no discharge timestamp exists, retrieves all data from admission onwards (up to current date).
+        """
+        if window is not None:
+            return self.get_window(table, window=window, columns=columns)
+
+        # Unbounded future starting exactly at index_admission
+        df_onwards = self.get_window(table, window=("0h", None), columns=columns)
+
+        # If a discharge date is recorded, clip the data at discharge
+        if self.index_discharge and not df_onwards.empty:
+            mask = df_onwards["timestamp"] <= self.index_discharge
+            return df_onwards.loc[mask].reset_index(drop=True)
+
+        return df_onwards
+
 
     @staticmethod
     def _project(df: pd.DataFrame, columns: Optional[List[str]]) -> pd.DataFrame:

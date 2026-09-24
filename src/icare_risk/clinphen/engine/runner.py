@@ -170,7 +170,7 @@ class FeatureMatrixBuilder:
                  raise_on_error: bool) -> None:
         try:
             kwargs = getattr(spec, "kwargs", {})
-            result = spec.func(ctx, **kwargs)
+            result = spec.func(ctx, domains=spec.domains, **kwargs)
         except Exception as exc:  # noqa: BLE001 - isolate per-phenotype failures
             if raise_on_error:
                 raise

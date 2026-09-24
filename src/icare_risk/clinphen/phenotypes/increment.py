@@ -1,6 +1,8 @@
+from typing import Optional, Tuple
+from icare_risk.clinphen.temporal.context import EpisodeContext
 
-
-def increment_bsi_not_urinary_flag(df, **kwargs):
+def derive_increment_bsi_not_urinary_flag(ctx: EpisodeContext,
+        window: Optional[Tuple[str, str]] = None, **kwargs):
     """
     Determines if the source of the Bloodstream Infection (BSI) is NON-urinary.
 
@@ -26,9 +28,24 @@ def increment_bsi_not_urinary_flag(df, **kwargs):
           J85.1, N39.0, N10, N13.6, N30.0, N30.9 (to cover sputum and urine).
 
     """
-    pass
+    df_mic = ctx.get_current("microbiology", window=window)
+    if df_mic.empty:
+        return 0
 
-def increment_is_non_ecoli_flag(df, **kwargs):
+    # Standardize columns for safety
+    order_codes = df_mic['code'].fillna('').str.lower().str.strip()
+    sites = df_mic['site'].fillna('').str.lower().str.strip()
+
+    # Define urinary order codes and terms to exclude
+    urinary_order_codes = {'urncul', 'uricul', 'urine micro'}
+
+    # Condition: order code is not a urinary code AND site does not contain 'urine'
+    is_not_urinary = (~order_codes.isin(urinary_order_codes)) & (~sites.str.contains('urine', na=False))
+
+    return int(is_not_urinary.any())
+
+def derive_increment_is_non_ecoli_flag(ctx: EpisodeContext,
+        window: Optional[Tuple[str, str]] = None, **kwargs):
     """
     Identifies if the ESBL-producing organism is a non-E. coli species.
 
@@ -44,8 +61,35 @@ def increment_is_non_ecoli_flag(df, **kwargs):
     Required Columns in df:
     - `microorganism` or `blood_culture_org` (String from microbiology LIS system)
     """
+    df_mic = ctx.get_current("microbiology", window=window)
+    if df_mic.empty:
+        return 0
 
-def increment_abx_inappropriate_flag(df, **kwargs):
+    orgs = df_mic.organism.fillna('').str.lower().str.strip()
+
+    # Phrases that indicate negative cultures or general screens rather than a specific pathogen
+    negatives = {
+        'no growth', 'none', 'mixed bacterial growth', 'mrsa not isolated',
+        'no carbapenem resistant organisms isolated', 'no resistant acinetobacter isolated',
+        'no significant growth', 'normal upper respiratory flora.', 'no growth at 2 days',
+        'appearance:', 'no growth at 5 days', 'not isolated'
+    }
+
+    # Must have text and not be a negative/no-growth string
+    is_valid_isolate = (orgs != '') & (~orgs.isin(negatives)) & (~orgs.str.contains('not isolated', na=False))
+    valid_df = df_mic.loc[is_valid_isolate]
+
+    if valid_df.empty:
+        return 0
+
+    # Check if any valid isolate does NOT contain 'escherichia' or 'coli'
+    valid_orgs = valid_df['organism_bug'].str.lower()
+    is_non_ecoli = ~valid_orgs.str.contains('escherichia|coli', na=False)
+
+    return int(is_non_ecoli.any())
+
+def derive_inappropriate_empiric_abx(ctx: EpisodeContext,
+        window: Optional[Tuple[str, str]] = None, **kwargs):
     """
     Evaluates if the empirical antibiotic therapy administered was INAPPROPRIATE.
 
@@ -85,3 +129,13 @@ def increment_abx_inappropriate_flag(df, **kwargs):
         * Inappropriate if administration > 1 day from blood cultures or
           > 4 days without targeted anti-ESBL therapy (e.g. Carbapenems).
     """
+    # Fetch prescribing data and microbiology sensitivity data
+    df_rx = ctx.get_current("prescribing", window=window)
+    df_mic = ctx.get_current("microbiology", window=window) # (0h, 24h)
+
+    if df_rx.empty or df_mic.empty:
+        return 0
+
+    # Implement your clinical matching logic here (e.g., matching drug class to resistance profile)
+    # Return 1 if inappropriate, else 0
+    return 0

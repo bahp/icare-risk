@@ -42,7 +42,7 @@ def _validate_and_build_spec(name: str, spec_def: dict) -> Optional[PhenotypeSpe
         func=func,
         domains=spec_def.get('domains', []),
         category=spec_def.get('category', 'config_driven'),
-        kwargs=spec_def.get('kwargs', {})
+        kwargs=kwargs # Exactly as YAML
     )
 
 
@@ -59,6 +59,9 @@ class PhenotypeSpec:
 class PhenotypeRegistry:
     def __init__(self):
         self._specs: Dict[str, PhenotypeSpec] = {}
+
+    def clear(self) -> None:
+        self._specs.clear()
 
     def register(self, spec: PhenotypeSpec) -> None:
         #if spec.name in self._specs:
@@ -108,6 +111,65 @@ class PhenotypeRegistry:
 
         return pd.DataFrame(rows)
 
+    def get_global_dependencies(self, names: Optional[List[str]] = None) -> tuple[Dict[str, set], Dict[str, set]]:
+        """
+        Scans registered phenotypes to build a unique set of required codes and columns per domain.
+        Prevents 'keyword' extractors from pushing substring parameters into exact-match pushdowns.
+        """
+        from collections import defaultdict
+
+        domain_codes = defaultdict(set)
+        domain_cols = defaultdict(set)
+
+        specs = self.select(names=names)
+
+        for spec in specs:
+            # 1. Handle Flat Configurations (Exact Codes)
+            base_codes = spec.kwargs.get("codes", [])
+            base_cols = spec.kwargs.get("columns", [])
+
+            for domain in spec.domains:
+                codes = spec.kwargs.get(f"{domain}_codes", base_codes)
+                cols = spec.kwargs.get(f"{domain}_columns", base_cols)
+
+                if codes:
+                    if isinstance(codes, (list, tuple, set)):
+                        domain_codes[domain].update(codes)
+                    else:
+                        domain_codes[domain].add(codes)
+                if cols:
+                    if isinstance(cols, (list, tuple, set)):
+                        domain_cols[domain].update(cols)
+                    else:
+                        domain_cols[domain].add(cols)
+
+            # 2. Handle Nested Components with Context Awareness
+            components = spec.kwargs.get("components", [])
+            for comp in components:
+                comp_domain = comp.get("domain", spec.domains[0] if spec.domains else None)
+                if not comp_domain:
+                    continue
+
+                extractor_type = comp.get("extractor_type", "rules")
+                comp_col = comp.get("text_col") or comp.get("column") or "code"
+
+                if extractor_type == "keyword":
+                    # Keywords require Pandas .str.contains(), so they CANNOT be pushed to DuckDB's IN() clause.
+                    # We just ensure the column is loaded into memory.
+                    domain_cols[comp_domain].add(comp_col)
+                else:
+                    # For exact match extractors ('rules', 'expression', 'history')
+                    comp_codes = comp.get("codes", [])
+                    if comp_col == "code":
+                        if comp_codes:
+                            domain_codes[comp_domain].update(
+                                comp_codes if isinstance(comp_codes, list) else [comp_codes]
+                            )
+                    else:
+                        domain_cols[comp_domain].add(comp_col)
+
+        return dict(domain_codes), dict(domain_cols)
+
 
 DEFAULT_REGISTRY = PhenotypeRegistry()
 
@@ -145,17 +207,20 @@ def register_from_yaml(yaml_path: str,
     #registry.from_dict(config)
 
 
-
-
 def load_phenotypes_from_yaml(
         paths: Union[str, Path, List[Union[str, Path]]],
-        registry: PhenotypeRegistry = DEFAULT_REGISTRY
+        registry: PhenotypeRegistry = DEFAULT_REGISTRY,
+        reset: bool = True
 ) -> PhenotypeRegistry:
     """Helper function to load phenotypes from a single YAML file, a list of files,
     or an entire directory containing YAML files.
     """
     if registry is None:
         registry = PhenotypeRegistry()
+
+    if reset:
+        registry.clear()
+
     resolved_paths: List[Path] = []
 
     # Normalize inputs into a flat list of Path objects
