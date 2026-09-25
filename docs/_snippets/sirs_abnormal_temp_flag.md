@@ -1,3 +1,4 @@
-| Code | Name | Unit | Type | Total Occurrences |
-| :--- | :--- | :--- | :--- | ---:|
-| `10933766` | temperature | degrees celsius | float | 26,332,645 |
+| Code | Name | Unit | Type |
+| :--- | :--- | :--- | :---
+| `10933766` | temperature | degrees celsius | float |
+| `486347689` | high temperature or fever? | none | float |

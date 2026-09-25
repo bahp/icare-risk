@@ -1,12 +1,11 @@
-import pandas as pd
-import numpy as np
+import sys
 import yaml
+import argparse
+import pandas as pd
+
 from pathlib import Path
 from datetime import datetime
 
-from icare_risk.utils import load_yaml_config
-
-import pandas as pd
 from pathlib import Path
 
 
@@ -625,6 +624,7 @@ def generate_eav_timeseries_table(unique_ids: list, custom_tables: dict, table_c
     return df_final.sort_values(sort_cols).reset_index(drop=True)
 
 def generate_custom_table(unique_ids, table_config, custom_tables=None):
+    import pandas as pd
     """Generates a relational table based on a dynamic YAML schema definition."""
     rows_range = table_config.get('rows_per_patient_range', [1, 1])
     schema = table_config.get('schema', {})
@@ -672,7 +672,16 @@ def generate_custom_table(unique_ids, table_config, custom_tables=None):
             df[col_name] = (base_dates + pd.to_timedelta(offsets, unit='d')).dt.date
 
         elif col_type == 'categorical_tuple':
-            choices = props['values']
+            if 'lookup_file' in props:
+                import pandas as pd
+                df_lookup = pd.read_csv(props['lookup_file'])
+                choices = df_lookup[props['columns']].values.tolist()
+            else:
+                choices = props.get('values', props.get('choices', []))
+
+            if not choices:
+                raise ValueError(f"Missing 'values', 'choices', or 'lookup_file' for columns: {props.get('columns')}")
+
             selected = [random.choice(choices) for _ in range(total_rows)]
             for i, target_col in enumerate(props['columns']):
                 df[target_col] = [item[i] for item in selected]
@@ -956,60 +965,91 @@ def generate_eav_timeseriesv2(unique_ids, custom_tables, table_config, clinical_
 
     return df_final
 
-if __name__ == '__main__':
-    # --------------------------
-    # 1. Load Configuration
-    # --------------------------
-    # Assuming you run this from inside the src/ folder
-    config_path = Path('../../config/data_config_old.yaml')
 
-    # Fallback/mock config if file doesn't exist yet for testing
-    if not config_path.exists():
-        print(f"Warning: {config_path} not found. Please ensure your YAML file is created.")
-        exit(1)
 
-    with open(config_path, 'r') as file:
-        config = yaml.safe_load(file)
 
-    params = config.get('generation_params', {})
-    n_patients = params.get('n_patients', 100)
-    days = params.get('days', 10)
-    freq = params.get('freq', '4h')
-    output_format = params.get('output_format', 'tidy')
+def main():
 
-    # --------------------------
-    # 2. Generate data
-    # --------------------------
-    print(f"Generating data for {n_patients} patients...")
-    df_static, df_ts = generate_clinical_data(
-        config=config,
-        n_patients=n_patients,
-        days=days,
-        freq=freq,
-        output_format=output_format
+    # Libraries
+    from icare_risk.utils.io import load_pkg_yaml
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Dynamic Synthetic Data Generation")
+    parser.add_argument(
+        '--config',
+        type=str,
+        default=None,  # Defaults to None, loads package defaults natively
+        help='Name of the YAML config file located in the config/ directory'
     )
+    args = parser.parse_args()
 
-    print('\n--- Sample: Static Demographics ---')
-    print(df_static.head())
-    print('\n--- Sample: Timeseries Data ---')
-    print(df_ts.head())
+    print("==================================================")
+    print("🧬 [Step 1] Dynamic Synthetic Data Generation")
+    print("==================================================")
 
-    # --------------------------
-    # 3. Add missingness
-    # --------------------------
-    print("\nApplying missingness masks...")
-    df_ms = apply_missingness(df_ts, ts_config=config.get('ts_config', {}))
+    # 1. Setup Paths and Load Config
+    project_root = Path(__file__).resolve().parents[3]
+    date_str = datetime.now().strftime('%Y-%m-%d_%H%M%S')
+    data_dir = project_root / 'data' / 'synthetic' / date_str
+    data_dir.mkdir(parents=True, exist_ok=True)
 
-    # --------------------------
-    # 4. Save data in structured FS
-    # --------------------------
-    date_str = datetime.now().strftime('%Y-%m-%d')
-    output_dir = Path(f'../data/synthetic/{date_str}')
-    output_dir.mkdir(parents=True, exist_ok=True)
+    print(f"\n📂 TARGET SAVE DIRECTORY: {data_dir.absolute()}\n")
 
-    print(f"\nSaving files to <{output_dir}>...")
-    df_static.to_csv(output_dir / 'df_static.csv', index=False)
-    df_ts.to_csv(output_dir / 'df_ts.csv', index=True)
-    df_ms.to_csv(output_dir / 'df_ts_missing.csv', index=True)
-    print("Done!")
+    # 2. Load Configuration securely using the io.py loader.
+    data_config = load_pkg_yaml('config/icare/generate_db.yaml')
 
+    # 3. Establish Global Parameters
+    params = data_config.get('generation_params', {})
+    n_patients = params.get('n_patients', 100)
+    unique_ids = list(range(10001, 10001 + n_patients))
+    primary_key_col = "SUBJECT"
+    custom_tables = {}
+
+    # 3. Generate Configured Tables
+    if 'tables' in data_config:
+        print(f"Generating configured tables for {n_patients} patients...")
+
+        # It's important the YAML is ordered with Parent tables (like Episodes)
+        # before Child tables (like Pharmacy or Vitals) so foreign keys exist
+        # when needed.
+        for table_name, table_config in data_config['tables'].items():
+            if not isinstance(table_config, dict) or 'type' not in table_config:
+                print(
+                    f"  ⚠️ Skipping '{table_name}': Missing 'type' in YAML ('relational' or 'eav_timeseries').")
+                continue
+
+            print(f" -> Building {table_name} [{table_config['type']}]...")
+
+            if table_config['type'] == 'relational':
+                df_table = generate_custom_table(
+                    unique_ids=unique_ids,
+                    table_config=table_config,
+                    custom_tables=custom_tables
+                )
+
+            elif table_config['type'] == 'eav_timeseries':
+                df_table = generate_eav_timeseries(
+                    unique_ids=unique_ids,
+                    custom_tables=custom_tables,
+                    table_config=table_config,
+                    clinical_concepts=data_config,
+                    freq=params.get('freq', '4h'),
+                    days=params.get('days', 10),
+                    primary_key_col=primary_key_col
+                )
+
+            # Store in memory
+            custom_tables[table_name] = df_table
+            file_name = f"{table_name.lower()}.csv"
+            df_table.to_csv(data_dir / file_name, index=False)
+
+    try:
+        display_path = data_dir.relative_to(project_root)
+    except ValueError:
+        display_path = data_dir
+
+    print(f"\n✅ Success! All data saved dynamically to: {display_path}")
+
+
+if __name__ == '__main__':
+    main()

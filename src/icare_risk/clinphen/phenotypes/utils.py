@@ -83,12 +83,8 @@ def derive_from_expression(
         The dataframe column containing the numeric values to evaluate, by default "value".
     code_col : str, optional
         The dataframe column containing the clinical codes to match against, by default "code".
-    check_current : bool, optional
-        If True, evaluates records within the specified current admission window.
-        If False, evaluates strictly historical records prior to admission. Default is True.
     window : tuple, optional
-        The relative time window (start, end) to search if `check_current` is True,
-        by default ("0h", "24h")[cite: 1, 4].
+        The relative time window (start, end) to search.
     **kwargs
         Additional keyword arguments safely absorbed by the orchestrator.
 
@@ -319,8 +315,6 @@ def derive_score_from_rules(
         The column containing numeric values (default: "value").
     code_col : str, optional
         The column containing clinical codes (default: "code").
-    check_current : bool, optional
-        If True, evaluates records within the admission window. Default is True.
     window : tuple, optional
         The time window to search, by default ("0h", "24h").
     agg_method : str, optional

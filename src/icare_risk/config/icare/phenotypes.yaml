@@ -96,6 +96,7 @@ has_vasopressors:   # has_medication_in_window
 
 # --8<-- [start:has_diabetes]
 has_diabetes:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.multimodal'
   function: 'derive_multimodal_phenotype'
   domains: [ 'problems', 'prescribing', 'pathology' ]
@@ -768,6 +769,7 @@ pitt_hypo_score_rule:
 
 # --8<-- [start:pitt_vent_score_rule]
 pitt_vent_score_rule:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_composite_rules'
   domains: [ 'vitals' ]
@@ -795,6 +797,7 @@ pitt_vent_score_rule:
 
 # --8<-- [start:pitt_arrest_score_rule]
 pitt_arrest_score_rule:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_composite_rules'
   domains: [ 'vitals' ]
@@ -1164,6 +1167,7 @@ gavaghan_hx_nursing_home_resident:
 
 # --8<-- [start:gavaghan_hx_urinary_catheter]
 gavaghan_hx_urinary_catheter:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
   domains: ['problems', 'diagnoses', 'procedures']
@@ -1227,6 +1231,7 @@ holmgren_hx_hospital_care_abroad:
 
 # --8<-- [start:holmgren_hx_previous_3gcr_culture]
 holmgren_hx_previous_3gcr_culture:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
   domains: ['problems', 'pathology']
@@ -1239,6 +1244,7 @@ holmgren_hx_previous_3gcr_culture:
 
 # --8<-- [start:holmgren_hx_previous_3gcr_rectal_swab]
 holmgren_hx_previous_3gcr_rectal_swab:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
   domains: ['problems', 'pathology']

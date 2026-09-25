@@ -1,6 +1,7 @@
 @echo off
 set PYTHON=python
 set SCRIPTS_PKG=icare_risk.scripts
+set TOOLS_PKG=icare_risk.tools
 
 :: Default command prefix (runs via Docker)
 set RUN=docker-compose exec pipeline
@@ -89,7 +90,8 @@ goto :eof
 :generate
 echo.
 echo --- Step 1: Generating Synthetic iCARE Data ---
-%RUN% %PYTHON% -m %SCRIPTS_PKG%.a_generate_data %EXTRA_ARGS%
+:: %RUN% %PYTHON% -m %SCRIPTS_PKG%.a_generate_data %EXTRA_ARGS%
+%RUN% %PYTHON% -m %TOOLS_PKG%.data_generation2 %EXTRA_ARGS%
 goto :eof
 
 :features

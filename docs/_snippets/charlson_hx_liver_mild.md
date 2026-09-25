@@ -1,1 +1,9 @@
-*No matching database entries found for codes: `111891008` (problems), `128302006` (problems), `442685003` (problems), `61977001` (problems), `62944002` (problems), `768126006` (problems), `9953008` (problems), `B18` (problems), `K70.0` (problems), `K70.1` (problems), `K70.2` (problems), `K70.3` (problems), `K70.9` (problems), `K71` (problems), `K73` (problems), `K74` (problems), `K76.0` (problems)*
+| Code | Name | Unit | Type |
+| :--- | :--- | :--- | :---
+| `111891008` | viral hepatitis b without hepatic coma | none | enumerated |
+| `128302006` | chronic hepatitis c | none | enumerated |
+| `442685003` | nash - nonalcoholic steatohepatitis | none | enumerated |
+| `61977001` | chronic viral hepatitis b | none | enumerated |
+| `62944002` | hcv - hepatitis c virus | none | enumerated |
+| `768126006` | chronic hepatitis c caused by hepatitis c virus genotype 4 | none | enumerated |
+| `9953008` | acute alcoholic hepatitis | none | enumerated |

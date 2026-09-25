@@ -55,8 +55,8 @@ pipeline_settings:
 # GENERATION PARAMETERS (Used when data_source = 'synthetic')
 # =============================================================================
 generation_params:
-  n_patients: 100000            # Total number of patients to simulate
-  days: 10                   # Duration of observation/simulation period per patient
+  n_patients: 100           # Total number of patients to simulate
+  days: 10                    # Duration of observation/simulation period per patient
   freq: '4h'                  # Sampling frequency (e.g., every 4 hours)
   output_format: 'tidy'       # Data layout structure ('tidy' / 'long')
   default_missing_rate: 0.5   # Proportion of missing data to inject
@@ -234,6 +234,94 @@ tables:
       # TREATMENT_FUNCTION_CODE
       # TREATMENT_FUNCTION_CODE_DES
 
+  ICARE_EPISODES_DIAGNOSIS_ANON:
+    type: "relational"
+    rows_per_patient_range: [ 1, 5 ]
+    schema:
+      SUBJECT:
+        type: "foreign_key"
+      SPELL_IDENTIFIER:
+        type: "unique_id"
+      ENCNTR_ID:
+        type: "foreign_key"
+        source_table: "ICARE_EPISODES_ANON"
+      EPISODE_IDENTIFIER:
+        type: "unique_id"
+      DIAGNOSIS_TUPLE:
+        type: "categorical_tuple"
+        lookup_file: "/app/data/lookups/standard/icareDIA.csv"
+        lookup_columns:
+          - "diagnosis_code_icd"
+          - "diagnosis_code_snomed"
+          - "diagnosis_desc_icd"
+          - "diagnosis_desc_snomed"
+        columns:
+          - "DIAGNOSIS_CODE_ICD"
+          - "DIAGNOSIS_CODE_SNOMED"
+          - "DIAGNOSIS_DESC_ICD"
+          - "DIAGNOSIS_DESC_SNOMED"
+      DIAGNOSIS_DATE:
+        type: "date"
+        start: "2020-01-01"
+        end: "2024-01-01"
+      DIAGNOSIS_SEQ_N:
+        type: "int"
+        range: [ 1, 5 ]
+      ORDER_NO_OF_EPISODE:
+        type: "int"
+        range: [ 1, 10 ]
+      UPDATE_DT_TM:
+        type: "date_offset"
+        base_col: "DIAGNOSIS_DATE"
+        days_range: [ 0, 2 ]
+
+  ICARE_DEMOGRAPHIC_ANON:
+    type: "relational"
+    rows_per_patient_range: [ 1, 1 ]
+    schema:
+      SUBJECT:
+        type: "foreign_key"
+      BIRTH_DATE:
+        type: "date"
+        start: "1940-01-01"
+        end: "2005-12-31"
+      DEATH_DATE:
+        type: "date"
+        start: "2020-01-01"
+        end: "2026-01-01"
+        null_probability: 0.85
+      ETHNICITY_TUPLE:
+        type: "categorical_tuple"
+        columns:
+          - "ETHNICITY"
+          - "ETHNICITY_DES"
+        values:
+          - [ "A", "White - British" ]
+          - [ "B", "White - Irish" ]
+          - [ "C", "Any other White background" ]
+          - [ "H", "Asian or Asian British - Indian" ]
+          - [ "J", "Asian or Asian British - Pakistani" ]
+          - [ "K", "Asian or Asian British - Bangladeshi" ]
+          - [ "L", "Any other Asian background" ]
+          - [ "M", "Black or Black British - Caribbean" ]
+          - [ "N", "Black or Black British - African" ]
+          - [ "P", "Any other Black background" ]
+          - [ "S", "Any other ethnic group" ]
+          - [ "Z", "Not stated" ]
+      GENDER_TUPLE:
+        type: "categorical_tuple"
+        columns:
+          - "GENDER"
+          - "GENDER_DESC"
+        values:
+          - [ "M", "Male" ]
+          - [ "F", "Female" ]
+          - [ "U", "Unknown" ]
+          - [ "I", "Indeterminate" ]
+      UPDATE_DT_TM:
+        type: "date"
+        start: "2023-01-01"
+        end: "2024-01-01"
 
   ICARE_MICROBIOLOGY_ANON:
     type: "relational"
@@ -246,18 +334,20 @@ tables:
       # Mode A: Categorical Tuple pick with frequency from file
       ORDER_TUPLE:
         type: "categorical_tuple"
-        lookup_file: "/app/data/lookups/icare/microbiology_lookup.csv"
-        columns: [ "order_code", "order_name", "site", "organism_bug", "sensitivity" ]
+        lookup_file: "/app/data/lookups/standard/icareMIC.csv"
+        lookup_columns:
+          - "order_code"
+          - "order_name"
+          - "site"
+          - "organism_bug"
+          - "sensitivity"
+        columns:
+          - "ORDER_CODE"
+          - "ORDER_NAME"
+          - "SITE"
+          - "ORGANISM_BUG"
+          - "SENSITIVITY"
         weight_col: "total_occurrences"
-      # Using a tuple ensures Blood Cultures get the Blood Culture code, not a Urine code
-      # Mode B: Manual insertion
-      #ORDER_TUPLE:
-      #  type: "categorical_tuple"
-      #  columns: [ "ORDER_CODE", "ORDER_NAME" ]
-      #  values:
-      #    - [ "LOINC-600-7", "Blood Culture, Routine" ]
-      #    - [ "LOINC-630-4", "Urine Culture, Routine" ]
-      #    - [ "LOINC-625-4", "Respiratory Culture" ]
       LATEST_COLLECT_DT:
         type: "date"
         start: "2020-01-01"
@@ -285,35 +375,6 @@ tables:
       # FLAG
       # UPDATE_DT_TM # Timestamp
 
-
-  ICARE_VITAL_SIGNS_ANON:
-    type: "eav_timeseries"
-    # Mode B: Range-Based EAV generation
-    lookup_file: "/app/data/lookups/icare/vital_signs_lookup.csv"
-    source: "clinical_concepts.vitals"
-    schema:
-      SUBJECT:
-        map_to: "SUBJECT"
-      ENCNTR_ID:
-        map_to: "foreign_key"
-        source_table: "ICARE_EPISODES_ANON"
-      OBSERVATION_CODE:
-        map_to: "concept.code"
-      OBSERVATION_NAME:
-        map_to: "concept.name"
-      OBSERVATION_PERFORMED_DT:
-        map_to: "timestamp"
-      OBSERVATION_START_DT:
-        map_to: "timestamp"
-      OBSERVATION_END_DT:
-        map_to: "timestamp"
-      OBSERVATION_RESULT_CLEAN:
-        map_to: "value"
-      OBSERVATION_UNIT:
-        map_to: "concept.unit"
-      #UPDATE_DT_TM
-
-
   ICARE_PROBLEMS_ANON:
     type: "relational"
     # A patient might have anywhere from 1 to 5 tracked medical problems
@@ -322,25 +383,17 @@ tables:
       SUBJECT:
         type: "foreign_key"
       ENCNTR_ID:
-        type: "unique_id" # Alternatively, can be linked to episodes
+        type: "foreign_key" # Alternatively, can be linked to episodes
       PROBLEM_TUPLE:
         type: "categorical_tuple"
-        columns: [ "PROBLEM_CODE", "PROBLEM_DESC" ]
-        values:
-          - [ "77386006", "pregnancy" ]
-          - [ "38341003", "hypertension" ]
-          - [ "40930008", "hypothyroidism" ]
-          - [ "44054006", "type 2 diabetes mellitus" ]
-          - [ "73211009", "diabetes mellitus" ]
-          - [ "13645005", "copd - chronic obstructive pulmonary disease" ]
-          - [ "414545008", "ischaemic heart disease" ]
-          - [ "709044004", "ckd - chronic kidney disease" ]
-          - [ "84114007", "heart failure" ]
-          - [ "38341003", "hypertensive disorder" ]
-          - [ "46635009", "type 1 diabetes mellitus" ]
-          - [ "197321007", "fatty liver" ]
-          - [ "19030005", "hiv" ]
-        #lookup_file: "/app/data/lookups/problems_lookup.csv"
+        lookup_file: "/app/data/lookups/standard/icarePRO.csv"
+        lookup_columns:
+          - "code"
+          - "name"
+        columns:
+          - "PROBLEM_CODE"
+          - "PROBLEM_DESC"
+        weight_col: "total_ocurrences"
         #values:
         #  - [ "E11.9", "Type 2 diabetes mellitus" ]
         #  - [ "I10", "Essential (primary) hypertension" ]
@@ -349,6 +402,19 @@ tables:
         #  - [ "A41.9", "Sepsis, unspecified organism" ]
         #  - [ "I25.10", "Atherosclerotic heart disease" ]
         #  - [ "J18.9", "Pneumonia, unspecified organism" ]
+        #  - [ "77386006", "pregnancy" ]
+        #  - [ "38341003", "hypertension" ]
+        #  - [ "40930008", "hypothyroidism" ]
+        #  - [ "44054006", "type 2 diabetes mellitus" ]
+        #  - [ "73211009", "diabetes mellitus" ]
+        #  - [ "13645005", "copd - chronic obstructive pulmonary disease" ]
+        #  - [ "414545008", "ischaemic heart disease" ]
+        #  - [ "709044004", "ckd - chronic kidney disease" ]
+        #  - [ "84114007", "heart failure" ]
+        #  - [ "38341003", "hypertensive disorder" ]
+        #  - [ "46635009", "type 1 diabetes mellitus" ]
+        #  - [ "197321007", "fatty liver" ]
+        #  - [ "19030005", "hiv" ]
       PROBLEM_DT_TM:
         type: "date"
         start: "2020-01-01"
@@ -464,40 +530,77 @@ tables:
         base_col: "ADMINISTRATION_DT"
         days_range: [ 0, 1 ]
 
-  ICARE_PATHOLOGY_BLOOD_ANON:
-    type: "eav_timeseries"
-    source: "clinical_concepts.labs"
-    lookup_file: "/app/data/lookups/icare/pathology_blood_tests_lookup.csv"
+  ICARE_VITAL_SIGNS_ANON:
+    type: "relational"
+    rows_per_patient_range: [ 1, 10 ] # Multiple vital sign readings per patient over time
     schema:
       SUBJECT:
-        map_to: "SUBJECT"
+        type: "foreign_key"
+      ENCNTR_ID:
+        type: "foreign_key"
+        source_table: "ICARE_EPISODES_ANON"
+      OBSERVATION_ID:
+        type: "unique_id"
+      # Relational tuple sampling directly from your lookup CSV using occurrence weights
+      OBSERVATION_TUPLE:
+        type: "categorical_tuple"
+        lookup_file: "/app/data/lookups/standard/icareVIT.csv"
+        lookup_columns:
+          - "code"
+          - "name"
+          - "unit"
+          - "type"
+        columns:
+          - "OBSERVATION_CODE"
+          - "OBSERVATION_NAME"
+          - "OBSERVATION_UNIT"
+          - "OBSERVATION_TYPE"
+        weight_col: "total_ocurrences"
+      OBSERVATION_RESULT_CLEAN:
+        type: "float"
+        range: [ 0.0, 300.0 ]
+      OBSERVATION_PERFORMED_DT:
+        type: "date"
+        start: "2020-01-01"
+        end: "2024-01-01"
+      OBSERVATION_START_DT:
+        type: "date_offset"
+        base_col: "OBSERVATION_PERFORMED_DT"
+        days_range: [ 0, 1 ]
+      OBSERVATION_END_DT:
+        type: "date_offset"
+        base_col: "OBSERVATION_PERFORMED_DT"
+        days_range: [ 0, 1 ]
+
+  ICARE_PATHOLOGY_BLOOD_ANON:
+    type: "relational"
+    rows_per_patient_range: [ 1, 5 ]
+    schema:
+      SUBJECT:
+        type: "foreign_key"
+      #ENCNTR_ID:
+      #  type: "foreign_key"
+      #  source_table: "ICARE_EPISODES_ANON"
       PBAID:
-        map_to: "unique_id"
-      LABORATORY_DEPARTMENT:
-        map_to: "concept.department"
-      ORDER_CODE:
-        map_to: "concept.order_code"
-      ORDER_NAME:
-        map_to: "concept.order_name"
+        type: "unique_id"
+      # Mirrors microbiology pattern using icarePAT.csv with occurrence weights
+      PATHOLOGY_TUPLE:
+        type: "categorical_tuple"
+        lookup_file: "/app/data/lookups/standard/icarePAT.csv"
+        columns:
+          - "code"
+          - "name"
+          - "unit"
+          - "type"
+        weight_col: "total_ocurrences"
       RESULT_CLEANED:
-        map_to: "value"
-      # RESULT_FLAG
-      # RESULT_NUM_FLAG
-      RESULT_LOWER_RANGE:
-        map_to: "concept.normal_low"
-      RESULT_UPPER_RANGE:
-        map_to: "concept.normal_high"
+        type: "float"
+        range: [ 0.1, 500.0 ] # could be mapped to icarePAT.csv range.
       SAMPLE_COLLECTED_DT:
-        map_to: "timestamp"
+        type: "date"
+        start: "2020-01-01"
+        end: "2024-01-01"
       RESULT_AVAILABLE_DT:
-        map_to: "timestamp_offset"
+        type: "date_offset"
         base_col: "SAMPLE_COLLECTED_DT"
-        hours_range: [ 1, 72 ] # Realistic delay for lab processing
-      TEST_CODE:
-        map_to: "concept.code"
-      TEST_NAME:
-        map_to: "concept.name"
-      TEST_RESULT_UNIT:
-        map_to: "concept.unit"
-      # STAFF_FLAG
-      # UPDATE_DT_TM
+        days_range: [ 0, 3 ]

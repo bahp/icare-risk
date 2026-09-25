@@ -1,3 +1,4 @@
-| Code | Name | Unit | Type | Total Occurrences |
-| :--- | :--- | :--- | :--- | ---:|
-| `19030005` | hiv | none | enumerated | 1,993 |
+| Code | Name | Unit | Type |
+| :--- | :--- | :--- | :---
+| `1142045004` | primary hiv infection | none | enumerated |
+| `19030005` | hiv | none | enumerated |

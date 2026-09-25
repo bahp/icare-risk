@@ -1,1 +1,1 @@
-*No matching database entries found for codes: `Z22.322` (problems)*
+*No matching database entries found for codes: `Z22.3` (problems), `Z22.322` (problems)*

@@ -28,8 +28,8 @@ class FeatureMatrixBuilder:
     def build(self, subjects: Optional[List] = None,
                     episodes: Optional[pd.DataFrame] = None,
                     deduplicate_by: Optional[List[str]] = None,
-                    raise_on_error: bool = False,
-                    show_progress: bool = False) -> pd.DataFrame:
+                    raise_on_error: bool = True,
+                    show_progress: bool = True) -> pd.DataFrame:
         """
         Build the phenotype feature matrix across all cohort episodes.
 

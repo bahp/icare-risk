@@ -3,6 +3,7 @@
 # ==============================================================================
 PYTHON := python3
 SCRIPTS_DIR := icare_risk.scripts
+TOOLS_DIR := icare_risk.tools
 
 # Default command prefix (runs via Docker)
 RUN := docker-compose exec pipeline
@@ -49,7 +50,8 @@ all: generate features evaluate thresholds validate
 
 generate:
 	@echo "\n--- Step 1: Generating Synthetic iCARE Data ---"
-	$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).a_generate_data $(ARGS)
+	$(RUN) $(PYTHON) -m $(TOOLS_DIR).data_generation $(ARGS)
+	#$(RUN) $(PYTHON) -m $(SCRIPTS_DIR).a_generate_data $(ARGS)
 
 features:
 	@echo "\n--- Step 2: Building Clinical Features ---"

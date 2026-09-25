@@ -1,1 +1,8 @@
-*No matching database entries found for codes: `16837681000119100` (problems), `1755008` (problems), `22298006` (problems), `323..00` (problems), `401303003` (problems), `401314000` (problems), `57054005` (problems), `70211005` (problems), `G30..00` (problems), `I21` (problems), `I22` (problems), `I25.2` (problems)*
+| Code | Name | Unit | Type |
+| :--- | :--- | :--- | :---
+| `1755008` | old myocardial infarction | none | enumerated |
+| `22298006` | mi - myocardial infarction | none | enumerated |
+| `401303003` | stemi - st elevation myocardial infarction | none | enumerated |
+| `401314000` | nstemi - non-st segment elevation mi | none | enumerated |
+| `57054005` | acute myocardial infarction | none | enumerated |
+| `70211005` | acute anterolateral myocardial infarction | none | enumerated |
