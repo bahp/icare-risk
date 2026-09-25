@@ -1,10 +1,15 @@
 import pandas as pd
+import numpy as np
 
 def match_codes(series: pd.Series,
                 target_codes: list) -> pd.Series:
-    """Returns a boolean mask for robust, case-insensitive string matching."""
-    targets = [str(c).upper() for c in target_codes] # Needed
-    return series.astype(str).str.upper().isin(targets)
+    """Returns a boolean mask for robust, case-insensitive string matching.
+
+    Will numpy be fasteR?
+    """
+    #targets = [str(c).upper() for c in target_codes] # Needed
+    #return series.astype(str).str.upper().isin(targets)
+    return series.isin(target_codes)
 
 
 def extract_numeric(df: pd.DataFrame,

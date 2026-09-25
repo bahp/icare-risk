@@ -26,6 +26,14 @@ def _fetch_domain_data(
     else:
         return pd.DataFrame(columns=columns)
 
+    # Only one domain.
+    if len(domain_list) == 1:
+        return ctx.get_window(
+            domain_list[0],
+            window=window,
+            columns=columns,
+        )
+
     dfs = []
     for dom in domain_list:
         # Report if domain does not exist in the EpisodeContext
@@ -47,7 +55,8 @@ def _fetch_domain_data(
 
     if not dfs:
         return pd.DataFrame(columns=columns)
-
+    if len(dfs) == 1:
+        return dfs[0]
     return pd.concat(dfs, ignore_index=True)
 
 
@@ -253,12 +262,29 @@ def derive_from_history_code(
     if not codes or not domains:
         return 0
 
+    domain_list = [domains] if isinstance(domains, str) else domains
+
+    for domain in domain_list:
+        if ctx.has_codes(
+                domain,
+                codes,
+                window=window,
+                code_col=code_col,
+        ):
+            return 1
+
+    return 0
+
+    """Prev implementation
+    if not codes or not domains:
+        return 0
+
     df = _fetch_domain_data(ctx, domains, window=window, columns=[code_col])
     if df.empty:
         return 0
 
     return 1 if match_codes(df[code_col], codes).any() else 0
-
+    """
     """
     all_target_codes = list(codes)
     if res195_codes:

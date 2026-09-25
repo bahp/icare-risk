@@ -4,11 +4,13 @@ import io
 import duckdb
 
 from icare_risk.clinphen import DuckDBSource
-from icare_risk.clinphen.registry.registry import DEFAULT_REGISTRY
-from icare_risk.clinphen.registry.registry import register_from_yaml
+from icare_risk.clinphen.registry.registry import load_phenotypes_from_yaml
 from icare_risk.clinphen.config.schema import load_schema_from_yaml
 from icare_risk.clinphen.engine.runner import FeatureMatrixBuilder
 
+import pandas as pd
+
+#pd.set_option("mode.dtype_backend", "pyarrow")
 
 def main():
     # Define paths
@@ -18,18 +20,16 @@ def main():
     # Load schema definition & create connection source
     schema = load_schema_from_yaml(schema_cfg)
     source = DuckDBSource(connection=duckdb.connect())
+    registry = load_phenotypes_from_yaml(phenotype_cfg)
 
-    # Load the phenotypes definitions
-    DEFAULT_REGISTRY._specs.clear()
-    register_from_yaml(phenotype_cfg, DEFAULT_REGISTRY)
 
-    charlson = DEFAULT_REGISTRY.select_by_prefix('charlson', return_names=True)
+    charlson = registry.select_by_prefix('charlson', return_names=True)
 
     # Create matrix builder
     builder = FeatureMatrixBuilder(
         schema=schema, source=source,
-        registry=DEFAULT_REGISTRY,
-        phenotypes=charlson
+        registry=registry,
+        phenotypes=registry.all(return_names=True)
     )
 
     print("Starting feature matrix build profiling...")

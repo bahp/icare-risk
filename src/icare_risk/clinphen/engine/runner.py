@@ -123,6 +123,9 @@ class FeatureMatrixBuilder:
 
         domains_needed = sorted(domains_needed)
 
+        import time
+        t0 = time.perf_counter()
+
         # 4. Preload cache using normalized 'subject' column
         cache = CohortDataCache(self.schema, source=self.source).preload(
             domains_needed, subjects=df_episodes["subject"].unique().tolist()
@@ -134,6 +137,7 @@ class FeatureMatrixBuilder:
         # Setup the iterator based on show_progress
         iterator = episodes_records
         if show_progress:
+            print(f"Loaded clinical domains in {time.perf_counter() - t0:.2f}s")
             try:
                 # Use tqdm.auto for seamless Jupyter Notebook rendering
                 from tqdm.auto import tqdm

@@ -83,7 +83,7 @@ def derive_increment_is_non_ecoli_flag(ctx: EpisodeContext,
         return 0
 
     # Check if any valid isolate does NOT contain 'escherichia' or 'coli'
-    valid_orgs = valid_df['organism_bug'].str.lower()
+    valid_orgs = valid_df['organism'].str.lower()                # use schema!
     is_non_ecoli = ~valid_orgs.str.contains('escherichia|coli', na=False)
 
     return int(is_non_ecoli.any())

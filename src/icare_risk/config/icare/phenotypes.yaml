@@ -58,6 +58,7 @@ definitions:
 # Basic Examples / Testing
 # ------------------------------------------------------
 min_spo2_24h:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.windowed'
   function: 'min_spo2_24h'
   domains: ['vitals']
@@ -66,6 +67,7 @@ min_spo2_24h:
     window: ['0h', '24h']
 
 min_temp_24h:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.windowed'
   function: 'min_temp_24h'
   domains: ['vitals']
@@ -74,7 +76,8 @@ min_temp_24h:
     window: ['0h', '24h']
 
 has_vasopressors:   # has_medication_in_window
-  module: 'icare_risk.clinphen.phenotypes.multimodal'
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.multimodal' # Wrong to deprecate
   function: 'derive_multimodal_phenotype'
   domains: [ 'problems', 'prescribing', 'pathology' ]
   category: [ 'multimodal' ]
@@ -133,6 +136,7 @@ has_diabetes:
 # --8<-- [end:has_diabetes]
 
 has_congestive_heart_failure:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.multimodal'
   function: 'derive_multimodal_phenotype'
   domains: [ 'problems', 'prescribing' ]
@@ -153,6 +157,7 @@ has_congestive_heart_failure:
 
 # --8<-- [start:has_mild_liver_disease]
 has_mild_liver_disease:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.multimodal'
   function: 'derive_multimodal_phenotype'
   domains: [ 'problems', 'prescribing', 'pathology' ]
@@ -1077,7 +1082,6 @@ jones_hx_prior_antibiotics_30d:
     components:
       - extractor_type: 'keyword'
         domain: 'prescribing'
-        text_col: 'MEDICATION_NAME'
         keywords:
           - 'amoxicillin'
           - 'piperacillin'
@@ -1117,6 +1121,7 @@ jones_hx_chronic_dialysis:
 
 # --8<-- [start:jones_hx_transfer_from_hospital]
 jones_hx_transfer_from_hospital:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
   domains: ['problems']
@@ -1188,7 +1193,6 @@ gavaghan_hx_prior_antibiotics_fq_ceph_90d:
     components:
       - extractor_type: 'keyword'
         domain: 'prescribing'
-        text_col: 'MEDICATION_NAME'
         keywords:
           - 'ciprofloxacin'
           - 'levofloxacin'
@@ -1218,6 +1222,7 @@ gavaghan_hx_prior_antibiotics_fq_ceph_90d:
 
 # --8<-- [start:holmgren_hx_hospital_care_abroad]
 holmgren_hx_hospital_care_abroad:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
   domains: ['problems', 'encounters']
@@ -1281,18 +1286,3 @@ increment_abx_inappropriate_flag:
   category: ['increment']
   kwargs:
     window: ['-24h', '24h']
-
-
-
-# -------------------------------------------------------------
-# Prior Hospitalizations (Requires an Episodes/Encounters lookup)
-# -------------------------------------------------------------
-
-# If you have an explicit 'previous_admissions_count' column in your static data,
-# you don't even need a python function, you can use pandas eval!
-hx_hosp_last_90d:
-  enabled: false
-  module: 'icare_risk.phenotypes'
-  function: 'derive_historical_condition' # You may need to tweak this helper to check dates if it only checks codes
-  kwargs:
-    target_codes: [ 'placeholder_for_admission_code' ]

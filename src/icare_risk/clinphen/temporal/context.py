@@ -21,7 +21,11 @@ class EpisodeContext:
     ):
         self.subject = subject
         self.index_admission = pd.Timestamp(index_admission)
-        self.index_discharge = pd.Timestamp(index_discharge) if pd.notna(index_discharge) else None
+        self.index_discharge = (
+            pd.Timestamp(index_discharge)
+            if pd.notna(index_discharge)
+            else None
+        )
         self._tables = tables
         # Add caches to avoid redundant slicing and indexing
         #self._historical_cache: Dict[Tuple, pd.DataFrame] = {}
@@ -134,7 +138,157 @@ class EpisodeContext:
         self._current_cache[cache_key] = res
         return res
 
+    def _slice(
+            self,
+            table: str,
+            window: Optional[Tuple[Optional[str], Optional[str]]],
+    ) -> pd.DataFrame:
+        """Return a view-like row slice using timestamp searchsorted."""
+        df = self._tables.get(table)
+
+        if df is None or df.empty:
+            return df
+
+        if window is None:
+            return df
+
+        start_offset, end_offset = window
+
+        start = (
+            self.index_admission + pd.Timedelta(start_offset)
+            if start_offset else None
+        )
+        end = (
+            self.index_admission + pd.Timedelta(end_offset)
+            if end_offset else None
+        )
+
+        timestamps = df["timestamp"]
+
+        start_idx = (
+            timestamps.searchsorted(start, side="left")
+            if start is not None else 0
+        )
+
+        end_idx = (
+            timestamps.searchsorted(end, side="left")
+            if end is not None else len(df)
+        )
+
+        return df.iloc[start_idx:end_idx]
+
     def get_window(
+            self,
+            table: str,
+            window: Optional[Tuple[Optional[str], Optional[str]]] = None,
+            columns: Optional[List[str]] = None,
+    ) -> pd.DataFrame:
+        """Retrieve records within a relative time window.
+
+        Requires that cohort cache orders by timestamp
+        """
+        safe_window = tuple(window) if isinstance(window, list) else window
+        cache_key = (table, safe_window, tuple(columns) if columns else None)
+
+        cached = self._window_cache.get(cache_key)
+        if cached is not None:
+            return cached
+
+        df = self._tables.get(table)
+
+        if df is None or df.empty:
+            result = pd.DataFrame(columns=columns or [])
+            self._window_cache[cache_key] = result
+            return result
+
+        if window is None:
+            result = self._project(df, columns)
+            self._window_cache[cache_key] = result
+            return result
+
+        start_offset, end_offset = safe_window
+
+        start = (
+            self.index_admission + pd.Timedelta(start_offset)
+            if start_offset
+            else None
+        )
+        end = (
+            self.index_admission + pd.Timedelta(end_offset)
+            if end_offset
+            else None
+        )
+
+        timestamps = df["timestamp"]
+
+        start_idx = (
+            timestamps.searchsorted(start, side="left")
+            if start is not None
+            else 0
+        )
+
+        end_idx = (
+            timestamps.searchsorted(end, side="left")
+            if end is not None
+            else len(df)
+        )
+
+        result = self._project(
+            df.iloc[start_idx:end_idx],
+            columns,
+        )
+
+        self._window_cache[cache_key] = result
+        return result
+
+    def has_codes(
+            self,
+            table: str,
+            codes,
+            window=None,
+            code_col: str = "code",
+    ) -> bool:
+        df = self._tables.get(table)
+
+        if df is None or df.empty:
+            return False
+
+        start_offset, end_offset = window or (None, None)
+
+        start = (
+            self.index_admission + pd.Timedelta(start_offset)
+            if start_offset
+            else None
+        )
+        end = (
+            self.index_admission + pd.Timedelta(end_offset)
+            if end_offset
+            else None
+        )
+
+        timestamps = df["timestamp"]
+
+        start_idx = (
+            timestamps.searchsorted(start, side="left")
+            if start is not None
+            else 0
+        )
+
+        end_idx = (
+            timestamps.searchsorted(end, side="left")
+            if end is not None
+            else len(df)
+        )
+
+        #values = df[code_col].iloc[start_idx:end_idx]
+        #
+        #return values.isin(codes).any()
+        values = df[code_col].to_numpy()[start_idx:end_idx]
+        targets = set(codes)
+
+        return any(value in targets for value in values)
+
+    def get_window_old(
         self,
         table: str,
         window: Optional[Tuple[Optional[str], Optional[str]]] = None,
@@ -205,7 +359,7 @@ class EpisodeContext:
         end_boundary = "0h" if strictly_before else "1s"
         return self.get_window(table, window=(None, end_boundary), columns=columns)
 
-    def get_current(
+    def get_current_gen(
             self,
             table: str,
             columns: Optional[List[str]] = None,
@@ -229,10 +383,46 @@ class EpisodeContext:
 
         return df_onwards
 
+    def get_current(
+            self,
+            table: str,
+            columns=None,
+            window=None,
+    ):
+        if window is not None:
+            return self.get_window(
+                table,
+                window=window,
+                columns=columns,
+            )
+
+        df = self._tables.get(table)
+
+        if df is None or df.empty:
+            return pd.DataFrame(columns=columns or [])
+
+        timestamps = df["timestamp"]
+
+        start_idx = timestamps.searchsorted(
+            self.index_admission,
+            side="left",
+        )
+
+        if self.index_discharge is not None:
+            end_idx = timestamps.searchsorted(
+                self.index_discharge,
+                side="right",
+            )
+            result = df.iloc[start_idx:end_idx]
+        else:
+            result = df.iloc[start_idx:]
+
+        return self._project(result, columns)
 
     @staticmethod
     def _project(df: pd.DataFrame, columns: Optional[List[str]]) -> pd.DataFrame:
         if not columns:
-            return df.reset_index(drop=True)
-        keep = [c for c in ["subject", "timestamp", *columns] if c in df.columns]
-        return df.loc[:, keep].reset_index(drop=True)
+            return df
+        keep = ["subject", "timestamp", *columns]
+        keep = [c for c in keep if c in df.columns]
+        return df[keep]

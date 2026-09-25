@@ -19,7 +19,11 @@ class CohortDataCache:
         for domain in sorted(set(domains)):
             table_schema = self.schema.domain(domain)
             df = self.source.load_domain(table_schema, subjects=subjects)
-            df = df.sort_values("timestamp")
+            df = df.sort_values("timestamp") # important for the context to work.
+
+            if "code" in df.columns:
+                df["code"] = df["code"].astype("string").str.upper()
+
             self._by_domain_subject[domain] = {
                 subj: sub_df.reset_index(drop=True)
                 for subj, sub_df in df.groupby("subject", sort=False)

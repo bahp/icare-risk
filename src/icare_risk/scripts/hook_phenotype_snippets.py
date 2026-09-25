@@ -92,7 +92,12 @@ class TableRenderer:
     """Renders dataframes into styled Markdown tables."""
 
     @staticmethod
-    def render(matched_by_domain: dict[str, pd.DataFrame], requested_codes: dict[str, list[str]]) -> str:
+    def render(
+        matched_by_domain: dict[str, pd.DataFrame],
+        requested_codes: dict[str, list[str]],
+        show_total_occurrences: bool = True,
+        sort_codes: bool = True,
+    ) -> str:
         all_rows = []
         is_multi_domain = len(requested_codes) > 1
 
@@ -103,41 +108,60 @@ class TableRenderer:
                 continue
 
             for _, row in matched_df.iterrows():
-                all_rows.append({
+                row_data = {
                     "domain": domain,
                     "code": row.get("code", "N/A"),
                     "name": row.get("name", "N/A"),
                     "unit": row.get("unit", "none"),
                     "type": row.get("type", "N/A"),
-                    "count": row.get("total_occurrences", 0),
-                })
+                }
+                if show_total_occurrences:
+                    row_data["count"] = row.get("total_occurrences", 0)
+
+                all_rows.append(row_data)
 
         if not all_rows:
             all_missing = [f"`{c}` ({d})" for d, cs in requested_codes.items() for c in cs]
             return f"*No matching database entries found for codes: {', '.join(all_missing)}*"
 
-        # Header definition
+        # Sort rows by domain and code if enabled
+        if sort_codes:
+            all_rows.sort(key=lambda r: (r["domain"], r["code"]))
+
+        # Build dynamic headers and column alignments
+        headers = []
+        align = []
+
         if is_multi_domain:
-            headers = ["Domain", "Code", "Name", "Unit", "Type", "Total Occurrences"]
-            align = ["| :---", "| :---", "| :---", "| :---", "| :---", "| ---:|"]
-        else:
-            headers = ["Code", "Name", "Unit", "Type", "Total Occurrences"]
-            align = ["| :---", "| :---", "| :---", "| :---", "| ---:|"]
+            headers.append("Domain")
+            align.append("| :---")
+
+        headers.extend(["Code", "Name", "Unit", "Type"])
+        align.extend(["| :---", "| :---", "| :---", "| :---"])
+
+        if show_total_occurrences:
+            headers.append("Total Occurrences")
+            align.append("| ---:|")
 
         md = ["| " + " | ".join(headers) + " |", " ".join(align)]
 
         for r in all_rows:
-            count_formatted = f"{r['count']:,}" if isinstance(r['count'], (int, float)) else r['count']
+            row_cells = []
             if is_multi_domain:
-                line = f"| `{r['domain']}` | `{r['code']}` | {r['name']} | {r['unit']} | {r['type']} | {count_formatted} |"
-            else:
-                line = f"| `{r['code']}` | {r['name']} | {r['unit']} | {r['type']} | {count_formatted} |"
-            md.append(line)
+                row_cells.append(f"`{r['domain']}`")
+
+            row_cells.extend([f"`{r['code']}`", str(r["name"]), str(r["unit"]), str(r["type"])])
+
+            if show_total_occurrences:
+                count_formatted = f"{r['count']:,}" if isinstance(r['count'], (int, float)) else r['count']
+                row_cells.append(str(count_formatted))
+
+            md.append("| " + " | ".join(row_cells) + " |")
 
         return "\n".join(md)
 
 
-def generate_snippets():
+def generate_snippets(show_total_occurrences: bool = True, sort_codes: bool = True):
     REPO_ROOT = Path(__file__).resolve().parents[3]
 
     yaml_path = REPO_ROOT / "src/icare_risk/config/icare/phenotypes.yaml"
@@ -145,9 +169,11 @@ def generate_snippets():
     snippets_dir.mkdir(parents=True, exist_ok=True)
 
     csv_paths = {
-        "problems": REPO_ROOT / "data/lookups/standard/icareP.csv",
-        "vitals": REPO_ROOT / "data/lookups/standard/icareV.csv",
-        "pathology": REPO_ROOT / "data/lookups/standard/icareL.csv",
+        "problems": REPO_ROOT / "data/lookups/standard/icarePRO.csv",
+        "vitals": REPO_ROOT / "data/lookups/standard/icareVIT.csv",
+        "pathology": REPO_ROOT / "data/lookups/standard/icarePAT.csv",
+        "prescribing": REPO_ROOT / "data/lookups/standard/icarePHA.csv",
+        #"microbiology": REPO_ROOT / "data/lookups/standard/icareMIC.csv",
     }
 
     if not yaml_path.exists():
@@ -180,7 +206,12 @@ def generate_snippets():
             matched_by_domain[domain] = db.query(domain, codes)
 
         # Render snippet table
-        table_md = TableRenderer.render(matched_by_domain, domain_codes)
+        table_md = TableRenderer.render(
+            matched_by_domain,
+            domain_codes,
+            show_total_occurrences=show_total_occurrences,
+            sort_codes=sort_codes,
+        )
 
         snippet_file = snippets_dir / f"{name}.md"
         snippet_file.write_text(table_md, encoding="utf-8")
@@ -190,4 +221,7 @@ def generate_snippets():
 
 
 if __name__ == "__main__":
-    generate_snippets()
+    generate_snippets(
+        show_total_occurrences=False,
+        sort_codes=True
+    )

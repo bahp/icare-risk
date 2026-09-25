@@ -55,7 +55,7 @@ pipeline_settings:
 # GENERATION PARAMETERS (Used when data_source = 'synthetic')
 # =============================================================================
 generation_params:
-  n_patients: 100           # Total number of patients to simulate
+  n_patients: 10000           # Total number of patients to simulate
   days: 10                    # Duration of observation/simulation period per patient
   freq: '4h'                  # Sampling frequency (e.g., every 4 hours)
   output_format: 'tidy'       # Data layout structure ('tidy' / 'long')
@@ -587,11 +587,16 @@ tables:
       PATHOLOGY_TUPLE:
         type: "categorical_tuple"
         lookup_file: "/app/data/lookups/standard/icarePAT.csv"
-        columns:
+        lookup_columns:
           - "code"
           - "name"
           - "unit"
           - "type"
+        columns:
+          - "TEST_CODE"
+          - "TEST_NAME"
+          - "TEST_UNIT"
+          - "TEST_TYPE"
         weight_col: "total_ocurrences"
       RESULT_CLEANED:
         type: "float"
