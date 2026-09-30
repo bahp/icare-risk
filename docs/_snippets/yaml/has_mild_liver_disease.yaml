@@ -1,0 +1,38 @@
+has_mild_liver_disease:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.multimodal
+  function: derive_multimodal_phenotype
+  domains:
+  - problems
+  - prescribing
+  - pathology
+  category:
+  - multimodal
+  kwargs:
+    code_rules:
+    - target_domains:
+      - problems
+      codes:
+      - '61977001'
+      - '111891008'
+      - '768126006'
+      - '128302006'
+      - '442685003'
+      - '62944002'
+      - '9953008'
+      include_current: false
+    keyword_rules:
+    - domain: prescribing
+      keywords:
+      - lactulose
+      check_current: true
+    expression_rules:
+    - domain: pathology
+      codes:
+      - bil
+      query_expr: value > 2.0
+      value_col: value
+      check_current: true
+      window:
+      - 0h
+      - 24h

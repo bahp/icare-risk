@@ -1,0 +1,22 @@
+sirs_abnormal_wbc_score_rule:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  domains:
+  - pathology
+  kwargs:
+    logic: max
+    components:
+    - extractor_type: rules
+      domain: pathology
+      codes:
+      - wbc
+      rules:
+      - expr: value > 12 or value < 4
+        points: 1
+    - extractor_type: rules
+      domain: pathology
+      codes:
+      - bands
+      rules:
+      - expr: value > 10
+        points: 1

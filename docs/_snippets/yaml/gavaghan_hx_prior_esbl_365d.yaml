@@ -1,0 +1,15 @@
+gavaghan_hx_prior_esbl_365d:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - gavaghan_components
+  kwargs:
+    codes: []
+    res195_codes:
+    - Z22.322
+    - Z22.3
+    window:
+    - -8760h
+    - 0h

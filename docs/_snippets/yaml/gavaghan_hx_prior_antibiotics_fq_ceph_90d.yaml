@@ -1,0 +1,34 @@
+gavaghan_hx_prior_antibiotics_fq_ceph_90d:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  domains:
+  - prescribing
+  category:
+  - gavaghan_components
+  kwargs:
+    logic: or
+    components:
+    - extractor_type: keyword
+      domain: prescribing
+      keywords:
+      - ciprofloxacin
+      - levofloxacin
+      - moxifloxacin
+      - ceftriaxone
+      - ceftazidime
+      - cefepime
+      - cefuroxime
+      window:
+      - -2160h
+      - 0h
+    - extractor_type: keyword
+      domain: prescribing
+      text_col: THERAPEUTICAL_CLASS
+      keywords:
+      - fluoroquinolones
+      - cephalosporins
+      - antibiotics
+      - antibacterials
+      window:
+      - -2160h
+      - 0h

@@ -1,0 +1,26 @@
+charlson_hx_pvd:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - charlson_components
+  kwargs:
+    codes:
+    - '400047006'
+    - '840580004'
+    - '399957001'
+    - '400047006'
+    - '400047006'
+    - '858191000000103'
+    - '238796009'
+    - '16010871000119100'
+    - '16011271000119100'
+    - '372070002'
+    res195_codes:
+    - I71
+    - I73.9
+    - I79.0
+    - R02
+    - Z95.8
+    - Z95.9

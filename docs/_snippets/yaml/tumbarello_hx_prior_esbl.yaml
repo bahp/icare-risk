@@ -1,0 +1,12 @@
+tumbarello_hx_prior_esbl:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - tumbarello_components
+  kwargs:
+    codes: []
+    res195_codes:
+    - Z22.322
+    - Z22.3

@@ -1,0 +1,51 @@
+charlson_hx_chf:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  category:
+  - charlson_components
+  domains:
+  - problems
+  - prescribing
+  kwargs:
+    logic: max
+    components:
+    - extractor_type: history
+      domain: problems
+      codes:
+      - '84114007'
+      - '446221000'
+      - '42343007'
+      - '703273002'
+      - '424404003'
+      - '703272007'
+      - '10633002'
+      - '48447003'
+      - '128404006'
+      - '390884006'
+      - '418304008'
+      - '161505003'
+    - extractor_type: history
+      domain: problems
+      codes:
+      - I50
+      - I11.0
+      - I13.0
+      - I13.2
+      - I25.5
+      - G58..00
+      - G580.00
+      - G580000
+      - G580100
+      - G581.00
+      - G582.00
+      - G583.00
+      - 1O1..00
+    - extractor_type: keyword
+      domain: prescribing
+      window:
+      - null
+      - 24h
+      keywords:
+      - entresto
+      - milrinone
+      - dobutamine

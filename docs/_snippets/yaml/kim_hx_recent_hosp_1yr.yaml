@@ -1,0 +1,12 @@
+kim_hx_recent_hosp_1yr:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - kim_components
+  kwargs:
+    codes: []
+    window:
+    - -8760h
+    - 0h

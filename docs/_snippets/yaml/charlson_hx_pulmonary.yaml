@@ -1,0 +1,40 @@
+charlson_hx_pulmonary:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - charlson_components
+  kwargs:
+    codes:
+    - '32398004'
+    - '866901000000103'
+    - '12295008'
+    - '13645005'
+    - '195951007'
+    - '313296004'
+    - '198401000000104'
+    - '198411000000102'
+    - '204991000000107'
+    - '847091000000104'
+    - '708030004'
+    - '87433001'
+    - '125295001'
+    - '49158009'
+    res195_codes:
+    - J40
+    - J41
+    - J42
+    - J43
+    - J44
+    - J45
+    - J46
+    - J47
+    - J60
+    - J61
+    - J62
+    - J63
+    - J64
+    - J65
+    - J66
+    - J67

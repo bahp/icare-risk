@@ -1,0 +1,12 @@
+tumbarello_hx_recent_hosp_90d:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - encounters
+  category:
+  - tumbarello_components
+  kwargs:
+    window:
+    - -2160h
+    - 0h

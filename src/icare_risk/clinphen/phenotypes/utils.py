@@ -481,7 +481,7 @@ def derive_composite_rules(
             continue
 
         # 1. Resolve domain(s): checks singular 'domain', plural 'domains', or falls back to top-level 'domains'
-        domains = comp.pop("domain", None)
+        domains = comp.get("domain", None)
 
         try:
             if extractor_type == "rules":

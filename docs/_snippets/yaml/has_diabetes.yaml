@@ -1,0 +1,48 @@
+has_diabetes:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.multimodal
+  function: derive_multimodal_phenotype
+  domains:
+  - problems
+  - prescribing
+  - pathology
+  category:
+  - multimodal
+  kwargs:
+    code_rules:
+    - target_domains:
+      - problems
+      codes:
+      - '44054006'
+      - '73211009'
+      - '46635009'
+      include_current: false
+    - target_domains:
+      - diagnoses
+      codes:
+      - E10
+      - E11
+      - E14
+      include_current: true
+      window:
+      - 0h
+      - 24h
+    keyword_rules:
+    - domain: prescribing
+      keywords:
+      - insulin
+      - metformin
+      - gliclazide
+      check_historical: true
+    expression_rules:
+    - domain: pathology
+      codes:
+      - wg
+      - gl
+      - glpoc
+      query_expr: value > 200
+      value_col: value
+      check_current: true
+      window:
+      - 0h
+      - 24h

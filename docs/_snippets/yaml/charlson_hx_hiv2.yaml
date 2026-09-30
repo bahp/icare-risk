@@ -1,0 +1,12 @@
+charlson_hx_hiv2:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  kwargs:
+    logic: max
+    components:
+    - extractor_type: history
+      domain: problems
+      codes:
+      - '19030005'
+      - '89293008'
+      - '442662004'

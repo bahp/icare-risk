@@ -1,0 +1,12 @@
+kim_hx_urinary_catheter:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - kim_components
+  kwargs:
+    codes: []
+    res195_codes:
+    - Z46.6
+    - Y84.6

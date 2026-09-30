@@ -1,0 +1,17 @@
+sirs_abnormal_wbc_flag:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.sirs
+  function: derive_sirs_abnormal_wbc
+  domains:
+  - pathology
+  kwargs:
+    window:
+    - 0h
+    - 24h
+    wbc_codes:
+    - wbc
+    bands_codes:
+    - bands
+    wbc_high: 12.0
+    wbc_low: 4.0
+    bands_thresh: 10.0

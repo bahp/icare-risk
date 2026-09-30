@@ -1,0 +1,19 @@
+holmgren_hx_hospital_care_abroad:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  - encounters
+  category:
+  - holmgren_components
+  kwargs:
+    target_domains:
+    - encounters
+    - problems
+    codes: []
+    res195_codes:
+    - Z75.81
+    window:
+    - -8760h
+    - 0h

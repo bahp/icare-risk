@@ -1,0 +1,41 @@
+charlson_hx_hemiplegia:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - charlson_components
+  kwargs:
+    codes:
+    - '50582007'
+    - '250018001'
+    - '44535002'
+    - '41330006'
+    - '20308003'
+    - '386582002'
+    - '230722008'
+    - '192780005'
+    res195_codes:
+    - G04.1
+    - G11.4
+    - G80.1
+    - G80.2
+    - G81
+    - G82
+    - G83.0
+    - G83.1
+    - G83.2
+    - G83.3
+    - G83.4
+    - G83.9
+    - F22..00
+    - F220.00
+    - F221.00
+    - F222.00
+    - F223.00
+    - F241.00
+    - F240.00
+    - F231.00
+    - F141.00
+    - '2833'
+    - '2835'

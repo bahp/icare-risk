@@ -1,0 +1,15 @@
+pitt_hypo_score:
+  module: icare_risk.clinphen.phenotypes.pitt
+  function: compute_pitt_hypo_score
+  domains:
+  - vitals
+  kwargs:
+    window:
+    - 0h
+    - 24h
+    sbp_codes:
+    - '13389125'
+    vasopressor_drugs:
+    - NOREPINEPHRINE
+    - EPINEPHRINE
+    - VASOPRESSIN

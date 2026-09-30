@@ -36,12 +36,16 @@ def build_historical_events_table(
         A table containing columns `[subject_col, "event_name", "first_occurrence_date"]`.
     """
     if df.empty or not configs:
-        return pd.DataFrame(columns=[subject_col, "event_name", "first_occurrence_date"])
+        return pd.DataFrame(columns=[subject_col,
+            "event_name", "first_occurrence_date"])
+
+    # Get the column with the codes and convert to str
+    code_series = df[code_col].fillna('').astype(str)
 
     # Apply match_codes for each YAML config directly to the domain dataframe
     for name, config in configs.items():
         codes = config.get("kwargs", {}).get(config_code_key, [])
-        df[name] = match_codes(df[code_col], codes)
+        df[name] = match_codes(code_series, codes)
 
     # Melt to isolate positive matches
     melted = df.melt(

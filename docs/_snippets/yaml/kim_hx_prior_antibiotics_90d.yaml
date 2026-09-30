@@ -1,0 +1,32 @@
+kim_hx_prior_antibiotics_90d:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  domains:
+  - prescribing
+  category:
+  - kim_components
+  kwargs:
+    logic: or
+    components:
+    - extractor_type: keyword
+      domain: prescribing
+      keywords:
+      - amoxicillin
+      - piperacillin
+      - meropenem
+      - ceftriaxone
+      - ciprofloxacin
+      - ceftazidime
+      - cefepime
+      window:
+      - -2160h
+      - 0h
+    - extractor_type: keyword
+      domain: prescribing
+      text_col: THERAPEUTICAL_CLASS
+      keywords:
+      - antibiotics
+      - antibacterials
+      window:
+      - -2160h
+      - 0h

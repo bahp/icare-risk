@@ -1,1 +1,11 @@
-*No matching database entries found for codes: `Z74.3` (problems), `Z75.1` (problems)*
+
+
+<div class="phenotype-table">
+
+| # | Source | Code | Name |
+| :--- | :--- | :--- | :--- |
+| 1 | `res195` | `Z74.3` | *[No match found in lookup database]* |
+| 2 | `res195` | `Z75.1` | *[No match found in lookup database]* |
+
+</div>
+

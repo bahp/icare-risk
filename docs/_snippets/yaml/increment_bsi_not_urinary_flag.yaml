@@ -1,0 +1,9 @@
+increment_bsi_not_urinary_flag:
+  module: icare_risk.clinphen.phenotypes.increment
+  function: derive_increment_bsi_not_urinary_flag
+  domains:
+  - microbiology
+  kwargs:
+    window:
+    - -24h
+    - 24h

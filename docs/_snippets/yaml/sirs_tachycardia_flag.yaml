@@ -1,0 +1,10 @@
+sirs_tachycardia_flag:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_expression
+  domains:
+  - vitals
+  kwargs:
+    codes:
+    - '13472364'
+    query_expr: value > 90.0

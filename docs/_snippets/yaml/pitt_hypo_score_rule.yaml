@@ -1,0 +1,26 @@
+pitt_hypo_score_rule:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  domains:
+  - vitals
+  - prescribing
+  kwargs:
+    logic: max
+    components:
+    - extractor_type: rules
+      domain: vitals
+      codes:
+      - '13389125'
+      rules:
+      - expr: value < 90.0
+        points: 2
+    - extractor_type: keyword
+      domain: prescribing
+      keywords:
+      - noradrenaline
+      - norepinephrine
+      - epinephrine
+      - dopamine
+      - vasopressin
+      - dobutamine
+      points: 2

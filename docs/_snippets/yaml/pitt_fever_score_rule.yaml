@@ -1,0 +1,20 @@
+pitt_fever_score_rule:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_score_from_rules
+  domains:
+  - vitals
+  kwargs:
+    domain: vitals
+    codes:
+    - '10933766'
+    - '486347689'
+    window:
+    - 0h
+    - 24h
+    rules:
+    - expr: value <= 35.0 or value >= 40.0
+      points: 2
+    - expr: 35.1 <= value <= 36.0
+      points: 1
+    - expr: 39.0 <= value <= 39.9
+      points: 1

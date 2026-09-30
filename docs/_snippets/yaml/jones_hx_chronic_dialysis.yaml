@@ -1,0 +1,11 @@
+jones_hx_chronic_dialysis:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - jones_components
+  kwargs:
+    codes: []
+    res195_codes:
+    - Z99.2

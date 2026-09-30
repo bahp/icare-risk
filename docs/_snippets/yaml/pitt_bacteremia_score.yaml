@@ -1,0 +1,25 @@
+pitt_bacteremia_score:
+  module: icare_risk.clinphen.phenotypes.pitt
+  function: compute_pitt_score
+  domains:
+  - vitals
+  kwargs:
+    window:
+    - 0h
+    - 24h
+    fever_codes:
+    - '10933766'
+    - '486347689'
+    gcs_codes:
+    - '9268392'
+    sbp_codes:
+    - '13389125'
+    vasopressor_drugs:
+    - NOREPINEPHRINE
+    - EPINEPHRINE
+    - VASOPRESSIN
+    - DOPAMINE
+    vent_codes:
+    - MECH_VENT_01
+    arrest_codes:
+    - CARDIAC_ARREST_01

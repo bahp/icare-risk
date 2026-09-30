@@ -1,0 +1,15 @@
+jones_hx_transfer_from_hospital:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - jones_components
+  kwargs:
+    target_domains:
+    - encounters
+    codes: []
+    res195_codes:
+    - Z75.1
+    - Z74.3

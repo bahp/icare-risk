@@ -1,0 +1,20 @@
+pitt_mental_score_rule:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_score_from_rules
+  domains:
+  - vitals
+  kwargs:
+    domain: vitals
+    codes:
+    - '9097010'
+    - '9268392'
+    window:
+    - 0h
+    - 24h
+    rules:
+    - expr: value <= 9
+      points: 4
+    - expr: 10 <= value <= 12
+      points: 2
+    - expr: 13 <= value <= 14
+      points: 1

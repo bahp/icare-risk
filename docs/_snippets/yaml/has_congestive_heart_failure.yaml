@@ -1,0 +1,37 @@
+has_congestive_heart_failure:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.multimodal
+  function: derive_multimodal_phenotype
+  domains:
+  - problems
+  - prescribing
+  category:
+  - multimodal
+  kwargs:
+    code_rules:
+    - target_domains:
+      - problems
+      codes:
+      - '446221000'
+      - '703273002'
+      - '42343007'
+      - '390884006'
+      - '161505003'
+      - '84114007'
+      - '424404003'
+      - '128404006'
+      - '703272007'
+      - '446221000'
+      - '418304008'
+      - '446221000'
+      - '10633002'
+      - '48447003'
+      - '703272007'
+      include_current: false
+    keyword_rules:
+    - domain: prescribing
+      keywords:
+      - entresto
+      - milrinone
+      - dobutamine
+      check_current: true

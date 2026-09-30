@@ -1,0 +1,39 @@
+jones_hx_prior_antibiotics_30d:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  domains:
+  - prescribing
+  category:
+  - jones_components
+  kwargs:
+    logic: or
+    components:
+    - extractor_type: keyword
+      domain: prescribing
+      keywords:
+      - amoxicillin
+      - piperacillin
+      - meropenem
+      - ceftriaxone
+      - ceftazidime
+      - cefepime
+      - ciprofloxacin
+      - levofloxacin
+      - trimethoprim
+      window:
+      - -720h
+      - 0h
+    - extractor_type: keyword
+      domain: prescribing
+      text_col: THERAPEUTICAL_CLASS
+      keywords:
+      - antibiotics
+      - antibacterials
+      - penicillins
+      - cephalosporins
+      - fluoroquinolones
+      - carbapenems
+      - sulfonamides
+      window:
+      - -720h
+      - 0h

@@ -65,4 +65,28 @@
     line-height: 1.2 !important;
 }
 
+/* =========================================
+   1. Phenotypes docs tables
+   ========================================= */
+/* 1. Override MkDocs default table wrapper styles and force true table display */
+.md-typeset .phenotype-table table {
+  display: table !important;
+  width: 100% !important;
+  table-layout: auto !important;
+}
 
+/* 2. Force all columns to shrink to their absolute minimum width */
+.md-typeset .phenotype-table table th,
+.md-typeset .phenotype-table table td {
+  width: 1px !important; /* 1px forces the browser to compress it as much as the text allows */
+  white-space: nowrap !important; /* Prevents the tight columns from breaking text */
+  min-width: 0 !important; /* Overrides any minimum width set by the theme */
+}
+
+/* 3. Force the 4th column (Name) to absorb all leftover space and wrap text */
+.md-typeset .phenotype-table table th:nth-child(4),
+.md-typeset .phenotype-table table td:nth-child(4) {
+  width: 100% !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}

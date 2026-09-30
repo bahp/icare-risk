@@ -1,0 +1,33 @@
+pitt_vent_score_rule:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  domains:
+  - vitals
+  kwargs:
+    logic: max
+    components:
+    - extractor_type: keyword
+      domain: vitals
+      text_col: value
+      keywords:
+      - mechanical ventilation
+      - tracheostomy
+      - invasive vent
+      - ventilator
+      check_current: true
+      window:
+      - 0h
+      - 24h
+      points: 2
+    - extractor_type: history
+      target_domains:
+      - diagnoses
+      codes:
+      - Z99.11
+      - E85.1
+      include_current: true
+      window:
+      - 0h
+      - 24h
+      points: 2

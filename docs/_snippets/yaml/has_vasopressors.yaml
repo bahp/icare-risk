@@ -1,0 +1,23 @@
+has_vasopressors:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.multimodal
+  function: derive_multimodal_phenotype
+  domains:
+  - problems
+  - prescribing
+  - pathology
+  category:
+  - multimodal
+  kwargs:
+    keyword_rules:
+    - domain: prescribing
+      keywords:
+      - norepinephrine
+      - epinephrine
+      - vasopressin
+      - dopamine
+      - dobutamine
+      - phenylephrine
+      - noradrenaline
+      - angiotensin
+      check_historical: true

@@ -46,6 +46,8 @@ def _validate_and_build_spec(name: str, spec_def: dict) -> Optional[PhenotypeSpe
     )
 
 
+
+
 @dataclass(frozen=True)
 class PhenotypeSpec:
     name: str
@@ -56,7 +58,11 @@ class PhenotypeSpec:
     kwargs: Dict[str, Any] = field(default_factory=dict)
 
 
+# TODO
+# If domains in kwargs, populate in main domains automatically.
+
 class PhenotypeRegistry:
+    """"""
     def __init__(self):
         self._specs: Dict[str, PhenotypeSpec] = {}
 
@@ -114,62 +120,90 @@ class PhenotypeRegistry:
     def get_global_dependencies(self, names: Optional[List[str]] = None) -> tuple[Dict[str, set], Dict[str, set]]:
         """
         Scans registered phenotypes to build a unique set of required codes and columns per domain.
-        Prevents 'keyword' extractors from pushing substring parameters into exact-match pushdowns.
         """
         from collections import defaultdict
 
-        domain_codes = defaultdict(set)
+        domain_codes = self.get_codes_by_domain(names=names)
         domain_cols = defaultdict(set)
 
         specs = self.select(names=names)
 
         for spec in specs:
-            # 1. Handle Flat Configurations (Exact Codes)
-            base_codes = spec.kwargs.get("codes", [])
+            # Handle column dependencies for flat configs
             base_cols = spec.kwargs.get("columns", [])
-
             for domain in spec.domains:
-                codes = spec.kwargs.get(f"{domain}_codes", base_codes)
                 cols = spec.kwargs.get(f"{domain}_columns", base_cols)
-
-                if codes:
-                    if isinstance(codes, (list, tuple, set)):
-                        domain_codes[domain].update(codes)
-                    else:
-                        domain_codes[domain].add(codes)
                 if cols:
                     if isinstance(cols, (list, tuple, set)):
                         domain_cols[domain].update(cols)
                     else:
                         domain_cols[domain].add(cols)
 
-            # 2. Handle Nested Components with Context Awareness
+            # Handle column dependencies for nested components
             components = spec.kwargs.get("components", [])
             for comp in components:
-                comp_domain = comp.get("domain", spec.domains[0] if spec.domains else None)
-                if not comp_domain:
+                if not isinstance(comp, dict):
                     continue
-
-                extractor_type = comp.get("extractor_type", "rules")
+                comp_domain = comp.get("domain", spec.domains[0] if spec.domains else None)
                 comp_col = comp.get("text_col") or comp.get("column") or "code"
 
-                if extractor_type == "keyword":
-                    # Keywords require Pandas .str.contains(), so they CANNOT be pushed to DuckDB's IN() clause.
-                    # We just ensure the column is loaded into memory.
+                # If the column isn't the standard 'code' column, it needs to be loaded
+                if comp_domain and comp_col != "code":
                     domain_cols[comp_domain].add(comp_col)
-                else:
-                    # For exact match extractors ('rules', 'expression', 'history')
-                    comp_codes = comp.get("codes", [])
-                    if comp_col == "code":
-                        if comp_codes:
-                            domain_codes[comp_domain].update(
-                                comp_codes if isinstance(comp_codes, list) else [comp_codes]
-                            )
+
+        return domain_codes, dict(domain_cols)
+
+    def get_codes_by_domain(self, names: Optional[List[str]] = None) -> Dict[str, set]:
+        """
+        Recursively scans phenotype kwargs to find code lists and assigns them
+        to the closest specified domain in the nested structure.
+        """
+        from collections import defaultdict
+        domain_codes = defaultdict(set)
+
+        def _add_codes(targets: List[str], codes_val: Any):
+            """Helper to normalize and add codes to the target domains."""
+            if not codes_val or not targets:
+                return
+            if isinstance(codes_val, (str, int, float)):
+                codes_val = [codes_val]
+
+            for dom in targets:
+                domain_codes[dom].update(str(c).upper() for c in codes_val if c is not None)
+
+        def _scan(obj: Any, current_domains: List[str], spec_domains: List[str]):
+            if isinstance(obj, dict):
+                # 1. Update the "closest domain" context if this level defines one
+                local_domains = current_domains
+                if "domain" in obj:
+                    local_domains = [obj["domain"]]
+                elif "target_domains" in obj:
+                    local_domains = obj["target_domains"]
+                    if isinstance(local_domains, str):
+                        local_domains = [local_domains]
+
+                # 2. Extract codes or recurse further
+                for k, v in obj.items():
+                    if k == "codes":
+                        _add_codes(local_domains, v)
+                    elif isinstance(k, str) and k.endswith("_codes"):
+                        # If key is e.g., 'vitals_codes', check if 'vitals' is a known domain
+                        prefix = k.replace("_codes", "")
+                        target = [prefix] if prefix in spec_domains else local_domains
+                        _add_codes(target, v)
                     else:
-                        domain_cols[comp_domain].add(comp_col)
+                        # Continue scanning nested structures
+                        _scan(v, local_domains, spec_domains)
 
-        return dict(domain_codes), dict(domain_cols)
+            elif isinstance(obj, list):
+                for item in obj:
+                    _scan(item, current_domains, spec_domains)
 
+        # Execute the scan for all requested phenotypes
+        for spec in self.select(names=names):
+            _scan(spec.kwargs, spec.domains, spec.domains)
+
+        return dict(domain_codes)
 
 DEFAULT_REGISTRY = PhenotypeRegistry()
 

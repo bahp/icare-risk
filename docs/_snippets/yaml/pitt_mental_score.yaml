@@ -1,0 +1,12 @@
+pitt_mental_score:
+  module: icare_risk.clinphen.phenotypes.pitt
+  function: compute_pitt_mental_score
+  domains:
+  - vitals
+  kwargs:
+    window:
+    - 0h
+    - 24h
+    codes:
+    - '9097010'
+    - '9268392'

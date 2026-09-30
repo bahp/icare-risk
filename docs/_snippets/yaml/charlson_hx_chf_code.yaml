@@ -1,0 +1,35 @@
+charlson_hx_chf_code:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  category:
+  - charlson_components
+  domains:
+  - problems
+  kwargs:
+    codes:
+    - '84114007'
+    - '446221000'
+    - '42343007'
+    - '703273002'
+    - '424404003'
+    - '703272007'
+    - '10633002'
+    - '48447003'
+    - '128404006'
+    - '390884006'
+    - '418304008'
+    - '161505003'
+    res195_codes:
+    - I50
+    - I11.0
+    - I13.0
+    - I13.2
+    - I25.5
+    - G58..00
+    - G580.00
+    - G580000
+    - G580100
+    - G581.00
+    - G582.00
+    - G583.00
+    - 1O1..00

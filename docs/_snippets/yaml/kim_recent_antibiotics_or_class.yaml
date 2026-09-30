@@ -1,0 +1,31 @@
+kim_recent_antibiotics_or_class:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  domains:
+  - prescribing
+  kwargs:
+    logic: or
+    components:
+    - extractor_type: keyword
+      domain: prescribing
+      text_col: code
+      keywords:
+      - amoxicillin
+      - piperacillin
+      - meropenem
+      - ceftriaxone
+      - ciprofloxacin
+      - ceftazidime
+      - cefepime
+      window:
+      - -2160h
+      - 24h
+    - extractor_type: keyword
+      domain: prescribing
+      text_col: THERAPEUTICAL_CLASS
+      keywords:
+      - antibiotics
+      - antibacterials
+      window:
+      - -2160h
+      - 24h

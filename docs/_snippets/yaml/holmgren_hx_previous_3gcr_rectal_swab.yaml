@@ -1,0 +1,17 @@
+holmgren_hx_previous_3gcr_rectal_swab:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  - pathology
+  category:
+  - holmgren_components
+  kwargs:
+    target_domains:
+    - problems
+    - diagnoses
+    - pathology
+    codes: []
+    res195_codes:
+    - Z22.322

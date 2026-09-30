@@ -1,0 +1,11 @@
+kim_hx_nursing_home_resident:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - kim_components
+  kwargs:
+    codes: []
+    res195_codes:
+    - Z59.3

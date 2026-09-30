@@ -1,0 +1,37 @@
+charlson_hx_liver_mod_sev:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - charlson_components
+  kwargs:
+    codes:
+    - '14223005'
+    - '197279005'
+    - '328383001'
+    - '28670008'
+    - '91109007'
+    - '41309000'
+    - '235875008'
+    - '235881000'
+    - '9953008'
+    - '420054005'
+    - '713181003'
+    - '89580002'
+    - '31712002'
+    - '19943007'
+    - '831000119103'
+    - '716203000'
+    - '34742003'
+    res195_codes:
+    - I85.0
+    - I85.9
+    - I86.4
+    - I98.2
+    - K70.4
+    - K71.1
+    - K72.1
+    - K72.9
+    - K76.6
+    - K76.7

@@ -167,7 +167,8 @@ goto :eof
 :docs_serve
 echo.
 echo --- Generating Snippets Inside Container ---
-%RUN% python src/icare_risk/scripts/hook_phenotype_snippets.py
+%RUN% python src/icare_risk/scripts/hook_phenotype_snippets_v2.py
+%RUN% python src/icare_risk/scripts/gen_yaml_snippets.py
 echo.
 echo --- Serving Documentation Locally ---
 %RUN% zensical serve
@@ -176,7 +177,8 @@ goto :eof
 :docs_build
 echo.
 echo --- Generating Snippets Inside Container ---
-%RUN% python src/icare_risk/scripts/hook_phenotype_snippets.py
+%RUN% python src/icare_risk/scripts/hook_phenotype_snippets_v2.py
+%RUN% python src/icare_risk/scripts/gen_yaml_snippets.py
 echo.
 echo --- Copying notebooks ---
 %RUN% python src/icare_risk/scripts/hook_copy_notebooks.py

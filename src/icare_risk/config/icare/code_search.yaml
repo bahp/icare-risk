@@ -12,6 +12,7 @@ targets:
     campaigns: &charlson_campaigns
       - category: "Myocardial Infarction"
         contains: [ "myocardial infarction", "heart attack", "stemi", "nstemi" ]
+
         exclude: [ "old", "history of", "family history" ]
 
       - category: "Congestive Heart Failure"
@@ -115,9 +116,18 @@ targets:
 
 
   # --------------------------------------------------
-  # Looking for comorbidities in icareP.csv
+  # Looking for comorbidities in icarePRO.csv
   # --------------------------------------------------
-  - file: "icareP.csv"
+  - file: "icarePRO.csv"
+    code_col: "code"
+    search_cols: [ "name" ]
+    export_cols: [ ]
+    campaigns: *charlson_campaigns
+
+  # --------------------------------------------------
+  # Looking for comorbidities in icareDIA.csv
+  # --------------------------------------------------
+  - file: "icarePRO.csv"
     code_col: "code"
     search_cols: [ "name" ]
     export_cols: [ ]

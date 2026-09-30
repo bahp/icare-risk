@@ -1,0 +1,15 @@
+gavaghan_hx_urinary_catheter:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  - diagnoses
+  - procedures
+  category:
+  - gavaghan_components
+  kwargs:
+    codes: []
+    res195_codes:
+    - Z46.6
+    - Y84.6

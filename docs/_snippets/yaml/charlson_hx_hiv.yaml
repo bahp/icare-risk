@@ -1,0 +1,38 @@
+charlson_hx_hiv:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  category:
+  - charlson_components
+  kwargs:
+    logic: max
+    components:
+    - extractor_type: history
+      domain: problems
+      codes: &id001
+      - '165816005'
+      - '1142045004'
+      - '161513008'
+      - '19030005'
+      - '89293008'
+      - '442662004'
+    - extractor_type: history
+      domain: diagnosis
+      codes:
+      - Z21
+      - R75
+      - O98.7
+      - 43C3.11
+      - 43C3.00
+      - ZV01A00
+      - R109.00
+      code_col: DIAGNOSIS_CODE_ICD
+      window:
+      - null
+      - 24h
+    - extractor_type: history
+      domain: diagnosis
+      codes: *id001
+      code_col: DIAGNOSIS_CODE_SNOMED
+      window:
+      - null
+      - 24h

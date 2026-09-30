@@ -1,0 +1,17 @@
+pitt_arrest_score_rule:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  domains:
+  - vitals
+  kwargs:
+    logic: max
+    components:
+    - extractor_type: history
+      domain: diagnoses
+      codes:
+      - I46
+      - I46.9
+      - '410429000'
+      - '89666000'
+      points: 4

@@ -1,0 +1,37 @@
+tumbarello_hx_recent_abx_90d:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  domains:
+  - prescribing
+  category:
+  - tumbarello_components
+  kwargs:
+    logic: or
+    components:
+    - extractor_type: keyword
+      domain: prescribing
+      keywords:
+      - amoxicillin
+      - piperacillin
+      - meropenem
+      - ceftriaxone
+      - ceftazidime
+      - cefepime
+      - ciprofloxacin
+      - levofloxacin
+      window:
+      - -2160h
+      - 0h
+    - extractor_type: keyword
+      domain: prescribing
+      text_col: THERAPEUTICAL_CLASS
+      keywords:
+      - antibiotics
+      - antibacterials
+      - penicillins
+      - cephalosporins
+      - fluoroquinolones
+      - carbapenems
+      window:
+      - -2160h
+      - 0h

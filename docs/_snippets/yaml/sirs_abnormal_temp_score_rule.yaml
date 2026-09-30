@@ -1,0 +1,16 @@
+sirs_abnormal_temp_score_rule:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_score_from_rules
+  domains:
+  - vitals
+  kwargs:
+    domain: vitals
+    codes:
+    - '10933766'
+    - '486347689'
+    window:
+    - 0h
+    - 24h
+    rules:
+    - expr: value > 38 or value < 36
+      points: 1

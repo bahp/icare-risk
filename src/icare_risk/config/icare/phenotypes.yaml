@@ -37,8 +37,8 @@ definitions:
       icare: &bili_icare
         - 'bil'
 
-    congestive_heart_failure:
-      snomed: &chf_snomed
+    congestive_heart_failure2:
+      snomed:
         - '446221000'
         - '703273002'
         - '84114007'
@@ -53,6 +53,657 @@ definitions:
         - 'milrinone'
         - 'dobutamine'
 
+    myocardial_infarction:
+      snomed: &mi_snomed
+        - '22298006'           # Myocardial infarction (disorder)
+        - '57054005'           # Acute myocardial infarction (disorder)
+        - '1755008'            # Old myocardial infarction (disorder)
+        - '129574000'          # Postoperative myocardial infarction (disorder)
+        - '401303003'          # Acute ST segment elevation myocardial infarction (disorder)
+        - '70211005'           # Non-ST segment elevation myocardial infarction (disorder)
+        - '401314000'          # Acute non-ST segment elevation myocardial infarction (disorder)
+        - '194828000'          # Acute transmural myocardial infarction (disorder)
+        - '194841006'          # Subendocardial infarction (disorder)
+        - '398320008'          # Acute anterior myocardial infarction (disorder)
+        - '398210009'          # Acute inferior myocardial infarction (disorder)
+        - '54329005'           # Acute myocardial infarction of anterior wall (disorder)
+        - '57797005'           # Acute myocardial infarction of inferior wall (disorder)
+        - '16837681000119100'  # Acute ST segment elevation myocardial infarction (UK Extension)
+
+      res195: &mi_res195
+        # ICD-10
+        - 'I21'                # Acute myocardial infarction
+        - 'I22'                # Subsequent myocardial infarction
+        - 'I25.2'              # Old myocardial infarction
+        # Read v2
+        - 'G30..00'            # Acute myocardial infarction
+        - 'G300.00'            # Acute anterolateral infarction
+        - 'G301.00'            # Acute anteroseptal infarction
+        - 'G307.00'            # Subendocardial infarction
+        - 'G30..11'            # Heart attack
+        - 'G35..00'            # Old myocardial infarction
+        - '323..00'            # ECG: myocardial infarction
+
+    congestive_heart_failure:
+      snomed: &chf_snomed
+        - '84114007'           # Heart failure (disorder)
+        - '446221000'          # Congestive heart failure (disorder)
+        - '42343007'           # Congestive heart failure (disorder)
+        - '703273002'          # Chronic congestive heart failure (disorder)
+        - '424404003'          # Acute congestive heart failure (disorder)
+        - '703272007'          # Acute on chronic congestive heart failure (disorder)
+        - '10633002'           # Acute left ventricular failure (disorder)
+        - '48447003'           # Chronic left ventricular failure (disorder)
+        - '128404006'          # Right heart failure (disorder)
+        - '390884006'          # Heart failure with preserved ejection fraction (disorder)
+        - '418304008'          # Rheumatic heart failure (disorder)
+        - '161505003'          # History of heart failure (situation)
+
+      res195: &chf_res195
+        # ICD-10
+        - 'I50'                # Heart failure (I50.1 - I50.9)
+        - 'I11.0'              # Hypertensive heart disease with heart failure
+        - 'I13.0'              # Hypertensive heart and chronic kidney disease with heart failure
+        - 'I13.2'              # Hypertensive heart and CKD with heart failure and ESRD
+        - 'I25.5'              # Ischemic cardiomyopathy
+        # Read v2
+        - 'G58..00'            # Heart failure
+        - 'G580.00'            # Congestive heart failure
+        - 'G580000'            # Acute congestive heart failure
+        - 'G580100'            # Chronic congestive heart failure
+        - 'G581.00'            # Left ventricular failure
+        - 'G582.00'            # Acute heart failure
+        - 'G583.00'            # Heart failure with preserved ejection fraction
+        - '1O1..00'            # Heart failure confirmed
+
+    pulmonary_disease:
+      snomed: &pulmonary_disease_snomed
+        - '32398004'           # Bronchitis
+        - '866901000000103'    # Eosinophilic bronchitis
+        - '12295008'           # Bronchiectasis
+        - '13645005'           # Chronic obstructive pulmonary disease (COPD)
+        - '195951007'          # Acute exacerbation of chronic obstructive airways disease
+        - '313296004'          # Mild chronic obstructive pulmonary disease
+        - '198401000000104'    # Chronic obstructive pulmonary disease disturbs sleep
+        - '198411000000102'    # Chronic obstructive pulmonary disease does not disturb sleep
+        - '204991000000107'    # Suspected chronic obstructive pulmonary disease
+        - '847091000000104'    # Acute non-infective exacerbation of chronic obstructive pulmonary disease
+        - '708030004'          # Pulmonary emphysema co-occurrent with fibrosis of lung
+        - '87433001'           # Pulmonary emphysema
+        - '125295001'          # Chronic emphysema
+        - '49158009'           # Emphysema
+
+      res195: &pulmonary_disease_res195
+        - 'J40'                # Bronchitis, not specified as acute or chronic
+        - 'J41'                # Simple and mucopurulent chronic bronchitis
+        - 'J42'                # Unspecified chronic bronchitis
+        - 'J43'                # Emphysema
+        - 'J44'                # Other chronic obstructive pulmonary disease
+        - 'J45'                # Asthma
+        - 'J46'                # Severe asthma
+        - 'J47'                # Bronchiectasis
+        - 'J60'                # Coalworker's pneumoconiosis
+        - 'J61'                # Pneumoconiosis due to asbestos and other mineral fibres
+        - 'J62'                # Pneumoconiosis due to silica
+        - 'J63'                # Pneumoconiosis due to other inorganic dust
+        - 'J64'                # Unspecified pneumoconiosis
+        - 'J65'                # Pneumoconiosis associated with tuberculosis
+        - 'J66'                # Airway disease due to specific organic dust
+        - 'J67'                # Hypersensitivity pneumonitis due to organic dust
+
+    rheum:
+      snomed: &rheum_snomed
+        - '308143008'          # Rheumatoid arthritis
+        - '23685000'           # Systemic lupus erythematosus
+        - '69896004'           # Systemic sclerosis
+        - '735600005'          # Mixed connective tissue disease
+        - '1148597009'         # Systemic lupus erythematosus-related condition
+        - '161567008'          # History of rheumatoid arthritis
+        - '239938009'          # Rheumatoid arthritis of hand
+        - '399923009'          # Rheumatoid arthritis of multiple joints
+        - '414821000000101'    # Rheumatoid arthritis
+        - '65323003'           # Systemic lupus erythematosus
+        - '58718002'           # Dermatomyositis
+        - '398726004'          # Polymyositis
+        - '425481000000106'    # Systemic sclerosis
+        - '396332003'          # Connective tissue disease
+
+      res195: &rheum_res195
+        # ICD-10
+        - 'M05'                # Seropositive rheumatoid arthritis
+        - 'M06'                # Other rheumatoid arthritis
+        - 'M31.5'              # Giant cell arteritis with polymyalgia rheumatica
+        - 'M32'                # Systemic lupus erythematosus
+        - 'M33'                # Dermatopolymyositis
+        - 'M34'                # Systemic sclerosis
+        - 'M35.1'              # Other overlap syndromes
+        - 'M35.3'              # Polymyalgia rheumatica
+        - 'M36.0'              # Dermato(poly)myositis in neoplastic disease
+
+    peptic_ulcer:
+      snomed: &peptic_ulcer_snomed
+        - '422183001'          # Peptic ulcer disease
+        - '9829001'            # Duodenal ulcer
+        - '26649005'           # Gastric ulcer
+        - '10660471000119100'  # Gastric ulcer
+        - '860978005'          # Peptic ulcer disease
+        - '10635431000119100'  # Duodenal ulcer
+        - '1521000119100'      # Peptic ulcer
+        - '68640004'           # Gastric ulcer
+        - '402863005'          # Duodenal ulcer
+        - '87481000119109'     # Peptic ulcer
+        - '371087003'          # Gastric ulcer
+        - '64766004'           # Duodenal ulcer
+        - '238796009'          # Peptic ulcer
+        - '690791000119107'    # Gastric ulcer
+        - '876782006'          # Peptic ulcer disease
+        - '238792006'          # Gastric ulcer
+        - '95344007'           # Duodenal ulcer
+        - '95345008'           # Gastric ulcer
+        - '51868009'           # Peptic ulcer
+        - '27281001'           # Duodenal ulcer
+        - '225562005'          # Gastric ulcer
+        - '225561003'          # Duodenal ulcer
+        - '13200003'           # Peptic ulcer
+        - '201251005'          # Gastric ulcer
+        - '56208002'           # Duodenal ulcer
+        - '308740002'          # Peptic ulcer
+        - '30811009'           # Gastric ulcer
+        - '397825006'          # Duodenal ulcer
+        - '711168000'          # Peptic ulcer disease
+        - '10995761000119100'  # Gastric ulcer
+        - '405719001'          # Peptic ulcer
+        - '301022003'          # Duodenal ulcer
+        - '201252003'          # Gastric ulcer
+        - '714664001'          # Peptic ulcer disease
+        - '703282008'          # Duodenal ulcer
+        - '308901000'          # Gastric ulcer
+        - '301021005'          # Duodenal ulcer
+        - '788949000'          # Peptic ulcer disease
+        - '429040005'          # Gastric ulcer
+        - '830072004'          # Peptic ulcer disease
+        - '140391000119101'    # Duodenal ulcer
+        - '371032004'          # Gastric ulcer
+        - '275547005'          # Peptic ulcer
+
+      res195: &peptic_ulcer_res195
+        # ICD-10
+        - 'K25'                # Gastric ulcer
+        - 'K26'                # Duodenal ulcer
+        - 'K27'                # Peptic ulcer, site unspecified
+        - 'K28'                # Gastrojejunal ulcer
+        -
+    aids:
+      snomed: &aids_snomed
+        # Snomed
+        - '62479008'           # Acquired immune deficiency syndrome (disorder)
+        - '19030005'           # Acquired immunodeficiency syndrome (disorder)
+        - '86406008'           # Human immunodeficiency virus infection (disorder)
+        - '1142045004'         # Infection caused by Human immunodeficiency virus (disorder)
+        # Problems
+        - '721951000000103'    # People with human immunodeficiency virus or acquired immune deficiency syndrome (qualifier value)
+
+      res195: &aids_res195
+        # ICD-10
+        - 'B20'                # HIV disease resulting in infectious/parasitic diseases
+        - 'B21'                # HIV disease resulting in malignant neoplasms
+        - 'B22'                # HIV disease resulting in other specified diseases
+        - 'B24'                # Unspecified human immunodeficiency virus [HIV] disease
+        # Read v2
+        - 'A788.00'            # Acquired immune deficiency syndrome
+        - 'A788.11'            # Human immunodeficiency virus infection
+        - 'A789.00'            # Human immunodef virus resulting in other disease
+        - 'AyuC.00'            # [X] Human immunodeficiency virus disease
+        - '65QA.00'            # AIDS carrier
+
+      hiv:
+        snomed: &hiv_snomed
+          # Snomed
+          - '165816005'          # Human immunodeficiency virus positive (finding)
+          - '1142045004'         # Infection caused by Human immunodeficiency virus (disorder)
+          - '161513008'          # History of human immunodeficiency virus infection (situation)
+          # Problems
+          - '19030005'           # HIV
+          - '89293008'           # HIV-1
+          - '442662004'          # increased human immunodeficiency virus (hiv) viral load
+
+        res195: &hiv_res195
+          # ICD-10
+          - 'Z21'                # Asymptomatic human immunodeficiency virus [HIV] infection status
+          - 'R75'                # Laboratory evidence of human immunodeficiency virus [HIV]
+          - 'O98.7'              # Human immunodeficiency virus [HIV] disease in pregnancy/childbirth
+          # Read v2
+          - '43C3.11'            # HIV positive
+          - '43C3.00'            # HTLV-3 antibody positive
+          - 'ZV01A00'            # [V] Asymptomatic human immunodeficiency virus infection status
+          - 'R109.00'            # [D] Laboratory evidence of human immunodeficiency virus [HIV]
+
+    hemiplegia_paraplegia:
+      snomed: &hemiplegia_snomed
+        - '50582007'           # Hemiplegia (disorder)
+        - '250018001'          # Paraplegia (disorder)
+        - '44535002'           # Quadriplegia (disorder)
+        - '41330006'           # Diplegia (disorder)
+        - '20308003'           # Spastic hemiplegia (disorder)
+        - '386582002'          # Flaccid hemiplegia (disorder)
+        - '230722008'          # Congenital hemiplegia (disorder)
+        - '192780005'          # Congenital paraplegia (disorder)
+
+      res195: &hemiplegia_res195
+        # ICD-10
+        - 'G04.1'              # Tropical spastic paraplegia
+        - 'G11.4'              # Hereditary spastic paraplegia
+        - 'G80.1'              # Spastic diplegic cerebral palsy
+        - 'G80.2'              # Infantile hemiplegia
+        - 'G81'                # Hemiplegia (G81.0 - G81.9)
+        - 'G82'                # Paraplegia and tetraplegia (G82.0 - G82.5)
+        - 'G83.0'              # Diplegia of upper limbs
+        - 'G83.1'              # Monoplegia of lower limb
+        - 'G83.2'              # Monoplegia of upper limb
+        - 'G83.3'              # Monoplegia, unspecified
+        - 'G83.4'              # Cauda equina syndrome
+        - 'G83.9'              # Paralytic syndrome, unspecified
+        # Read v2
+        - 'F22..00'            # Hemiplegia
+        - 'F220.00'            # Flaccid hemiplegia
+        - 'F221.00'            # Spastic hemiplegia
+        - 'F222.00'            # Left hemiplegia
+        - 'F223.00'            # Right hemiplegia
+        - 'F241.00'            # Paraplegia
+        - 'F240.00'            # Quadriplegia
+        - 'F231.00'            # Congenital hemiplegia
+        - 'F141.00'            # Hereditary spastic paraplegia
+        - '2833'               # O/E - hemiplegia
+        - '2835'               # O/E - paraplegia
+
+    leukemia:
+      # --- Leukemia ---
+      snomed: &leukemia_snomed
+        - '93143009'    # Leukemia (disorder)
+        - '118616009'   # Malignant neoplastic disease of hematopoietic and lymphoid tissues
+        - '91857003'    # Acute lymphoid leukemia
+        - '92814002'    # Chronic lymphoid leukemia
+        - '91861009'    # Acute myeloid leukemia
+        - '92818009'    # Chronic myeloid leukemia
+
+      icd10: &leukemia_icd10
+        - 'C91'         # Lymphoid leukaemia
+        - 'C92'         # Myeloid leukaemia
+        - 'C93'         # Monocytic leukaemia
+        - 'C94'         # Other leukaemias of specified cell type
+        - 'C95'         # Leukaemia of unspecified cell type
+
+    diabetes_uncomp:
+      # --- Diabetes Uncomplicated ---
+      snomed: &diabetes_uncomp_snomed
+        - '44054006'            # Type 2 diabetes mellitus
+        - '73211009'            # Diabetes mellitus
+        - '81531005'            # Diabetes mellitus type 1
+        - '11687002'            # Gestational diabetes mellitus
+        - '405751000'           # Type 2 diabetes mellitus without complication
+        - '164971000119101'     # Type 2 diabetes mellitus
+        - '190372001'           # Impaired glucose tolerance
+        - '170745003'           # Diabetic - good control
+        - '1102351000000100'    # Type 2 diabetes mellitus with microalbuminuria
+        - '408540003'           # Diabetes mellitus controlled by diet
+        - '444110003'           # Type 2 diabetes mellitus controlled by diet
+        - '858301000000107'     # Type 2 diabetes mellitus controlled by oral agent
+        - '28032008'            # Insulin dependent diabetes mellitus
+        - '46635009'            # Type 1 diabetes mellitus
+        - '237599002'           # Insulin-treated type 2 diabetes mellitus
+        - '421468001'           # Type 2 diabetes mellitus controlled by insulin
+        - '270445003'           # Latent autoimmune diabetes in adults
+        - '24481000000101'      # Type 2 diabetes mellitus controlled by diet and oral agent
+        - '472969004'           # Secondary diabetes mellitus
+        - '703138006'           # Type 2 diabetes mellitus without retinopathy
+        - '714628002'           # Type 2 diabetes mellitus without nephropathy
+        - '23045005'            # Non-insulin dependent diabetes mellitus
+        - '443694000'           # Type 2 diabetes mellitus screen
+        - '405749004'           # Type 1 diabetes mellitus without complication
+        - '170747006'           # Diabetic - poor control
+        - '24471000000103'      # Type 2 diabetes mellitus controlled by insulin and oral agent
+        - '170746002'           # Diabetic - fair control
+        - '314194001'           # Diabetes mellitus in remission
+
+      icd10: &diabetes_uncomp_icd10
+        - 'E10.0'       # Type 1 DM with coma
+        - 'E10.1'       # Type 1 DM with ketoacidosis
+        - 'E10.6'       # Type 1 DM with other specified complications
+        - 'E10.8'       # Type 1 DM with unspecified complications
+        - 'E10.9'       # Type 1 DM without complications
+        - 'E11.0'       # Type 2 DM with coma
+        - 'E11.1'       # Type 2 DM with ketoacidosis
+        - 'E11.6'       # Type 2 DM with other specified complications
+        - 'E11.8'       # Type 2 DM with unspecified complications
+        - 'E11.9'       # Type 2 DM without complications
+        - 'E13'         # Other specified diabetes mellitus
+        - 'E14'         # Unspecified diabetes mellitus
+
+    diabetes_comp:
+      # --- Diabetes Complicated ---
+      snomed: &diabetes_comp_snomed
+        - '10660471000119100'   # Type 2 DM with diabetic peripheral neuropathy
+        - '860970005'           # Type 2 DM with foot ulcer
+        - '420756003'           # Type 2 DM with diabetic retinopathy
+        - '1521000119100'       # Type 2 DM with proliferative diabetic retinopathy
+        - '87481000119109'      # Type 2 DM with diabetic chronic kidney disease
+        - '237632004'           # Type 2 DM with persistent proteinuria
+        - '230572002'           # Type 2 DM with polyneuropathy
+        - '90791000119104'      # Type 2 DM with diabetic maculopathy
+        - '71701000119105'      # Type 2 DM with peripheral vascular disease
+        - '51002006'            # DM with renal manifestation
+        - '90771000119100'      # Type 2 DM with nonproliferative diabetic retinopathy
+        - '140391000119101'     # Type 2 DM with diabetic gastroparesis
+        - '368051000119109'     # Type 2 DM with diabetic cataract
+        - '96441000119101'      # Type 2 DM with Charcot's arthropathy
+        - '721000119107'        # Type 2 DM with diabetic amyotrophy
+        - '127014009'           # DM with ophthalmic manifestation
+        - '371087003'           # DM with neurological manifestation
+        - '201252003'           # DM with peripheral vascular disease
+        - '774521000000103'     # Type 2 DM with end stage renal disease
+
+      icd10: &diabetes_comp_icd10
+        - 'E10.2'       # Type 1 DM with renal complications
+        - 'E10.3'       # Type 1 DM with ophthalmic complications
+        - 'E10.4'       # Type 1 DM with neurological complications
+        - 'E10.5'       # Type 1 DM with peripheral circulatory complications
+        - 'E10.7'       # Type 1 DM with multiple complications
+        - 'E11.2'       # Type 2 DM with renal complications
+        - 'E11.3'       # Type 2 DM with ophthalmic complications
+        - 'E11.4'       # Type 2 DM with neurological complications
+        - 'E11.5'       # Type 2 DM with peripheral circulatory complications
+        - 'E11.7'       # Type 2 DM with multiple complications
+
+    metastatic_solid_tumor:
+      # --- Metastatic Solid Tumor ---
+      snomed: &metastatic_solid_tumor_snomed
+        - '94392001'            # Secondary malignant neoplasm of lung
+        - '314994000'           # Metastasis
+        - '712849003'           # Secondary malignant neoplasm of bone
+        - '94248000'            # Secondary malignant neoplasm of liver
+        - '285605009'           # Secondary malignant neoplasm of brain
+        - '1098961000119100'    # Secondary malignant neoplasm of lymph node
+        - '94222008'            # Secondary malignant neoplasm of pleura
+        - '94391008'            # Secondary malignant neoplasm of adrenal gland
+        - '1691000119104'       # Metastatic carcinoma
+        - '79282002'            # Secondary malignant neoplasm of peritoneum
+        - '94381002'            # Secondary malignant neoplasm of retroperitoneum
+        - '403906006'           # Secondary malignant neoplasm of skin
+        - '94217008'            # Secondary malignant neoplasm of pericardium
+        - '128462008'           # Metastatic malignant neoplasm
+        - '254837009'           # Malignant neoplasm of breast with metastasis
+        - '363346000'           # Malignant neoplasm of prostate with metastasis
+        - '93655004'            # Secondary malignant neoplasm of kidney
+        - '94101009'            # Secondary malignant neoplasm of ovary
+        - '236005001'           # Secondary malignant neoplasm of urinary bladder
+        - '399326009'           # Secondary malignant neoplasm of colon
+        - '399068003'           # Secondary malignant neoplasm of stomach
+        - '363418001'           # Secondary malignant neoplasm of pancreas
+        - '86049000'            # Secondary malignant neoplasm of brain and spinal cord
+        - '274087000'           # Secondary malignant neoplasm of central nervous system
+        - '75109009'            # Secondary malignant neoplasm of spleen
+        - '314966008'           # Secondary malignant neoplasm of bone marrow
+        - '372064008'           # Secondary malignant neoplasm of thyroid
+        - '363354003'           # Secondary malignant neoplasm of small intestine
+        - '21594007'            # Secondary malignant neoplasm of esophagus
+        - '363351006'           # Secondary malignant neoplasm of rectum
+        - '372087000'           # Secondary malignant neoplasm of gallbladder
+
+      res195: &metastatic_solid_tumor_res195
+        - 'C77'                 # Secondary and unspecified malignant neoplasm of lymph nodes
+        - 'C78'                 # Secondary malignant neoplasm of respiratory and digestive organs
+        - 'C79'                 # Secondary malignant neoplasm of other and unspecified sites
+        - 'C80'                 # Malignant neoplasm without specification of site
+
+    liver_mod_severe:
+      # --- Liver Disease (Moderate to Severe) ---
+      snomed: &liver_mod_severe_snomed
+        - '14223005'            # Esophageal varices (disorder)
+        - '197279005'           # Bleeding esophageal varices (disorder)
+        - '328383001'           # Bleeding esophageal varices (disorder)
+        - '28670008'            # Esophageal varices without hemorrhage (disorder)
+        - '91109007'            # Hepatic coma (disorder)
+        - '41309000'            # Portal hypertension (disorder)
+        - '235875008'           # Secondary portal hypertension (disorder)
+        - '235881000'           # Gastrointestinal hemorrhage due to esophageal varices (disorder)
+        - '9953008'             # Hepatorenal syndrome (disorder)
+        - '420054005'           # Variceal hemorrhage (disorder)
+        - '713181003'           # Esophageal varices (disorder)
+        - '89580002'            # Acute hepatic failure (disorder)
+        - '31712002'            # Acute and subacute hepatic necrosis (disorder)
+        - '19943007'            # Hepatic encephalopathy (disorder)
+        - '831000119103'        # Esophageal varices with bleeding (disorder)
+        - '716203000'           # Hepatic encephalopathy (disorder)
+        - '34742003'            # Chronic hepatic failure (disorder)
+
+      icd10: &liver_mod_severe_icd10
+        - 'I85.0'               # Esophageal varices with bleeding
+        - 'I85.9'               # Esophageal varices without bleeding
+        - 'I86.4'               # Gastric varices
+        - 'I98.2'               # Esophageal varices in diseases classified elsewhere
+        - 'K70.4'               # Alcoholic hepatic failure
+        - 'K71.1'               # Toxic liver disease with hepatic necrosis
+        - 'K72.1'               # Chronic hepatic failure
+        - 'K72.9'               # Hepatic failure, unspecified
+        - 'K76.6'               # Portal hypertension
+        - 'K76.7'               # Hepatorenal syndrome
+
+    lymphoma:
+      # --- Lymphoma ---
+      snomed: &lymphoma_snomed
+        - '118600007'           # Malignant lymphoma (disorder)
+        - '277455002'           # Hodgkin lymphoma (disorder)
+        - '277457005'           # Non-Hodgkin lymphoma (disorder)
+        - '109989006'           # Multiple myeloma (disorder)
+        - '118603009'           # Waldenström macroglobulinemia (disorder)
+        - '109988003'           # Malignant immunoproliferative disease (disorder)
+        - '277459008'           # Diffuse large B-cell lymphoma (disorder)
+        - '277460003'           # Follicular lymphoma (disorder)
+        - '277465008'           # Mantle cell lymphoma (disorder)
+        - '363343007'           # Malignant lymphoma of lymphoid tissue (disorder)
+        - '118599009'           # Hodgkin's disease (disorder)
+
+      res195: &lymphoma_res195
+        - 'C81'                 # Hodgkin lymphoma
+        - 'C82'                 # Follicular lymphoma
+        - 'C83'                 # Non-follicular lymphoma
+        - 'C84'                 # Mature T/NK-cell lymphomas
+        - 'C85'                 # Other and unspecified types of non-Hodgkin lymphoma
+        - 'C88'                 # Malignant immunoproliferative diseases
+        - 'C90'                 # Multiple myeloma and malignant plasma cell neoplasms
+        - 'C96'                 # Other and unspecified malignant neoplasms of lymphoid, hematopoietic and related tissue
+
+    liver_mild:
+      snomed: &liver_mild_snomed
+        - '61977001'            # Chronic liver disease
+        - '111891008'           # Chronic hepatitis
+        - '768126006'           # Non-alcoholic fatty liver disease
+        - '128302006'           # Chronic viral hepatitis
+        - '442685003'           # Alcoholic liver disease
+        - '62944002'            # Hepatitis
+        - '9953008'             # Fatty liver
+
+      res195: &liver_mild_res195
+        # ICD-10
+        - 'B18'                 # Chronic viral hepatitis
+        - 'K70.0'               # Alcoholic fatty (change of) liver
+        - 'K70.1'               # Alcoholic hepatitis
+        - 'K70.2'               # Alcoholic fibrosis and sclerosis of liver
+        - 'K70.3'               # Alcoholic cirrhosis of liver
+        - 'K70.9'               # Alcoholic liver disease, unspecified
+        - 'K71'                 # Toxic liver disease
+        - 'K73'                 # Chronic hepatitis, not elsewhere classified
+        - 'K74'                 # Fibrosis and cirrhosis of liver
+        - 'K76.0'               # Fatty (change of) liver, not elsewhere classified
+
+    dementia:
+      snomed: &dementia_snomed
+        - '702429008'          # Dementia
+        - '230270009'          # Alzheimer's disease
+        - '56267009'           # Alzheimer dementia
+        - '80098002'           # Dementia in conditions classified elsewhere
+        - '52448006'           # Dementia, unspecified
+        - '52448006'           # Dementia, unspecified
+        - '429998004'          # Vascular dementia
+        - '142811000119104'    # Dementia associated with another disease
+        - '1591000119103'      # Dementia in other diseases
+        - '425390006'          # Frontotemporal dementia
+        - '56267009'           # Alzheimer dementia
+        - '26929004'           # Senile dementia
+        - '10171000132106'     # Dementia with behavioral disturbance
+        - '79341000119107'     # Dementia with behavioral disturbance
+        - '135811000119107'    # Dementia in other diseases
+        - '142811000119104'    # Dementia associated with another disease
+        - '26929004'           # Senile dementia
+
+      res195: &dementia_res195
+        # ICD-10
+        - 'F00'                # Dementia in Alzheimer's disease
+        - 'F01'                # Vascular dementia
+        - 'F02'                # Dementia in other diseases classified elsewhere
+        - 'F03'                # Unspecified dementia
+        - 'F05.1'              # Delirium superimposed on dementia
+        - 'G30'                # Alzheimer's disease
+        - 'G31.1'              # Senile degeneration of brain, not elsewhere classified
+
+    stroke:
+      snomed: &stroke_snomed
+        - '230690007'          # Cerebrovascular accident
+        - '1078001000000100'   # Stroke
+        - '817701000000103'    # Cerebral infarction
+        - '720191000000104'    # Cerebrovascular accident
+        - '429235008'          # Ischaemic stroke
+        - '230706003'          # Cerebral infarction
+        - '16002031000119100'  # Cerebrovascular accident
+        - '25133001'           # Cerebral haemorrhage
+        - '39925003'           # Stroke
+        - '16371781000119100'  # Cerebrovascular accident
+        - '422504002'          # Transient ischaemic attack
+        - '275526006'          # Transient cerebral ischaemic attack
+        - '135877001'          # Cerebrovascular disease
+
+      res195: &stroke_res195
+        # ICD-10
+        - 'I60'                # Subarachnoid haemorrhage
+        - 'I61'                # Intracerebral haemorrhage
+        - 'I62'                # Other nontraumatic intracranial haemorrhage
+        - 'I63'                # Cerebral infarction
+        - 'I64'                # Stroke, not specified as haemorrhage or infarction
+        - 'I65'                # Occlusion and stenosis of precerebral arteries, not resulting in cerebral infarction
+        - 'I66'                # Occlusion and stenosis of cerebral arteries, not resulting in cerebral infarction
+        - 'G45'                # Transient cerebral ischaemic attacks and related syndromes
+        - 'G46'                # Vascular syndromes of brain in cerebrovascular diseases
+
+    peripheral_vascular_disease:
+      snomed: &pvd_snomed
+        - '400047006'          # Peripheral vascular disease
+        - '840580004'          # Peripheral arterial disease
+        - '399957001'          # Peripheral arterial occlusive disease
+        - '400047006'          # Peripheral vascular disease
+        - '400047006'          # Peripheral vascular disease
+        - '858191000000103'    # Peripheral vascular disease
+        - '238796009'          # Peripheral vascular disease
+        - '16010871000119100'  # Peripheral arterial disease
+        - '16011271000119100'  # Peripheral vascular disease
+        - '372070002'          # Peripheral vascular disease
+
+      res195: &pvd_res195
+        # ICD-10
+        - 'I71'                # Aortic aneurysm and dissection
+        - 'I73.9'              # Peripheral vascular disease, unspecified
+        - 'I79.0'              # Aneurysm of aorta in diseases classified elsewhere
+        - 'R02'                # Gangrene, not elsewhere classified
+        - 'Z95.8'              # Presence of other vascular implants and grafts
+        - 'Z95.9'              # Presence of cardiac and vascular prosthetic device, unspecified
+
+    renal_mod_severe:
+      snomed: &renal_mod_severe_snomed
+        - '236398000'          # Chronic kidney disease
+        - '197594005'          # Chronic renal failure
+        - '236403004'          # Chronic kidney disease
+        - '236403004'          # Chronic kidney disease
+        - '441815006'          # Chronic kidney disease stage 3
+        - '77182004'           # Renal failure
+        - '236436003'          # Chronic kidney disease stage 4
+        - '175902000'          # Chronic renal failure
+        - '236436003'          # Chronic kidney disease stage 4
+        - '161665007'          # Renal impairment
+        - '324441000000106'    # Chronic kidney disease stage 3
+        - '324311000000101'    # Chronic kidney disease stage 4
+        - '324281000000104'    # Chronic kidney disease stage 5
+        - '691411000119101'    # Chronic kidney disease stage 5
+        - '714152005'          # Chronic kidney disease stage 3
+        - '709044004'          # Chronic kidney disease
+        - '433144002'          # Chronic kidney disease stage 3
+        - '431857002'          # Chronic kidney disease stage 4
+        - '324121000000109'    # Chronic kidney disease stage 5
+        - '433146000'          # Chronic kidney disease stage 5
+        - '707323002'          # Chronic kidney disease
+        - '431856006'          # Chronic kidney disease stage 3
+        - '714153000'          # Chronic kidney disease stage 4
+        - '324501000000107'    # Chronic kidney disease stage 5
+        - '236425005'          # Chronic kidney disease stage 3
+        - '691401000119104'    # Chronic kidney disease stage 5
+        - '709044004'          # Chronic kidney disease
+        - '324181000000105'    # Chronic kidney disease stage 4
+        - '236425005'          # Chronic kidney disease stage 3
+        - '324441000000106'    # Chronic kidney disease stage 3
+        - '700378005'          # Chronic kidney disease stage 3
+        - '324311000000101'    # Chronic kidney disease stage 4
+        - '709044004'          # Chronic kidney disease
+        - '707323002'          # Chronic kidney disease
+        - '324371000000106'    # Chronic kidney disease stage 3
+        - '324371000000106'    # Chronic kidney disease stage 3
+        - '46177005'           # Chronic kidney disease
+        - '46177005'           # Chronic kidney disease
+        - '236433006'          # Chronic kidney disease stage 3
+        - '42399005'           # Chronic kidney disease
+        - '42399005'           # Chronic kidney disease
+        - '90688005'           # Chronic renal failure
+        - '236435004'          # Chronic kidney disease stage 5
+        - '236434000'          # Chronic kidney disease stage 4
+        - '129561000119108'    # Chronic kidney disease stage 5
+        - '425369003'          # Chronic kidney disease stage 3
+        - '46177005'           # Chronic kidney disease
+        - '90688005'           # Chronic renal failure
+        - '14669001'           # Chronic kidney disease
+        - '49708008'           # Renal failure
+        - '14669001'           # Chronic kidney disease
+        - '236425005'          # Chronic kidney disease stage 3
+        - '428982002'          # Chronic kidney disease
+        - '709044004'          # Chronic kidney disease
+        - '161693006'          # Renal impairment
+        - '46177005'           # Chronic kidney disease
+        - '90708001'           # Renal failure
+        - '236583003'          # Chronic kidney disease stage 5
+        - '419139005'          # Chronic kidney disease
+        - '307532008'          # Chronic kidney disease
+        - '236570004'          # Chronic kidney disease
+        - '46177005'           # Chronic kidney disease
+        - '472953006'          # Chronic kidney disease stage 3
+        - '265764009'          # Renal failure
+        - '709044004'          # Chronic kidney disease
+        - '70536003'           # Renal failure
+        - '46177005'           # Chronic kidney disease
+        - '46177005'           # Chronic kidney disease
+        - '429075005'          # Chronic kidney disease
+        - '236423003'          # Chronic kidney disease stage 3
+        - '236578006'          # Chronic kidney disease stage 5
+
+      res195: &renal_mod_severe_res195
+        # ICD-10
+        - 'N03'                # Chronic nephritic syndrome
+        - 'N05.2'              # Unspecified nephritic syndrome with diffuse membranous glomerulonephritis
+        - 'N05.3'              # Unspecified nephritic syndrome with diffuse mesangial proliferative glomerulonephritis
+        - 'N05.4'              # Unspecified nephritic syndrome with diffuse endocapillary proliferative glomerulonephritis
+        - 'N05.5'              # Unspecified nephritic syndrome with diffuse mesangiocapillary glomerulonephritis
+        - 'N05.6'              # Unspecified nephritic syndrome with dense deposit disease
+        - 'N18'                # Chronic kidney disease
+        - 'N19'                # Unspecified kidney failure
+        - 'N25.0'              # Renal osteodystrophy
+        - 'Z49'                # Care involving dialysis
+        - 'Z94.0'              # Kidney transplant status
+        - 'Z99.2'              # Dependence on renal dialysis
 
 # ------------------------------------------------------
 # Basic Examples / Testing
@@ -204,27 +855,55 @@ charlson_hx_mi:
   category: ['charlson_components']
   domains: ['problems']
   kwargs:
-    codes: [
-      '57054005', '22298006', '1755008', '70211005', '401303003',
-      '22298006', '401314000', '16837681000119100']
-    res195_codes: ['I21', 'I22', 'I25.2', '323..00', 'G30..00']
+    codes: *mi_snomed
+    res195_codes: *mi_res195
 # --8<-- [end:charlson_hx_mi]
+
+# --8<-- [start:charlson_hx_mi_icare]
+charlson_hx_mi_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *mi_snomed
+    res195_codes: *mi_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_mi_icare]
 
 # --8<-- [start:charlson_hx_chf]
 # Congestive Heart Failure
-charlson_hx_chf:
+charlson_hx_chf_code:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_from_history_code'
   category: ['charlson_components']
   domains: ['problems']
   kwargs:
-    codes: [
-      '446221000', '703273002', '42343007', '390884006', '161505003', '84114007',
-      '424404003', '128404006', '703272007', '446221000', '418304008', '446221000',
-      '10633002', '48447003', '703272007']
-
-    #res195_codes: ['I50', 'I11.0', 'G58..00']
+    codes: *chf_snomed
+    res195_codes: *chf_res195
 # --8<-- [end:charlson_hx_chf]
+
+charlson_hx_chf:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['charlson_components']
+  domains: [ 'problems', 'prescribing' ]
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *chf_snomed
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *chf_res195
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        window: [null, '24h']
+        keywords:
+          - 'entresto'
+          - 'milrinone'
+          - 'dobutamine'
 
 # --8<-- [start:charlson_hx_pvd]
 # Peripheral Vascular Disease
@@ -234,12 +913,21 @@ charlson_hx_pvd:
   domains: ['problems']
   category: ['charlson_components']
   kwargs:
-    codes: [
-      '400047006', '840580004', '399957001', '400047006', '400047006',
-      '858191000000103', '238796009', '16010871000119100', '16011271000119100',
-      '372070002' ]
-    res195_codes: ['I71', 'I73.9', 'I79.0', 'R02', 'Z95.8', 'Z95.9']
+    codes: *pvd_snomed
+    res195_codes: *pvd_res195
 # --8<-- [end:charlson_hx_pvd]
+
+# --8<-- [start:charlson_hx_pvd_icare]
+charlson_hx_pvd_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *pvd_snomed
+    res195_codes: *pvd_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_pvd_icare]
 
 # --8<-- [start:charlson_hx_stroke]
 # Cerebrovascular Disease
@@ -249,12 +937,21 @@ charlson_hx_stroke:
   domains: ['problems']
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '230690007', '1078001000000100', '817701000000103', '720191000000104', '429235008',
-      '230706003', '16002031000119100', '25133001', '39925003', '16371781000119100',
-      '422504002', '275526006', '135877001']
-    res195_codes: ['I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'G45', 'G46']
+    codes: *stroke_snomed
+    res195_codes: *stroke_res195
 # --8<-- [end:charlson_hx_stroke]
+
+# --8<-- [start:charlson_hx_stroke_icare]
+charlson_hx_stroke_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *stroke_snomed
+    res195_codes: *stroke_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_stroke_icare]
 
 # --8<-- [start:charlson_hx_dementia]
 # Dementia
@@ -264,12 +961,22 @@ charlson_hx_dementia:
   domains: ['problems']
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '702429008', '230270009', '56267009', '80098002', '52448006', '52448006', '429998004',
-      '142811000119104', '1591000119103', '425390006', '56267009', '26929004',
-      '10171000132106', '79341000119107', '135811000119107', '142811000119104', '26929004']
-    res195_codes: ['F00', 'F01', 'F02', 'F03', 'F05.1', 'G30', 'G31.1']
+    codes: *dementia_snomed
+    res195_codes: *dementia_res195
 # --8<-- [end:charlson_hx_dementia]
+
+# --8<-- [start:charlson_hx_dementia_icare]
+charlson_hx_dementia_icare:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *dementia_snomed
+    res195_codes: *dementia_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_dementia_icare]
 
 # --8<-- [start:charlson_hx_pulmonary]
 # Chronic Pulmonary Disease
@@ -279,16 +986,22 @@ charlson_hx_pulmonary:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '32398004', '866901000000103', '12295008', '63480004', '12295008', '40100001', '233725001',
-      '13645005', '40541001', '196001008', '13645005', '697898008', '702839006', '700030004',
-      '700250006', '706870000', '313296004', '198401000000104', '700250006', '270473001',
-      '847091000000104', '760601000000107', '195951007', '57671000052108', '204991000000107',
-      '198411000000102', '13645005', '125295001', '708030004', '87433001', '49158009']
-    res195_codes: [
-      'J40', 'J41', 'J42', 'J43', 'J44', 'J45', 'J46', 'J47', 'J60', 'J61', 'J62', 'J63',
-      'J64', 'J65', 'J66', 'J67' ]
+    codes: *pulmonary_disease_snomed
+    res195_codes: *pulmonary_disease_res195
 # --8<-- [end:charlson_hx_pulmonary]
+
+# --8<-- [start:charlson_hx_pulmonary_icare]
+charlson_hx_pulmonary_icare:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *pulmonary_disease_snomed
+    res195_codes: *pulmonary_disease_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_pulmonary_icare]
 
 # --8<-- [start:charlson_hx_rheum]
 # Connective Tissue Disease
@@ -298,12 +1011,8 @@ charlson_hx_rheum:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '308143008', '23685000', '69896004', '735600005', '1148597009',
-      '161567008', '239938009', '399923009', '414821000000101', '65323003',
-      '58718002', '398726004', '425481000000106', '396332003']
-    res195_codes: [
-      'M05', 'M06', 'M31.5', 'M32', 'M33', 'M34', 'M35.1', 'M35.3', 'M36.0']
+    codes: *rheum_snomed
+    res195_codes: *rheum_res195
 # --8<-- [end:charlson_hx_rheum]
 
 # --8<-- [start:charlson_hx_pud]
@@ -314,15 +1023,8 @@ charlson_hx_pud:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '422183001', '9829001', '26649005', '10660471000119100', '860978005', '10635431000119100',
-      '1521000119100', '68640004', '402863005', '87481000119109', '371087003', '64766004', '238796009',
-      '690791000119107', '876782006', '238792006', '95344007', '95345008', '51868009', '27281001',
-      '225562005', '225561003', '13200003', '201251005', '56208002', '308740002', '30811009', '397825006',
-      '711168000', '10995761000119100', '405719001', '301022003', '201252003', '714664001', '703282008',
-      '308901000', '301021005', '788949000', '429040005', '830072004',
-      '140391000119101', '371032004', '275547005', ]
-    res195_codes: ['K25', 'K26', 'K27', 'K28']
+    codes: *peptic_ulcer_snomed
+    res195_codes: *peptic_ulcer_res195
 # --8<-- [end:charlson_hx_pud]
 
 # --8<-- [start:charlson_hx_liver_mild]
@@ -333,10 +1035,8 @@ charlson_hx_liver_mild:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '61977001', '111891008', '768126006', '128302006', '442685003', '62944002', '9953008']
-    res195_codes: [
-      'B18', 'K70.0', 'K70.1', 'K70.2', 'K70.3', 'K70.9', 'K71', 'K73', 'K74', 'K76.0']
+    codes: *liver_mild_snomed
+    res195_codes: *liver_mild_res195
 # --8<-- [end:charlson_hx_liver_mild]
 
 # --8<-- [start:charlson_hx_diabetes_uncomp]
@@ -347,16 +1047,8 @@ charlson_hx_diabetes_uncomp:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '44054006', '73211009', '81531005', '11687002', '405751000',
-      '164971000119101', '190372001', '170745003', '1102351000000100',
-      '408540003', '444110003', '858301000000107', '28032008',
-      '46635009', '237599002', '421468001',
-      '270445003', '24481000000101', '472969004', '703138006',
-      '714628002', '23045005', '443694000', '405749004',
-      '170747006', '24471000000103', '170746002', '314194001']
-    res195_codes: [
-      'E10.0', 'E10.1', 'E10.6', 'E10.8', 'E10.9', 'E11.0', 'E11.1', 'E11.6', 'E11.8', 'E11.9', 'E13', 'E14']
+    codes: *diabetes_uncomp_snomed
+    res195_codes: *diabetes_uncomp_icd10
 # --8<-- [end:charlson_hx_diabetes_uncomp]
 
 # --- 2 Point Categories ---
@@ -368,9 +1060,8 @@ charlson_hx_hemiplegia:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: []
-    res195_codes: [
-      'G04.1', 'G11.4', 'G80.1', 'G80.2', 'G81', 'G82', 'G83.0', 'G83.1', 'G83.2', 'G83.3', 'G83.4', 'G83.9']
+    codes: *hemiplegia_snomed
+    res195_codes: *hemiplegia_res195
 # --8<-- [end:charlson_hx_hemiplegia]
 
 # --8<-- [start:charlson_hx_renal_mod_sev]
@@ -381,19 +1072,8 @@ charlson_hx_renal_mod_sev:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '236398000', '197594005', '236403004', '236403004', '441815006', '77182004', '236436003', '175902000',
-      '236436003', '161665007', '324441000000106', '324311000000101', '324281000000104', '691411000119101',
-      '714152005', '709044004', '433144002', '431857002', '324121000000109', '433146000', '707323002',
-      '431856006', '714153000', '324501000000107', '236425005', '691401000119104', '709044004', '324181000000105',
-      '236425005', '324441000000106', '700378005', '324311000000101', '709044004', '707323002', '324371000000106',
-      '324371000000106', '46177005', '46177005', '236433006', '42399005', '42399005', '90688005', '236435004',
-      '236434000', '129561000119108', '425369003', '46177005', '90688005', '14669001', '49708008', '14669001',
-      '236425005', '428982002', '709044004', '161693006', '46177005', '90708001', '236583003', '419139005',
-      '307532008', '236570004', '46177005', '472953006', '265764009', '709044004', '70536003', '46177005',
-      '46177005', '429075005', '236423003', '236578006']
-    res195_codes:  [
-        'N03', 'N05.2', 'N05.3', 'N05.4', 'N05.5', 'N05.6', 'N18', 'N19', 'N25.0', 'Z49', 'Z94.0', 'Z99.2']
+    codes: *renal_mod_severe_snomed
+    res195_codes:  *renal_mod_severe_res195
 # --8<-- [end:charlson_hx_renal_mod_sev]
 
 # --8<-- [start:charlson_hx_diabetes_comp]
@@ -404,13 +1084,8 @@ charlson_hx_diabetes_comp:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '10660471000119100', '860970005', '420756003', '1521000119100', '87481000119109', '237632004',
-      '230572002', '90791000119104', '71701000119105', '51002006', '90771000119100', '140391000119101',
-      '368051000119109', '96441000119101', '721000119107', '127014009', '371087003', '201252003',
-      '774521000000103']
-    res195_codes: [
-      'E10.2', 'E10.3', 'E10.4', 'E10.5', 'E10.7', 'E11.2', 'E11.3', 'E11.4', 'E11.5', 'E11.7']
+    codes: *diabetes_comp_snomed
+    res195_codes: *diabetes_comp_icd10
 # --8<-- [end:charlson_hx_diabetes_comp]
 
 # --8<-- [start:charlson_hx_cancer_solid]
@@ -451,8 +1126,8 @@ charlson_hx_leukemia:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: []
-    res195_codes: ['C91', 'C92', 'C93', 'C94', 'C95']
+    codes: *leukemia_snomed
+    res195_codes: *leukemia_icd10
 # --8<-- [end:charlson_hx_leukemia]
 
 # --8<-- [start:charlson_hx_lypmhoma]
@@ -463,8 +1138,8 @@ charlson_hx_lymphoma:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: []
-    res195_codes: ['C81', 'C82', 'C83', 'C84', 'C85', 'C88', 'C90', 'C96']
+    codes: *lymphoma_snomed
+    res195_codes: *lymphoma_res195
 # --8<-- [end:charlson_hx_lymphoma
 
 # --- 3 Point Categories ---
@@ -476,13 +1151,8 @@ charlson_hx_liver_mod_sev:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '14223005', '197279005', '328383001', '328383001', '28670008', '91109007', '91109007',
-      '41309000', '235875008', '235881000', '9953008', '420054005', '41309000', '420054005',
-      '420054005', '713181003', '89580002', '31712002', '19943007', '19943007', '19943007',
-      '831000119103', '716203000', '34742003']
-    res195_codes: [
-      'I85.0', 'I85.9', 'I86.4', 'I98.2', 'K70.4', 'K71.1', 'K72.1', 'K72.9', 'K76.5', 'K76.6', 'K76.7']
+    codes: *liver_mod_severe_snomed
+    res195_codes: *liver_mod_severe_icd10
 # --8<-- [end:charlson_hx_liver_mod_sev]
 
 # --- 6 Point Categories ---
@@ -494,39 +1164,71 @@ charlson_hx_cancer_met:
   domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    codes: [
-      '94392001', '314994000', '712849003', '94248000', '285605009', '1098961000119100', '94222008',
-      '94391008', '1691000119104', '79282002', '94222008', '94381002', '403906006', '94217008',
-      '128462008', '314994000', '254837009', '363346000', '93655004', '94101009', '236005001', '399326009',
-      '399326009', '399068003', '363418001', '363346000', '86049000', '274087000', '75109009', '254837009',
-      '314966008', '372064008', '363354003', '94381002', '21594007', '363351006', '372087000']
-    res195_codes: ['C77', 'C78', 'C79', 'C80']
+    codes: *metastatic_solid_tumor_snomed
+    res195_codes: *metastatic_solid_tumor_res195
 # --8<-- [end:charlson_hx_cancer_met]
+
 
 # --8<-- [start:charlson_hx_aids]
 # AIDS
 charlson_hx_aids:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
-  domains: [ 'problems' ]
+  function: 'derive_composite_rules'
   category: [ 'charlson_components' ]
   kwargs:
-    codes: []
-    res195_codes: ['B20', 'B21', 'B22', 'B24']
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *aids_snomed
 # --8<-- [end:charlson_hx_aids]
 
-# --8<-- [start:charlson_hx_hiv]
-#  HIV
-charlson_hx_hiv: # Note: Often weighted as 1 if not AIDS, but 6 in original Quan logic
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
-  domains: [ 'problems' ]
+# --8<-- [start:charlson_hx_aids_icare]
+charlson_hx_aids_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
   category: [ 'charlson_components' ]
   kwargs:
-    codes: ['1142045004', '19030005', '19030005']
-    res195_codes: ['Z21']
+    snomed_codes: *aids_snomed
+    res195_codes: *aids_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_aids_icare]
+
+# --8<-- [start:charlson_hx_hiv]
+charlson_hx_hiv:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *hiv_snomed
+      - extractor_type: 'history'
+        domain: 'diagnosis'
+        codes: *hiv_res195
+        code_col: 'DIAGNOSIS_CODE_ICD'
+        window: [null, '24h']
+      - extractor_type: 'history'
+        domain: 'diagnosis'
+        codes: *hiv_snomed
+        code_col: 'DIAGNOSIS_CODE_SNOMED'
+        window: [ null, '24h' ]
 # --8<-- [end:charlson_hx_hiv]
 
+# --8<-- [start:charlson_hx_hiv_icare]
+charlson_hx_hiv_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *hiv_snomed
+    res195_codes: *hiv_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_hiv_icare]
 
 # ------------------------------------------------------
 #                     SIRS Score

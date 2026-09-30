@@ -5,6 +5,10 @@ from icare_risk.clinphen.temporal.context import EpisodeContext
 from icare_risk.clinphen.registry.registry import phenotype
 
 
+from typing import Any, Sequence
+import pandas as pd
+
+
 
 # -----------------------------------------------------------------------------------
 #                                 Other Definitions
@@ -61,7 +65,14 @@ def charlson_hx_chf(df, **kwargs):
     """
     Determines if a patient has a history of Congestive Heart Failure (CHF).
 
-    <!-- icare_table: charlson_hx_chf -->
+    ??? info "Clinical Definition"
+        We consider a patient to have CHF if ANY of the following are true:
+
+        1. Explicit History: The 'heart failure' code appears in 'problems'.
+        2. Explicit Diagnosis: The 'heart failure' code appears in 'diagnosis` -> Not implemented.
+        3. Medication Proxy: The patient is actively prescribed specific heart failure
+           medications like 'entresto', 'milrinone', or 'dobutamine' in 'prescribing' current
+           episode or stay.
 
 
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
@@ -71,15 +82,6 @@ def charlson_hx_chf(df, **kwargs):
         ```
 
         --8<-- "docs/_snippets/charlson_hx_chf.md"
-
-    ??? info "Clinical Definition"
-        We consider a patient to have CHF if ANY of the following are true:
-
-        1. Explicit History: The 'heart failure' code appears in 'problems'.
-        2. Explicit Diagnosis: The 'heart failure' code appears in 'diagnosis` -> Not implemented.
-        3. Medication Proxy: The patient is actively prescribed specific heart failure
-           medications like 'entresto', 'milrinone', or 'dobutamine' in 'prescribing' current
-           episode or stay.
     """
 
 def charlson_hx_pvd(df, **kwargs):
@@ -213,8 +215,6 @@ def charlson_hx_diabetes_uncomp(df, **kwargs):
 def charlson_hx_diabetes_comp(df, **kwargs):
     """Identifies if a patient has diabetes with chronic complications.
 
-    !!! warning "Pending to be properly defined!"
-
     ??? info "Clinical Definition"
         Refers to diabetes accompanied by chronic end-organ damage (often referred
         to as diabetic end-organ damage). This includes diabetic microvascular or
@@ -235,13 +235,13 @@ def charlson_hx_diabetes_comp(df, **kwargs):
 def charlson_hx_hemiplegia(df, **kwargs):
     """Identifies if a patient has a history of hemiplegia or paraplegia.
 
-    !!! warning "Pending problem codes definitions"
-
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_hemiplegia"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_hemiplegia.md"
     """
     pass
 
@@ -300,13 +300,14 @@ def charlson_hx_cancer_met(df, **kwargs):
 def charlson_hx_aids(df, **kwargs):
     """Identifies if a patient has a documented history of AIDS.
 
-    !!! warning "Pending problem codes definitions"
-
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
         ```yaml
-            --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_aids"
+        --8<-- "docs/_snippets/yaml/charlson_hx_aids.yaml"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_aids.md"
+
     """
     pass
 
@@ -318,18 +319,22 @@ def charlson_hx_hiv(df, **kwargs):
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_hiv"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_hiv.md"
+
+        --8<-- "docs/_snippets/charlson_hx_hiv_icare.md"
     """
     pass
 
 def charlson_hx_leukemia(df, **kwargs):
     """Identifies if a patient has a documented history of leukemia.
 
-    !!! warning "Pending problem codes definitions"
-
     ??? example "Rule Definition & Parameter Mapping (Click to expand)"
 
         ```yaml
             --8<-- "src/icare_risk/config/icare/phenotypes.yaml:charlson_hx_leukemia"
         ```
+
+        --8<-- "docs/_snippets/charlson_hx_leukemia.md"
     """
     pass

@@ -27,6 +27,14 @@ class EpisodeContext:
             else None
         )
         self._tables = tables
+        #self._tables = {
+        #    name: (
+        #        df.sort_values("timestamp", kind="mergesort").reset_index(drop=True)
+        #        if isinstance(df, pd.DataFrame) and not df.empty and "timestamp" in df.columns
+        #        else df
+        #    )
+        #    for name, df in tables.items()
+        #}
         # Add caches to avoid redundant slicing and indexing
         #self._historical_cache: Dict[Tuple, pd.DataFrame] = {}
         #self._current_cache: Dict[Tuple, pd.DataFrame] = {}
@@ -284,9 +292,10 @@ class EpisodeContext:
         #
         #return values.isin(codes).any()
         values = df[code_col].to_numpy()[start_idx:end_idx]
-        targets = set(codes)
-
-        return any(value in targets for value in values)
+        #targets = set(codes)
+        targets = {str(c).upper() for c in codes}
+        return any(str(value).upper() in targets for value in values)
+        #return any(value in targets for value in values)
 
     def get_window_old(
         self,

@@ -1,0 +1,25 @@
+charlson_hx_hiv_icare:
+  module: icare_risk.clinphen.phenotypes.icare
+  function: derive_charlson_history_rules
+  category:
+  - charlson_components
+  kwargs:
+    snomed_codes:
+    - '165816005'
+    - '1142045004'
+    - '161513008'
+    - '19030005'
+    - '89293008'
+    - '442662004'
+    res195_codes:
+    - Z21
+    - R75
+    - O98.7
+    - 43C3.11
+    - 43C3.00
+    - ZV01A00
+    - R109.00
+    window:
+    - null
+    - 24h
+    logic: max

@@ -1,0 +1,13 @@
+sirs_abnormal_temp_flag:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.sirs
+  function: derive_sirs_abnormal_temp
+  domains:
+  - vitals
+  kwargs:
+    window:
+    - 0h
+    - 24h
+    codes:
+    - '10933766'
+    - '486347689'

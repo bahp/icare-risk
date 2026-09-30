@@ -1,0 +1,29 @@
+charlson_hx_lymphoma:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - charlson_components
+  kwargs:
+    codes:
+    - '118600007'
+    - '277455002'
+    - '277457005'
+    - '109989006'
+    - '118603009'
+    - '109988003'
+    - '277459008'
+    - '277460003'
+    - '277465008'
+    - '363343007'
+    - '118599009'
+    res195_codes:
+    - C81
+    - C82
+    - C83
+    - C84
+    - C85
+    - C88
+    - C90
+    - C96

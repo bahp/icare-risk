@@ -1,0 +1,10 @@
+gavaghan_age_ge_65:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_age_threshold
+  domains:
+  - demographics
+  category:
+  - gavaghan_components
+  kwargs:
+    min_age: 65

@@ -1,0 +1,10 @@
+pitt_arrest_score:
+  module: icare_risk.clinphen.phenotypes.pitt
+  function: compute_pitt_arrest_score
+  domains: []
+  kwargs:
+    window:
+    - 0h
+    - 24h
+    codes:
+    - CARDIAC_ARREST_01

@@ -1,0 +1,11 @@
+min_temp_24h:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.windowed
+  function: min_temp_24h
+  domains:
+  - vitals
+  kwargs:
+    code: '10933766'
+    window:
+    - 0h
+    - 24h

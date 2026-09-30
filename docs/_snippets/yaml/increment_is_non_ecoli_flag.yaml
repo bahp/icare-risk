@@ -1,0 +1,11 @@
+increment_is_non_ecoli_flag:
+  module: icare_risk.clinphen.phenotypes.increment
+  function: derive_increment_is_non_ecoli_flag
+  domains:
+  - microbiology
+  category:
+  - increment
+  kwargs:
+    window:
+    - -24h
+    - 24h

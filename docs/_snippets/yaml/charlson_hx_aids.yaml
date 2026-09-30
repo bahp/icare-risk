@@ -1,0 +1,16 @@
+charlson_hx_aids:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  category:
+  - charlson_components
+  kwargs:
+    logic: max
+    components:
+    - extractor_type: history
+      domain: problems
+      codes:
+      - '62479008'
+      - '19030005'
+      - '86406008'
+      - '1142045004'
+      - '721951000000103'

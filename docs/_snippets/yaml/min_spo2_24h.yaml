@@ -1,0 +1,11 @@
+min_spo2_24h:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.windowed
+  function: min_spo2_24h
+  domains:
+  - vitals
+  kwargs:
+    code: '9096705'
+    window:
+    - 0h
+    - 24h

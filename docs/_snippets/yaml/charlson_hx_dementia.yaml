@@ -1,0 +1,34 @@
+charlson_hx_dementia:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - charlson_components
+  kwargs:
+    codes:
+    - '702429008'
+    - '230270009'
+    - '56267009'
+    - '80098002'
+    - '52448006'
+    - '52448006'
+    - '429998004'
+    - '142811000119104'
+    - '1591000119103'
+    - '425390006'
+    - '56267009'
+    - '26929004'
+    - '10171000132106'
+    - '79341000119107'
+    - '135811000119107'
+    - '142811000119104'
+    - '26929004'
+    res195_codes:
+    - F00
+    - F01
+    - F02
+    - F03
+    - F05.1
+    - G30
+    - G31.1

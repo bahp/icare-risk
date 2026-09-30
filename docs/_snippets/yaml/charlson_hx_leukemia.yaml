@@ -1,0 +1,21 @@
+charlson_hx_leukemia:
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_from_history_code
+  domains:
+  - problems
+  category:
+  - charlson_components
+  kwargs:
+    codes:
+    - '93143009'
+    - '118616009'
+    - '91857003'
+    - '92814002'
+    - '91861009'
+    - '92818009'
+    res195_codes:
+    - C91
+    - C92
+    - C93
+    - C94
+    - C95

@@ -12,6 +12,69 @@ from ..registry.registry import DEFAULT_REGISTRY, PhenotypeRegistry, PhenotypeSp
 from ..temporal.context import EpisodeContext
 
 
+def _collect_spec_domains(spec: PhenotypeSpec) -> set:
+    """
+    Returns the full set of clinical domains a phenotype spec actually requires:
+    the top-level `spec.domains` list UNION any domain(s) declared inside nested
+    `kwargs["components"]` entries (used by composite phenotypes, e.g.
+    `derive_composite_rules`).
+
+    ROOT CAUSE THIS FIXES:
+    The previous domain-collection loop in `build()` only ever inspected the
+    top-level `spec.domains` list:
+
+        for spec in self.specs:
+            for d in spec.domains:
+                domains_needed.add(d)
+
+    Direct phenotypes (function=derive_from_history_code, etc.) declare their
+    domain(s) at the top level in YAML (`domains: [problems]`), so this worked
+    fine for them. Composite phenotypes (function=derive_composite_rules)
+    instead declare the domain *per component* (`kwargs["components"][i]["domain"]`),
+    since different components can legitimately target different domains. A
+    composite phenotype's top-level `domains:` key is therefore often left empty
+    in YAML -- which is entirely reasonable authoring, but the collection loop
+    above silently treated that as "this phenotype needs nothing".
+
+    Concretely, for an ISOLATED run of just the composite phenotype
+    (e.g. `build(phenotypes=["charlson_hx_hiv2"])`):
+      1. `domains_needed` ends up `[]` (empty).
+      2. `cache.preload([], ...)` never loads the `'problems'` table for anyone.
+      3. `EpisodeContext.from_cache(..., domains=[], ...)` never puts a
+         `'problems'` key into `ctx._tables` at all.
+      4. Inside `has_codes()`, `df = self._tables.get('problems')` returns
+         `None` -> the function returns `False`/`0` -- silently, with no
+         exception, no warning.
+
+    This is exactly why `charlson_hx_hiv` (direct) and `charlson_hx_hiv2`
+    (composite) produced different results despite identical `domain`/`codes`/
+    `window`/`code_col` values being logged inside `derive_from_history_code`:
+    those prints only show the function's *own* arguments, which were resolved
+    correctly. The failure happens one layer deeper, on data that was never
+    loaded into that particular `ctx` in the first place -- invisible to that
+    print. It was also easy to miss because running the composite phenotype
+    *alongside* any other phenotype that happens to declare `domains: [problems]`
+    at the top level "accidentally" pulls the table in anyway, masking the bug
+    whenever multiple phenotypes are evaluated together.
+
+    Fix: also scan every component dict inside `kwargs["components"]` for a
+    `domain` (singular) or `domains` (plural, list) key and fold those into the
+    required set, so a composite phenotype's true data dependencies are always
+    fully captured regardless of which other phenotypes are in the same run.
+    """
+    needed = set(spec.domains)
+    for comp in (spec.kwargs.get("components") or []):
+        if not isinstance(comp, dict):
+            continue
+        comp_domain = comp.get("domain", comp.get("domains"))
+        if not comp_domain:
+            continue
+        if isinstance(comp_domain, (list, tuple, set)):
+            needed.update(comp_domain)
+        else:
+            needed.add(comp_domain)
+    return needed
+
 class FeatureMatrixBuilder:
     def __init__(
         self,
@@ -114,7 +177,14 @@ class FeatureMatrixBuilder:
         domains_needed = set()
 
         for spec in self.specs:
-            for d in spec.domains:
+            # FIX: use _collect_spec_domains() instead of iterating spec.domains
+            # directly, so composite phenotypes' nested component domains are
+            # captured too. See _collect_spec_domains() docstring above for the
+            # full root-cause explanation.
+
+            #for d in spec.domains:
+            spec_domains = _collect_spec_domains(spec)
+            for d in spec_domains:
                 if d not in available_domains:
                     raise ValueError(
                         f"Configuration Error: Phenotype '{spec.name}' requires domain '{d}'"

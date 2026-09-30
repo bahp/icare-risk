@@ -1,0 +1,39 @@
+sirs_total_score:
+  enabled: false
+  module: icare_risk.clinphen.phenotypes.utils
+  function: derive_composite_rules
+  domains:
+  - vitals
+  - pathology
+  kwargs:
+    logic: sum
+    components:
+    - extractor_type: rules
+      domain: vitals
+      codes:
+      - '13472364'
+      rules:
+      - expr: value > 90
+        points: 1
+    - extractor_type: rules
+      domain: vitals
+      codes:
+      - '9096705'
+      rules:
+      - expr: value > 20
+        points: 1
+    - extractor_type: rules
+      domain: vitals
+      codes:
+      - '10933766'
+      - '486347689'
+      rules:
+      - expr: value > 38 or value < 36
+        points: 1
+    - extractor_type: rules
+      domain: pathology
+      codes:
+      - wbc
+      rules:
+      - expr: value > 12 or value < 4
+        points: 1
