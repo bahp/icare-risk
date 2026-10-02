@@ -4,6 +4,59 @@ import pandas as pd
 from typing import Dict
 from icare_risk.clinphen.utils.filtering import match_codes
 
+from typing import Dict, List, Set, Any
+
+from typing import Any, Dict, List, Set
+
+def extract_all_codes(
+    config: Any,
+    all_configs: Dict[str, Any] = None,
+    visited: Set[int] = None
+) -> List[str]:
+    """
+    Recursively extracts all clinical codes from a phenotype configuration.
+    Handles:
+    - Direct keys: 'codes', 'code', 'icd10', 'snomed', 'code_set', 'patterns'
+    - Nested structures: kwargs, components, sub-rules
+    - Cross-references: composite components pointing to another phenotype name
+    """
+    if visited is None:
+        visited = set()
+
+    found_codes: Set[str] = set()
+
+    # Prevent infinite loops on cyclic references
+    config_id = id(config)
+    if config_id in visited:
+        return []
+    visited.add(config_id)
+
+    # Keys commonly used to store clinical codes across different YAML formats
+    CODE_KEYS = {"codes", "code", "icd10", "icd10_codes", "snomed", "snomed_codes", "code_set", "patterns"}
+
+    if isinstance(config, dict):
+        # 1. Handle phenotype cross-references (e.g., component referencing another phenotype)
+        ref_name = config.get("phenotype") or config.get("ref") or config.get("spec_name")
+        if ref_name and all_configs and ref_name in all_configs:
+            found_codes.update(extract_all_codes(all_configs[ref_name], all_configs, visited))
+
+        # 2. Iterate keys
+        for key, val in config.items():
+            if key.lower() in CODE_KEYS:
+                if isinstance(val, (list, tuple, set)):
+                    found_codes.update(str(c) for c in val if c is not None)
+                elif isinstance(val, (str, int)):
+                    found_codes.add(str(val))
+            else:
+                # Recurse into nested dicts/lists (kwargs, components, logic rules)
+                found_codes.update(extract_all_codes(val, all_configs, visited))
+
+    elif isinstance(config, (list, tuple, set)):
+        for item in config:
+            found_codes.update(extract_all_codes(item, all_configs, visited))
+
+    return list(found_codes)
+
 
 def build_historical_events_table(
     df: pd.DataFrame,
@@ -44,7 +97,8 @@ def build_historical_events_table(
 
     # Apply match_codes for each YAML config directly to the domain dataframe
     for name, config in configs.items():
-        codes = config.get("kwargs", {}).get(config_code_key, [])
+        #codes = config.get("kwargs", {}).get(config_code_key, [])
+        codes = extract_all_codes(config, all_configs=configs)
         df[name] = match_codes(code_series, codes)
 
     # Melt to isolate positive matches

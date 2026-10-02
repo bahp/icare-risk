@@ -1,0 +1,26 @@
+charlson_hx_aids_icare:
+  module: icare_risk.clinphen.phenotypes.icare
+  function: derive_charlson_history_rules
+  category:
+  - charlson_components
+  kwargs:
+    snomed_codes:
+    - '62479008'
+    - '19030005'
+    - '86406008'
+    - '1142045004'
+    - '721951000000103'
+    res195_codes:
+    - B20
+    - B21
+    - B22
+    - B24
+    - A788.00
+    - A788.11
+    - A789.00
+    - AyuC.00
+    - 65QA.00
+    window:
+    - null
+    - 24h
+    logic: max

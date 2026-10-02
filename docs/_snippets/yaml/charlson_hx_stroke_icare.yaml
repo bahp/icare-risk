@@ -1,0 +1,34 @@
+charlson_hx_stroke_icare:
+  module: icare_risk.clinphen.phenotypes.icare
+  function: derive_charlson_history_rules
+  category:
+  - charlson_components
+  kwargs:
+    snomed_codes:
+    - '230690007'
+    - '1078001000000100'
+    - '817701000000103'
+    - '720191000000104'
+    - '429235008'
+    - '230706003'
+    - '16002031000119100'
+    - '25133001'
+    - '39925003'
+    - '16371781000119100'
+    - '422504002'
+    - '275526006'
+    - '135877001'
+    res195_codes:
+    - I60
+    - I61
+    - I62
+    - I63
+    - I64
+    - I65
+    - I66
+    - G45
+    - G46
+    window:
+    - null
+    - 24h
+    logic: max

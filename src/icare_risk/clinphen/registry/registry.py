@@ -46,6 +46,23 @@ def _validate_and_build_spec(name: str, spec_def: dict) -> Optional[PhenotypeSpe
     )
 
 
+def extract_codes_from_spec(spec) -> List[str]:
+    """Extracts all codes from a PhenotypeSpec object."""
+    found_codes: Set[str] = set()
+    kwargs = getattr(spec, "kwargs", {}) or {}
+
+    # Direct codes
+    if "codes" in kwargs:
+        codes = kwargs["codes"]
+        found_codes.update(codes if isinstance(codes, (list, tuple, set)) else [codes])
+
+    # Component codes for composite phenotypes
+    for comp in (kwargs.get("components") or []):
+        if isinstance(comp, dict) and "codes" in comp:
+            codes = comp["codes"]
+            found_codes.update(codes if isinstance(codes, (list, tuple, set)) else [codes])
+
+    return list(found_codes)
 
 
 @dataclass(frozen=True)

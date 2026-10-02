@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
+import gc
 import pandas as pd
 
 from ..config.schema import SchemaConfig
@@ -75,6 +76,7 @@ def _collect_spec_domains(spec: PhenotypeSpec) -> set:
             needed.add(comp_domain)
     return needed
 
+
 class FeatureMatrixBuilder:
     def __init__(
         self,
@@ -88,11 +90,70 @@ class FeatureMatrixBuilder:
         self.source = source or DuckDBSource()
         self.specs: List[PhenotypeSpec] = registry.select(phenotypes)
 
+    def build_batched(
+            self,
+            batch_size: int = 5000,
+            subjects: Optional[List] = None,
+            episodes: Optional[pd.DataFrame] = None,
+            show_progress: bool = True,
+            **build_kwargs
+    ) -> pd.DataFrame:
+        """
+        Build the phenotype feature matrix in subject batches to prevent high RAM usage.
+        """
+        # 1. Determine full subject list
+        if subjects is None:
+            if episodes is not None:
+                ep_norm = self.schema.episodes.normalize_frame(episodes)
+                subjects = ep_norm["subject"].unique().tolist()
+            else:
+                raw_ep = self.source.load_episodes(self.schema.episodes)
+                ep_norm = self.schema.episodes.normalize_frame(raw_ep)
+                subjects = ep_norm["subject"].unique().tolist()
+
+        if not subjects:
+            return pd.DataFrame()
+
+        total_batches = (len(subjects) + batch_size - 1) // batch_size
+        results: List[pd.DataFrame] = []
+
+        print(f"Processing {len(subjects)} subjects across {total_batches} batches (batch_size={batch_size})...",
+              flush=True)
+
+        # 2. Loop through subject chunks
+        for i in range(0, len(subjects), batch_size):
+            batch_num = (i // batch_size) + 1
+            batch_subjects = subjects[i: i + batch_size]
+
+            print(f"\n--- Batch {batch_num}/{total_batches} ({len(batch_subjects)} subjects) ---", flush=True)
+
+            # Filter input episodes DataFrame if provided
+            batch_episodes = None
+            if episodes is not None:
+                subj_col = self.schema.episodes.subject
+                batch_episodes = episodes[episodes[subj_col].isin(batch_subjects)]
+
+            df_batch = self.build(
+                subjects=batch_subjects,
+                episodes=batch_episodes,
+                show_progress=show_progress,
+                **build_kwargs
+            )
+
+            if not df_batch.empty:
+                results.append(df_batch)
+
+            # Force garbage collection to free RAM before preloading next batch
+            gc.collect()
+
+        return pd.concat(results) if results else pd.DataFrame()
+
     def build(self, subjects: Optional[List] = None,
                     episodes: Optional[pd.DataFrame] = None,
                     deduplicate_by: Optional[List[str]] = None,
                     raise_on_error: bool = True,
-                    show_progress: bool = True) -> pd.DataFrame:
+                    show_progress: bool = True,
+                    optimize: bool = True) -> pd.DataFrame:
         """
         Build the phenotype feature matrix across all cohort episodes.
 
@@ -135,7 +196,11 @@ class FeatureMatrixBuilder:
         Domain data preloading is executed in batch per unique subject before
         processing individual episodes to ensure O(1) in-memory lookups.
         """
+        # Libraries
+        import logging
+
         # 1. Load raw episodes or use custom DataFrame
+        logging.info(f"Loading episodes..")
         if episodes is not None:
             raw_episodes = episodes
         else:
@@ -192,14 +257,24 @@ class FeatureMatrixBuilder:
                 domains_needed.add(d)
 
         domains_needed = sorted(domains_needed)
+        active_names = [s.name for s in self.specs]
+
+        # 2. Query registry for required codes & extra columns per domain
+        domain_codes, domain_cols = self.registry.get_global_dependencies(names=active_names)
+
+        print(f"Preloading {len(domains_needed)} domain tables ({domains_needed} for {df_episodes['subject'].nunique()} subjects...")
 
         import time
         t0 = time.perf_counter()
 
         # 4. Preload cache using normalized 'subject' column
         cache = CohortDataCache(self.schema, source=self.source).preload(
-            domains_needed, subjects=df_episodes["subject"].unique().tolist()
+            domains_needed,
+            subjects=df_episodes["subject"].unique().tolist(),
+            domain_codes=domain_codes,
+            domain_cols=domain_cols
         )
+        print(f"Loaded clinical domains into cache in {time.perf_counter() - t0:.2f}s")
 
         # 5. Fast dictionary loop with optional progress bar
         episodes_records = df_episodes.to_dict(orient="records")

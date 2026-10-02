@@ -1,0 +1,36 @@
+charlson_hx_mi_icare:
+  module: icare_risk.clinphen.phenotypes.icare
+  function: derive_charlson_history_rules
+  category:
+  - charlson_components
+  kwargs:
+    snomed_codes:
+    - '22298006'
+    - '57054005'
+    - '1755008'
+    - '129574000'
+    - '401303003'
+    - '70211005'
+    - '401314000'
+    - '194828000'
+    - '194841006'
+    - '398320008'
+    - '398210009'
+    - '54329005'
+    - '57797005'
+    - '16837681000119100'
+    res195_codes:
+    - I21
+    - I22
+    - I25.2
+    - G30..00
+    - G300.00
+    - G301.00
+    - G307.00
+    - G30..11
+    - G35..00
+    - 323..00
+    window:
+    - null
+    - 24h
+    logic: max
