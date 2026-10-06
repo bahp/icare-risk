@@ -1,3 +1,10 @@
+import pandas as pd
+import numpy as np
+
+from typing import Dict, Optional, List
+from icare_risk.clinphen.scores.utils import calculate_weighted_points
+from icare_risk.clinphen.scores.utils import log_score_audit
+
 # Define base weights
 TUMBARELLO_WEIGHTS = {
     "tumbarello_hx_prior_esbl": 4,
@@ -9,12 +16,11 @@ TUMBARELLO_WEIGHTS = {
 TUMBARELLO_HIERARCHY = {}
 
 
-def calculate_tumbarello_score(df,
-                               prior_esbl_col='hx_prior_esbl_any',
-                               hosp_90d_col='hx_hosp_last_90d',
-                               abx_90d_col='hx_prior_abx_90d',
-                               urinary_catheter_col='hx_urinary_catheter_present',
-                               **kwargs):
+def compute_tumbarello_score(
+    df: pd.DataFrame,
+    weights: Optional[Dict[str, int]] = None,
+    verbose: int = 0
+):
     """
     Computes the Tumbarello/Utrecht-Stockholm ESBL Risk Score.
 
@@ -64,4 +70,16 @@ def calculate_tumbarello_score(df,
     pd.Series
         A pandas Series containing the computed score for each patient.
     """
-    pass
+    active_weights = weights if weights is not None else TUMBARELLO_WEIGHTS
+
+    score = calculate_weighted_points(df, active_weights)
+
+    log_score_audit(
+        df,
+        active_weights,
+        score,
+        title="Tumbarello Score Breakdown",
+        verbose=verbose,
+    )
+
+    return score

@@ -415,48 +415,39 @@ definitions:
         - 'E11.7'       # Type 2 DM with multiple complications
 
     metastatic_solid_tumor:
-
-      codes: [
-        '254895003', '92691004', '254895003', '278054005', '90725004', '312104005', '700423003', '254878006',
-        '721716004', '255109008', '733354000', '276952000', '255029007', '25370001', '255109008', '443961001',
-        '253017000', '254838004', '1338007', '278054005', '254634000', '105121000119102', '123845008',
-        '254915003', '255071008', '254582000', '372138000', '254900004', '123845008', '27090000', '41607009',
-        '73711000119107', '28899001', '1338007', '27090000', '79282002', '109889007', '109841003', '90725004',
-        '109841003', '372141009', '372140005', '254900004', '254632001', '1701000119104', '255084004', '399490008',
-        '255084004', '35917007', '402815007', '86616005', '70179006', '128636006', '276804009', '254900004',
-        '448993007', '447882007', '285310000', '254634000', '92546004', '12400006', '254609000', '702391001',
-        '12400006', '254701007', '254651007', '68453008', '87737001', '109969005', '109969005', '128929007',
-        '1091921000000100', '1929004', '847741000000106', '55150002', '109979007', '118605002', '734076008',
-        '118600007', '14537002', '443487006', '21964009', '393563007', '420120008', '2092003', '399068003',
-        '93870000', '363358000', '363418001', '399326009', '254900004', '363402007', '363418001', '363351006',
-        '363419009', '363518003', '254837009', '363406005', '1157063004' ]
-      res195_codes: [
-        'C00', 'C01', 'C02', 'C03', 'C04', 'C05', 'C06', 'C07', 'C08', 'C09', 'C10', 'C11', 'C12', 'C13', 'C14',
-        'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22', 'C23', 'C24', 'C25', 'C26', 'C30', 'C31', 'C32',
-        'C33', 'C34', 'C37', 'C38', 'C39', 'C40', 'C41', 'C43', 'C45', 'C46', 'C47', 'C48', 'C49', 'C50', 'C51',
-        'C52', 'C53', 'C54', 'C55', 'C56', 'C57', 'C58', 'C60', 'C61', 'C62', 'C63', 'C64', 'C65', 'C66', 'C67',
-        'C68', 'C69', 'C70', 'C71', 'C72', 'C73', 'C74', 'C75', 'C76', 'C97' ]
-
       # --- Metastatic Solid Tumor ---
-      snomed: &metastatic_solid_tumor_snomed [
-        '4590003', '6219000', '8715000', '14799000', '27929005', '55440008', '64204000', '7459007', '79282002',
-        '10848006', '94161006', '94179005', '94186002', '94217008', '94219006', '94222008', '94225005', '94232001',
-        '94260004', '94297009', '94300004', '94312000', '94313005', '94347008', '94348003', '94360002', '94365007',
-        '94387003', '94391008', '94392001', '94401004', '94455000', '94459006', '94478006', '94491007', '94503003',
-        '94513006', '94514000', '94521000', '94524008', '94527001', '94538001', '94579000', '94580002', '94600009',
-        '94602001', '94603006', '94626004', '94627008', '94628003', '94634005', '94641004', '94655007', '94681006',
-        '105502003', '108241001', '134421000', '188462001', '237761007', '254326001', '254353002', '255052006',
-        '260876003', '277208005', '285604008', '285605009', '285613005', '285618001', '285643007', '285644001',
-        '303201005', '307226002', '307616002', '314987003', '314990009', '314994000', '314997007', '314998002',
-        '314999005', '315000005', '315003007', '315004001', '315006004', '315241008', '369814002', '369831009',
-        '370023009', '370030003', '370079006', '370123006','371497001', '372158004', '373167007', '385380006',
-        '397500009', '403906006', '422782004', '423987006', '424887002', '443493003', '702392008', '704152002',
-        '705176003', '708937004', '709190005', '709191009', '712849003', '713425003', '767444009', '781076008',
-        '838281000', '91281000119103', '96981000119102', '1098931000119102', '1098951000119108', '1098961000119105',
-        '1098971000119104', '1155991005', '128462008', '1661000119106', '1671000119100', '1681000119102',
-        '1691000119104', '353561000119103', '353741000119106', '354081000119101', '813671000000107',
-        '15956181000119102'
-      ]
+      snomed: &metastatic_solid_tumor_snomed
+        - '94392001'            # Secondary malignant neoplasm of lung
+        - '314994000'           # Metastasis
+        - '712849003'           # Secondary malignant neoplasm of bone
+        - '94248000'            # Secondary malignant neoplasm of liver
+        - '285605009'           # Secondary malignant neoplasm of brain
+        - '1098961000119100'    # Secondary malignant neoplasm of lymph node
+        - '94222008'            # Secondary malignant neoplasm of pleura
+        - '94391008'            # Secondary malignant neoplasm of adrenal gland
+        - '1691000119104'       # Metastatic carcinoma
+        - '79282002'            # Secondary malignant neoplasm of peritoneum
+        - '94381002'            # Secondary malignant neoplasm of retroperitoneum
+        - '403906006'           # Secondary malignant neoplasm of skin
+        - '94217008'            # Secondary malignant neoplasm of pericardium
+        - '128462008'           # Metastatic malignant neoplasm
+        - '254837009'           # Malignant neoplasm of breast with metastasis
+        - '363346000'           # Malignant neoplasm of prostate with metastasis
+        - '93655004'            # Secondary malignant neoplasm of kidney
+        - '94101009'            # Secondary malignant neoplasm of ovary
+        - '236005001'           # Secondary malignant neoplasm of urinary bladder
+        - '399326009'           # Secondary malignant neoplasm of colon
+        - '399068003'           # Secondary malignant neoplasm of stomach
+        - '363418001'           # Secondary malignant neoplasm of pancreas
+        - '86049000'            # Secondary malignant neoplasm of brain and spinal cord
+        - '274087000'           # Secondary malignant neoplasm of central nervous system
+        - '75109009'            # Secondary malignant neoplasm of spleen
+        - '314966008'           # Secondary malignant neoplasm of bone marrow
+        - '372064008'           # Secondary malignant neoplasm of thyroid
+        - '363354003'           # Secondary malignant neoplasm of small intestine
+        - '21594007'            # Secondary malignant neoplasm of esophagus
+        - '363351006'           # Secondary malignant neoplasm of rectum
+        - '372087000'           # Secondary malignant neoplasm of gallbladder
 
       res195: &metastatic_solid_tumor_res195
         - 'C77'                 # Secondary and unspecified malignant neoplasm of lymph nodes
@@ -754,7 +745,7 @@ definitions:
         - '704486002'
         - '723542006'
         - '737944006'
-        - '79165006'
+        - '79165006'2
 
     nursing_home:
       snomed: &nursing_home
@@ -911,6 +902,253 @@ definitions:
         - '788921000000108'
 
 
+# ------------------------------------------------------
+# Basic Examples / Testing
+# ------------------------------------------------------
+min_spo2_24h:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.windowed'
+  function: 'min_spo2_24h'
+  domains: ['vitals']
+  kwargs:
+    code: '9096705'
+    window: ['0h', '24h']
+
+min_temp_24h:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.windowed'
+  function: 'min_temp_24h'
+  domains: ['vitals']
+  kwargs:
+    code: '10933766'
+    window: ['0h', '24h']
+
+has_vasopressors:   # has_medication_in_window
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.multimodal' # Wrong to deprecate
+  function: 'derive_multimodal_phenotype'
+  domains: [ 'problems', 'prescribing', 'pathology' ]
+  category: [ 'multimodal' ]
+  kwargs:
+    keyword_rules:
+      # Medication history proxy matching free text
+      - domain: 'prescribing'
+        keywords:
+          - 'norepinephrine'
+          - 'epinephrine'
+          - 'vasopressin'
+          - 'dopamine'
+          - 'dobutamine'
+          - 'phenylephrine'
+          - 'noradrenaline'
+          - 'angiotensin'
+        #text_col: 'code'
+        check_historical: true
+
+# --8<-- [start:has_diabetes]
+has_diabetes:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.multimodal'
+  function: 'derive_multimodal_phenotype'
+  domains: [ 'problems', 'prescribing', 'pathology' ]
+  category: [ 'multimodal' ]
+  kwargs:
+    code_rules:
+      # Historical problem list entries
+      - target_domains: [ 'problems' ]
+        codes: [ '44054006', '73211009', '46635009' ]
+        include_current: false
+
+      # Current admission diagnoses (ICD-10)
+      - target_domains: [ 'diagnoses' ]
+        codes: [ 'E10', 'E11', 'E14' ]
+        include_current: true
+        window: [ '0h', '24h' ]
+
+    keyword_rules:
+      # Medication history proxy matching free text
+      - domain: 'prescribing'
+        keywords: [ 'insulin', 'metformin', 'gliclazide' ]
+        #text_col: 'code'
+        check_historical: true
+
+    expression_rules:
+      # Point-of-care or lab glucose threshold
+      - domain: 'pathology'
+        codes: [ 'wg', 'gl', 'glpoc' ]
+        query_expr: 'value > 200'
+        value_col: 'value'
+        #code_col: 'code'
+        check_current: true
+        window: [ '0h', '24h' ]
+# --8<-- [end:has_diabetes]
+
+has_congestive_heart_failure:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.multimodal'
+  function: 'derive_multimodal_phenotype'
+  domains: [ 'problems', 'prescribing' ]
+  category: [ 'multimodal' ]
+  kwargs:
+    code_rules:
+      # Historical problem list entries
+      - target_domains: [ 'problems' ]
+        codes: *chf_icare
+        include_current: false
+
+    keyword_rules:
+      # Medication history proxy matching free text
+      - domain: 'prescribing'
+        keywords: [ 'entresto', 'milrinone', 'dobutamine' ]
+        #text_col: 'code'
+        check_current: true
+
+# --8<-- [start:has_mild_liver_disease]
+has_mild_liver_disease:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.multimodal'
+  function: 'derive_multimodal_phenotype'
+  domains: [ 'problems', 'prescribing', 'pathology' ]
+  category: [ 'multimodal' ]
+  kwargs:
+    code_rules:
+      # Historical problem list entries
+      - target_domains: [ 'problems' ]
+        codes: [
+          '61977001', '111891008', '768126006', '128302006', '442685003', '62944002', '9953008']
+        include_current: false
+
+    keyword_rules:
+      # Medication history proxy matching free text
+      - domain: 'prescribing'
+        keywords: [ 'lactulose' ]
+        #text_col: 'code'
+        check_current: true
+
+    expression_rules:
+      # AST or bilirubin thresholds
+      - domain: 'pathology'
+        codes: [ 'bil' ] # Bilirubin
+        query_expr: 'value > 2.0'
+        value_col: 'value'
+        #code_col: 'code'
+        check_current: true
+        window: [ '0h', '24h' ]
+
+      # To add... AST > 3x normal?
+# --8<-- [end:has_mild_liver_disease]
+
+
+
+
+
+# ------------------------------------------------------
+# Samples
+# ------------------------------------------------------
+# --8<-- [start:sample_hx_mi]
+sample_hx_mi:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  category: ['sample 1']
+  domains: ['problems']
+  kwargs:
+    codes: *mi_snomed
+    res195_codes: *mi_res195
+# --8<-- [end:sample_hx_mi]
+
+# --8<-- [start:sample_hx_mi_icare]
+charlson_hx_mi_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'sample 2' ]
+  kwargs:
+    snomed_codes: *mi_snomed
+    res195_codes: *mi_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:sample_hx_mi_icare]
+
+# --8<-- [start:charlson_hx_pvd_icare]
+charlson_hx_pvd_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *pvd_snomed
+    res195_codes: *pvd_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_pvd_icare]
+
+# --8<-- [start:charlson_hx_stroke_icare]
+charlson_hx_stroke_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *stroke_snomed
+    res195_codes: *stroke_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_stroke_icare]
+
+# --8<-- [start:charlson_hx_dementia_icare]
+charlson_hx_dementia_icare:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *dementia_snomed
+    res195_codes: *dementia_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_dementia_icare]
+
+# --8<-- [start:charlson_hx_pulmonary_icare]
+charlson_hx_pulmonary_icare:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *pulmonary_disease_snomed
+    res195_codes: *pulmonary_disease_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_pulmonary_icare]
+
+# --8<-- [start:charlson_hx_aids_icare]
+charlson_hx_aids_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *aids_snomed
+    res195_codes: *aids_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_aids_icare]
+
+# --8<-- [start:charlson_hx_hiv_icare]
+charlson_hx_hiv_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *hiv_snomed
+    res195_codes: *hiv_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_hiv_icare]
+
+
+
+
+
+
+
+
 
 
 # ------------------------------------------------------
@@ -921,21 +1159,38 @@ definitions:
 # Myocardial Infarction
 charlson_hx_mi:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
   category: ['charlson_components']
+  domains: ['problems']
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *mi_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *mi_res195
+    codes: *mi_snomed
+    res195_codes: *mi_res195
 # --8<-- [end:charlson_hx_mi]
+
+# --8<-- [start:charlson_hx_mi_icare]
+charlson_hx_mi_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *mi_snomed
+    res195_codes: *mi_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_mi_icare]
 
 # --8<-- [start:charlson_hx_chf]
 # Congestive Heart Failure
+charlson_hx_chf_code:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  category: ['charlson_components']
+  domains: ['problems']
+  kwargs:
+    codes: *chf_snomed
+    res195_codes: *chf_res195
+# --8<-- [end:charlson_hx_chf]
+
 charlson_hx_chf:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_composite_rules'
@@ -957,150 +1212,151 @@ charlson_hx_chf:
           - 'entresto'
           - 'milrinone'
           - 'dobutamine'
-# --8<-- [end:charlson_hx_chf]
 
 # --8<-- [start:charlson_hx_pvd]
 # Peripheral Vascular Disease
 charlson_hx_pvd:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: [ 'problems' ]
+  function: 'derive_from_history_code'
+  domains: ['problems']
+  category: ['charlson_components']
+  kwargs:
+    codes: *pvd_snomed
+    res195_codes: *pvd_res195
+# --8<-- [end:charlson_hx_pvd]
+
+# --8<-- [start:charlson_hx_pvd_icare]
+charlson_hx_pvd_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
   category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *pvd_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *pvd_res195
-# --8<-- [end:charlson_hx_pvd]
+    snomed_codes: *pvd_snomed
+    res195_codes: *pvd_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_pvd_icare]
 
 # --8<-- [start:charlson_hx_stroke]
 # Cerebrovascular Disease
 charlson_hx_stroke:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
   domains: ['problems']
-  category: ['charlson_components']
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *stroke_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *stroke_res195
+    codes: *stroke_snomed
+    res195_codes: *stroke_res195
 # --8<-- [end:charlson_hx_stroke]
+
+# --8<-- [start:charlson_hx_stroke_icare]
+charlson_hx_stroke_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *stroke_snomed
+    res195_codes: *stroke_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_stroke_icare]
 
 # --8<-- [start:charlson_hx_dementia]
 # Dementia
 charlson_hx_dementia:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
   domains: ['problems']
-  category: ['charlson_components']
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *dementia_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *dementia_res195
+    codes: *dementia_snomed
+    res195_codes: *dementia_res195
 # --8<-- [end:charlson_hx_dementia]
+
+# --8<-- [start:charlson_hx_dementia_icare]
+charlson_hx_dementia_icare:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *dementia_snomed
+    res195_codes: *dementia_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_dementia_icare]
 
 # --8<-- [start:charlson_hx_pulmonary]
 # Chronic Pulmonary Disease
 charlson_hx_pulmonary:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *pulmonary_disease_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *pulmonary_disease_res195
+    codes: *pulmonary_disease_snomed
+    res195_codes: *pulmonary_disease_res195
 # --8<-- [end:charlson_hx_pulmonary]
+
+# --8<-- [start:charlson_hx_pulmonary_icare]
+charlson_hx_pulmonary_icare:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *pulmonary_disease_snomed
+    res195_codes: *pulmonary_disease_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_pulmonary_icare]
 
 # --8<-- [start:charlson_hx_rheum]
 # Connective Tissue Disease
 charlson_hx_rheum:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *rheum_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *rheum_res195
+    codes: *rheum_snomed
+    res195_codes: *rheum_res195
 # --8<-- [end:charlson_hx_rheum]
 
 # --8<-- [start:charlson_hx_pud]
 # Peptic Ulcer Disease
 charlson_hx_pud:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *peptic_ulcer_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *peptic_ulcer_res195
+    codes: *peptic_ulcer_snomed
+    res195_codes: *peptic_ulcer_res195
 # --8<-- [end:charlson_hx_pud]
 
 # --8<-- [start:charlson_hx_liver_mild]
 # Mild Liver Disease
 charlson_hx_liver_mild:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *liver_mild_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *liver_mild_res195
+    codes: *liver_mild_snomed
+    res195_codes: *liver_mild_res195
 # --8<-- [end:charlson_hx_liver_mild]
 
 # --8<-- [start:charlson_hx_diabetes_uncomp]
 # Diabetes without complications
 charlson_hx_diabetes_uncomp:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *diabetes_uncomp_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *diabetes_uncomp_icd10
+    codes: *diabetes_uncomp_snomed
+    res195_codes: *diabetes_uncomp_icd10
 # --8<-- [end:charlson_hx_diabetes_uncomp]
 
 # --- 2 Point Categories ---
@@ -1108,106 +1364,90 @@ charlson_hx_diabetes_uncomp:
 # Hemiplegia
 charlson_hx_hemiplegia:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *hemiplegia_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *hemiplegia_res195
+    codes: *hemiplegia_snomed
+    res195_codes: *hemiplegia_res195
 # --8<-- [end:charlson_hx_hemiplegia]
 
 # --8<-- [start:charlson_hx_renal_mod_sev]
 # Moderate to severe renal disease
 charlson_hx_renal_mod_sev:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *renal_mod_severe_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *renal_mod_severe_res195
+    codes: *renal_mod_severe_snomed
+    res195_codes:  *renal_mod_severe_res195
 # --8<-- [end:charlson_hx_renal_mod_sev]
 
 # --8<-- [start:charlson_hx_diabetes_comp]
 # Diabetes with complications
 charlson_hx_diabetes_comp:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *diabetes_comp_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *diabetes_comp_icd10
+    codes: *diabetes_comp_snomed
+    res195_codes: *diabetes_comp_icd10
 # --8<-- [end:charlson_hx_diabetes_comp]
 
 # --8<-- [start:charlson_hx_cancer_solid]
 # Metastasic solid tumor
 charlson_hx_cancer_solid:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
   category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *metastatic_solid_tumor_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *metastatic_solid_tumor_res195
+    codes: [
+      '254895003', '92691004', '254895003', '278054005', '90725004', '312104005', '700423003', '254878006',
+      '721716004', '255109008', '733354000', '276952000', '255029007', '25370001', '255109008', '443961001',
+      '253017000', '254838004', '1338007', '278054005', '254634000', '105121000119102', '123845008',
+      '254915003', '255071008', '254582000', '372138000', '254900004', '123845008', '27090000', '41607009',
+      '73711000119107', '28899001', '1338007', '27090000', '79282002', '109889007', '109841003', '90725004',
+      '109841003', '372141009', '372140005', '254900004', '254632001', '1701000119104', '255084004', '399490008',
+      '255084004', '35917007', '402815007', '86616005', '70179006', '128636006', '276804009', '254900004',
+      '448993007', '447882007', '285310000', '254634000', '92546004', '12400006', '254609000', '702391001',
+      '12400006', '254701007', '254651007', '68453008', '87737001', '109969005', '109969005', '128929007',
+      '1091921000000100', '1929004', '847741000000106', '55150002', '109979007', '118605002', '734076008',
+      '118600007', '14537002', '443487006', '21964009', '393563007', '420120008', '2092003', '399068003',
+      '93870000', '363358000', '363418001', '399326009', '254900004', '363402007', '363418001', '363351006',
+      '363419009', '363518003', '254837009', '363406005', '1157063004']
+    res195_codes: [
+      'C00', 'C01', 'C02', 'C03', 'C04', 'C05', 'C06', 'C07', 'C08', 'C09', 'C10', 'C11', 'C12', 'C13', 'C14',
+      'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22', 'C23', 'C24', 'C25', 'C26', 'C30', 'C31', 'C32',
+      'C33', 'C34', 'C37', 'C38', 'C39', 'C40', 'C41', 'C43', 'C45', 'C46', 'C47', 'C48', 'C49', 'C50', 'C51',
+      'C52', 'C53', 'C54', 'C55', 'C56', 'C57', 'C58', 'C60', 'C61', 'C62', 'C63', 'C64', 'C65', 'C66', 'C67',
+      'C68', 'C69', 'C70', 'C71', 'C72', 'C73', 'C74', 'C75', 'C76', 'C97' ]
 # --8<-- [end:charlson_hx_cancer_solid]
 
 # --8<-- [start:charlson_hx_leukemia]
 # Leukemia
 charlson_hx_leukemia:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *leukemia_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *leukemia_icd10
+    codes: *leukemia_snomed
+    res195_codes: *leukemia_icd10
 # --8<-- [end:charlson_hx_leukemia]
 
 # --8<-- [start:charlson_hx_lypmhoma]
 # Lymphoma
 charlson_hx_lymphoma:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *lymphoma_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *lymphoma_res195
+    codes: *lymphoma_snomed
+    res195_codes: *lymphoma_res195
 # --8<-- [end:charlson_hx_lymphoma
 
 # --- 3 Point Categories ---
@@ -1215,18 +1455,12 @@ charlson_hx_lymphoma:
 # Liver moderate or severe
 charlson_hx_liver_mod_sev:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *liver_mod_severe_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *liver_mod_severe_icd10
+    codes: *liver_mod_severe_snomed
+    res195_codes: *liver_mod_severe_icd10
 # --8<-- [end:charlson_hx_liver_mod_sev]
 
 # --- 6 Point Categories ---
@@ -1234,19 +1468,14 @@ charlson_hx_liver_mod_sev:
 # Metastatic Solid Tumor
 charlson_hx_cancer_met:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['charlson_components']
+  function: 'derive_from_history_code'
+  domains: [ 'problems' ]
+  category: [ 'charlson_components' ]
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *metastatic_solid_tumor_snomed
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *metastatic_solid_tumor_res195
+    codes: *metastatic_solid_tumor_snomed
+    res195_codes: *metastatic_solid_tumor_res195
 # --8<-- [end:charlson_hx_cancer_met]
+
 
 # --8<-- [start:charlson_hx_aids]
 # AIDS
@@ -1261,6 +1490,18 @@ charlson_hx_aids:
         domain: 'problems'
         codes: *aids_snomed
 # --8<-- [end:charlson_hx_aids]
+
+# --8<-- [start:charlson_hx_aids_icare]
+charlson_hx_aids_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *aids_snomed
+    res195_codes: *aids_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_aids_icare]
 
 # --8<-- [start:charlson_hx_hiv]
 charlson_hx_hiv:
@@ -1285,6 +1526,17 @@ charlson_hx_hiv:
         window: [ null, '24h' ]
 # --8<-- [end:charlson_hx_hiv]
 
+# --8<-- [start:charlson_hx_hiv_icare]
+charlson_hx_hiv_icare:
+  module: 'icare_risk.clinphen.phenotypes.icare'
+  function: 'derive_charlson_history_rules'
+  category: [ 'charlson_components' ]
+  kwargs:
+    snomed_codes: *hiv_snomed
+    res195_codes: *hiv_res195
+    window: [null, '24h']  # Overrides default 24h window
+    logic: 'max'           # Overrides default 'max'
+# --8<-- [end:charlson_hx_hiv_icare]
 
 # ------------------------------------------------------
 #                     SIRS Score
@@ -1645,7 +1897,19 @@ pitt_bacteremia_score:
 # ------------------------------------------------------
 # Kim Score Components
 # ------------------------------------------------------
+
 # --8<-- [start:kim_hx_prior_esbl]
+kim_hx_prior_esbl_code:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: ['problems']
+  category: ['kim_components']
+  kwargs:
+    codes: *esbl_snomed
+    res195_codes: ['Z22.322']  # Carrier or history of ESBL colonization/infection
+# --8<-- [end:kim_hx_prior_esbl]
+
+
 kim_hx_prior_esbl:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_composite_rules'
@@ -1656,58 +1920,60 @@ kim_hx_prior_esbl:
       - extractor_type: 'history'
         domain: 'problems'
         codes: *esbl_snomed
-# --8<-- [end:kim_hx_prior_esbl]
 
 # --8<-- [start:kim_hx_recent_hosp_1yr]
 kim_hx_recent_hosp_1yr:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
+  domains: ['problems']
   category: ['kim_components']
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *hospital_admission
-        window: ['-8760h', '0h']  # 1 year * 365 days * 24 hours
+    codes: []
+    window: ['-8760h', '0h']  # 1 year * 365 days * 24 hours
 # --8<-- [end:kim_hx_recent_hosp_1yr]
 
 # --8<-- [start:kim_hx_nursing_home_resident]
 kim_hx_nursing_home_resident:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
+  domains: ['problems']
   category: ['kim_components']
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        code: *nursing_home
-        res195_codes: ['Z59.3']  # Resident in long-term care facility
+    codes: []
+    res195_codes: ['Z59.3']  # Resident in long-term care facility
 # --8<-- [end:kim_hx_nursing_home_resident]
 
 # --8<-- [start:kim_hx_urinary_catheter]
 kim_hx_urinary_catheter:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
+  domains: ['problems']
   category: ['kim_components']
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *urinary_catheter
-        res195_codes: ['Z46.6', 'Y84.6']  # Urinary device encounters/presence
+    codes: []
+    res195_codes: ['Z46.6', 'Y84.6']  # Urinary device encounters/presence
 # --8<-- [end:kim_hx_urinary_catheter]
 
 # --8<-- [start:kim_hx_prior_antibiotics_90d]
 kim_hx_prior_antibiotics_90d:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_composite_rules'
+  domains: ['prescribing']
   category: ['kim_components']
   kwargs:
     logic: 'or'
     components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        keywords:
+          - 'amoxicillin'
+          - 'piperacillin'
+          - 'meropenem'
+          - 'ceftriaxone'
+          - 'ciprofloxacin'
+          - 'ceftazidime'
+          - 'cefepime'
+        window: ['-2160h', '0h']
       - extractor_type: 'keyword'
         domain: 'prescribing'
         text_col: 'THERAPEUTICAL_CLASS'
@@ -1746,58 +2012,68 @@ kim_recent_antibiotics_or_class:
 # --8<-- [start:tumbarello_hx_prior_esbl]
 tumbarello_hx_prior_esbl:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
+  domains: ['problems']
   category: ['tumbarello_components']
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *esbl_snomed
+    codes: *esbl_snomed
+    res195_codes: ['Z22.322', 'Z22.3']  # History/carrier of ESBL
 # --8<-- [end:tumbarello_hx_prior_esbl]
 
 # --8<-- [start:tumbarello_hx_recent_hosp_90d]
 tumbarello_hx_recent_hosp_90d:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
+  domains: ['encounters']
   category: ['tumbarello_components']
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *hospital_admission
-        window: ['-2160h', '0h']  # 90 days * 24 hours
+    window: ['-2160h', '0h']  # 90 days * 24 hours
 # --8<-- [end:tumbarello_hx_recent_hosp_90d]
 
 # --8<-- [start:tumbarello_hx_recent_abx_90d]
 tumbarello_hx_recent_abx_90d:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_composite_rules'
+  domains: [ 'prescribing' ]
   category: ['tumbarello_components']
   kwargs:
     logic: 'or'
     components:
       - extractor_type: 'keyword'
         domain: 'prescribing'
+        keywords:
+          - 'amoxicillin'
+          - 'piperacillin'
+          - 'meropenem'
+          - 'ceftriaxone'
+          - 'ceftazidime'
+          - 'cefepime'
+          - 'ciprofloxacin'
+          - 'levofloxacin'
+        window: [ '-2160h', '0h' ]
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
         text_col: 'THERAPEUTICAL_CLASS'
-        keywords: [ 'antibiotics', 'antibacterials' ]
+        keywords:
+          - 'antibiotics'
+          - 'antibacterials'
+          - 'penicillins'
+          - 'cephalosporins'
+          - 'fluoroquinolones'
+          - 'carbapenems'
         window: [ '-2160h', '0h' ]
 # --8<-- [end:tumbarello_hx_recent_abx_90d]
 
 # --8<-- [start:tumbarello_hx_urinary_catheter]
 tumbarello_hx_urinary_catheter:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
   domains: ['problems']
   category: ['tumbarello_components']
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *urinary_catheter
-        res195_codes: [ 'Z46.6', 'Y84.6' ]  # Urinary device encounters/presence
+    codes: []
+    res195_codes: ['Z46.6', 'Y84.6']  # Urinary catheter/device codes
 # --8<-- [end:tumbarello_hx_urinary_catheter]
 
 
@@ -1808,14 +2084,13 @@ tumbarello_hx_urinary_catheter:
 # --8<-- [start:jones_hx_prior_esbl_180d]
 jones_hx_prior_esbl_180d:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
+  domains: ['problems']
   category: ['jones_components']
-  logic: 'max'
-  components:
-    - extractor_type: 'keyword'
-      domain: 'prescribing'
-      codes: *esbl_snomed
-      window: ['-4320h', '0h']  # 180 days * 24 hours
+  kwargs:
+    codes: *esbl_snomed
+    res195_codes: ['Z22.322']
+    window: ['-4320h', '0h']  # 180 days * 24 hours
 # --8<-- [end:jones_hx_prior_esbl_180d]
 
 # --8<-- [start:jones_hx_prior_antibiotics_30d]
@@ -1909,31 +2184,25 @@ gavaghan_age_ge_65:
 # --8<-- [start:gavaghan_hx_nursing_home_resident]
 gavaghan_hx_nursing_home_resident:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
+  domains: ['problems']
   category: ['gavaghan_components']
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        code: *nursing_home
-        res195_codes: ['Z59.3']  # Resident in long-term care facility
+    codes: []
+    res195_codes: ['Z59.3']  # Long-term care facility resident
 # --8<-- [end:gavaghan_hx_nursing_home_resident]
 
 # --8<-- [start:gavaghan_hx_urinary_catheter]
 gavaghan_hx_urinary_catheter:
   enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
+  function: 'derive_from_history_code'
+  domains: ['problems', 'diagnoses', 'procedures']
   category: ['gavaghan_components']
   kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *urinary_catheter
+    codes: []
+    res195_codes: ['Z46.6', 'Y84.6']  # Urinary catheter/device codes
 # --8<-- [end:gavaghan_hx_urinary_catheter]
-
 
 # --8<-- [start:gavaghan_hx_prior_antibiotics_fq_ceph_90d]
 gavaghan_hx_prior_antibiotics_fq_ceph_90d:
@@ -2018,7 +2287,6 @@ holmgren_hx_previous_3gcr_rectal_swab:
 # Increment ESBL Score
 # -------------------------------------
 increment_bsi_not_urinary_flag:
-  enabled: false
   module: 'icare_risk.clinphen.phenotypes.increment'
   function: 'derive_increment_bsi_not_urinary_flag'
   domains: ['microbiology']
@@ -2026,7 +2294,6 @@ increment_bsi_not_urinary_flag:
     window: ['-24h', '24h']
 
 increment_is_non_ecoli_flag:
-  enabled: false
   module: 'icare_risk.clinphen.phenotypes.increment'
   function: 'derive_increment_is_non_ecoli_flag'
   domains: ['microbiology']
@@ -2035,7 +2302,6 @@ increment_is_non_ecoli_flag:
     window: ['-24h', '24h']
 
 increment_abx_inappropriate_flag:
-  enabled: false
   module: 'icare_risk.clinphen.phenotypes.increment'
   function: 'derive_inappropriate_empiric_abx'
   domains: [ 'prescribing', 'microbiology' ]

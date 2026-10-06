@@ -1,12 +1,46 @@
 # Libraries
+import re
 import pandas as pd
-
-from typing import Dict
 from icare_risk.clinphen.utils.filtering import match_codes
+from typing import Dict, List, Set, Any, Optional, Union
 
-from typing import Dict, List, Set, Any
 
-from typing import Any, Dict, List, Set
+def extract_all_keywords(
+    config: Any,
+    all_configs: Dict[str, Any] = None,
+    visited: Set[int] = None
+) -> List[str]:
+    """Recursively extracts keywords or text patterns from a phenotype configuration."""
+    if visited is None:
+        visited = set()
+
+    found_keywords: Set[str] = set()
+    config_id = id(config)
+    if config_id in visited:
+        return []
+    visited.add(config_id)
+
+    KEYWORD_KEYS = {"keywords", "keyword", "patterns", "terms"}
+
+    if isinstance(config, dict):
+        ref_name = config.get("phenotype") or config.get("ref") or config.get("spec_name")
+        if ref_name and all_configs and ref_name in all_configs:
+            found_keywords.update(extract_all_keywords(all_configs[ref_name], all_configs, visited))
+
+        for key, val in config.items():
+            if key.lower() in KEYWORD_KEYS:
+                if isinstance(val, (list, tuple, set)):
+                    found_keywords.update(str(k) for k in val if k is not None)
+                elif isinstance(val, (str, int)):
+                    found_keywords.add(str(val))
+            else:
+                found_keywords.update(extract_all_keywords(val, all_configs, visited))
+
+    elif isinstance(config, (list, tuple, set)):
+        for item in config:
+            found_keywords.update(extract_all_keywords(item, all_configs, visited))
+
+    return list(found_keywords)
 
 def extract_all_codes(
     config: Any,
@@ -58,15 +92,114 @@ def extract_all_codes(
     return list(found_codes)
 
 
+def _default_code_extractor(config: dict, all_configs: dict) -> List[str]:
+    if "codes" in config:
+        return config["codes"]
+    if "keywords" in config:
+        return config["keywords"]
+
+    kwargs = config.get("kwargs", {})
+    if "codes" in kwargs:
+        return kwargs["codes"]
+    if "keywords" in kwargs:
+        return kwargs["keywords"]
+
+    components = kwargs.get("components", [])
+    extracted = []
+    for comp in components:
+        extracted.extend(comp.get("codes", []))
+        extracted.extend(comp.get("keywords", []))
+
+    return list(set(extracted))
+
+
 def build_historical_events_table(
+    df: pd.DataFrame,
+    configs: Dict[str, dict],
+    subject_col: str = "SUBJECT",
+    time_col: str = "PROBLEM_DT_TM",
+    target_col: str = "PROBLEM_CODE",
+    first_occurrence_only: bool = True,
+    match_type: str = "exact",
+    case_sensitive: bool = False,
+    strip_dots: bool = True,
+    extract_codes_fn: Optional[callable] = None,
+) -> pd.DataFrame:
+    if df.empty or not configs:
+        out_cols = (
+            [subject_col, "event_name", "first_occurrence_date"]
+            if first_occurrence_only
+            else list(df.columns) + ["event_name"]
+        )
+        return pd.DataFrame(columns=out_cols)
+
+    extractor = extract_codes_fn or _default_code_extractor
+    matched_records = []
+
+    for event_name, config in configs.items():
+        codes = extractor(config, configs)
+        if not codes:
+            continue
+
+        curr_target_col = config.get("target_col", target_col)
+        curr_match_type = config.get("match_type", match_type)
+        curr_case_sensitive = config.get("case_sensitive", case_sensitive)
+        curr_strip_dots = config.get("strip_dots", strip_dots)
+
+        if curr_target_col not in df.columns:
+            continue
+
+        series = df[curr_target_col]
+        is_match = match_codes(
+            series=series,
+            target_codes=codes,
+            match_type=curr_match_type,
+            case_sensitive=curr_case_sensitive,
+            strip_dots=curr_strip_dots,
+        )
+
+        if is_match.any():
+            matched_df = df[is_match].copy()
+            matched_df["event_name"] = event_name
+            matched_records.append(matched_df)
+
+    if not matched_records:
+        out_cols = (
+            [subject_col, "event_name", "first_occurrence_date"]
+            if first_occurrence_only
+            else list(df.columns) + ["event_name"]
+        )
+        return pd.DataFrame(columns=out_cols)
+
+    combined_matches = pd.concat(matched_records, ignore_index=True)
+
+    if first_occurrence_only:
+        first_occ = (
+            combined_matches.groupby([subject_col, "event_name"])[time_col]
+            .min()
+            .reset_index()
+        )
+        first_occ.rename(
+            columns={time_col: "first_occurrence_date"}, inplace=True
+        )
+        return first_occ
+
+    return combined_matches
+
+def build_historical_events_table2(
     df: pd.DataFrame,
     configs: Dict[str, dict],
     subject_col: str = "subject",
     time_col: str = "timestamp",
     code_col: str = "code",
-    config_code_key: str = "codes"
+    first_occurence_only: bool = True,
+    match_type: str = "exact",
+    case_sensitive: bool = False,
+    strip_dots: bool = True,
+    extract_codes_fn: Optional[callable] = None,
 ) -> pd.DataFrame:
-    """Builds a generic historical events table tracking the first occurrence date per subject and event type.
+    """Builds a generic historical events table tracking the first
+    occurrence date per subject and event type.
 
     Parameters
     ----------
@@ -117,6 +250,54 @@ def build_historical_events_table(
     first_occurrences.rename(columns={time_col: "first_occurrence_date"}, inplace=True)
 
     return first_occurrences
+
+
+def build_longitudinal_events_table(
+        df: pd.DataFrame,
+        configs: Dict[str, dict],
+        subject_col: str = "subject",
+        time_col: str = "timestamp",
+        code_col: str = "code",
+        text_col: str = "description"
+) -> pd.DataFrame:
+    """Builds a longitudinal events table retaining ALL occurrences
+    (useful for time-varying treatments like antibiotics).
+    """
+    if df.empty or not configs:
+        return pd.DataFrame(columns=[subject_col, time_col, "event_name"])
+
+    # Create a working copy of the dataframe to evaluate matches
+    event_frames = []
+
+    code_series = df[code_col].fillna('').astype(str)
+    text_series = df[text_col].fillna('').astype(str).str.lower()
+
+    for name, config in configs.items():
+        codes = extract_all_codes(config, all_configs=configs)
+        keywords = extract_all_keywords(config, all_configs=configs)  # From previous snippet
+
+        # Evaluate match per row for this specific event rule
+        is_match = pd.Series(False, index=df.index)
+        if codes:
+            is_match |= match_codes(code_series, codes)
+        if keywords:
+            pattern = '|'.join(map(re.escape, keywords))
+            is_match |= text_series.str.contains(pattern, case=False, na=False)
+
+        # Filter rows where this event occurred and keep all timestamps
+        matched_rows = df.loc[is_match, [subject_col, time_col]].copy()
+        if not matched_rows.empty:
+            matched_rows["event_name"] = name
+            event_frames.append(matched_rows)
+
+    if not event_frames:
+        return pd.DataFrame(columns=[subject_col, time_col, "event_name"])
+
+    # Concatenate all longitudinal events without collapsing via min()
+    longitudinal_events = pd.concat(event_frames, ignore_index=True)
+    return longitudinal_events
+
+
 
 def evaluate_temporal_phenotypes(
     episodes_df: pd.DataFrame,
@@ -183,3 +364,18 @@ def evaluate_temporal_phenotypes(
         merged = merged.drop(columns=cols_to_drop)
 
     return merged
+
+
+def extract_window_bounds(config: dict) -> tuple:
+    """Extracts window bounds (e.g., ['-720h', '0h']) from config kwargs or root."""
+    kwargs = config.get("kwargs", {})
+    window = kwargs.get("window") or config.get("window")
+
+    if isinstance(window, (list, tuple)) and len(window) == 2:
+        return window[0], window[1]
+    elif isinstance(window, str):
+        # Default symmetric or lookback if single string provided
+        return f"-{window}", "0h"
+
+    # Fallback to lifetime history if no window defined
+    return None, "0h"

@@ -1,28 +1,28 @@
 import pandas as pd
-import numpy as np
 
-from typing import Dict, Optional, List
+from typing import Dict, Optional
+from icare_risk.clinphen.scores.utils import calculate_weighted_points
+from icare_risk.clinphen.scores.utils import log_score_audit
+
 
 # Define base weights
 GAVAGHAN_WEIGHTS = {
-    "gavaghan_hx_prior_esbl_365d": 4,
-    "gavaghan_age_ge_65": 1,
+    "gavaghan_hx_prior_esbl_365d": 4,              # Any ESBL organism within 365 days
+    "gavaghan_age_ge_65": 1,                       # Lives in a long-term care facility
     "gavaghan_hx_nursing_home_resident": 2,
-    "gavaghan_hx_urinary_catheter": 1,
-    "gavaghan_hx_prior_antibiotics_fq_ceph_90d": 2
+    "gavaghan_hx_urinary_catheter": 1,             # Indwelling catheter at presentation
+    "gavaghan_hx_prior_antibiotics_fq_ceph_90d": 2 # Fluoroquinolone or Cephalosporin (90d)
 
 }
 
 GAVAGHAN_HIERARCHY = {}
 
 
-def calculate_gavaghan_score(df,
-                             age_col='AGE_AT_ADMISSION',
-                             prior_esbl_col='hx_prior_esbl_365d',
-                             nursing_home_col='hx_nursing_home_resident',
-                             urinary_catheter_col='hx_urinary_catheter_present',
-                             prior_abx_col='hx_prior_fc_abx_90d',
-                             **kwargs):
+def compute_gavaghan_score(
+    df: pd.DataFrame,
+    weights: Optional[Dict[str, int]] = None,
+    verbose: int = 0,
+) -> pd.Series:
     """
     Computes the Gavaghan et al. (2025) ESBL Risk Score.
 
@@ -72,4 +72,16 @@ def calculate_gavaghan_score(df,
     pd.Series
         A pandas Series containing the computed score for each patient.
     """
-    pass
+    active_weights = weights if weights is not None else GAVAGHAN_WEIGHTS
+
+    score = calculate_weighted_points(df, active_weights)
+
+    log_score_audit(
+        df,
+        active_weights,
+        score,
+        title="Gavaghan Score Breakdown",
+        verbose=verbose,
+    )
+
+    return score

@@ -81,7 +81,7 @@ alternate_style = true
 
 [project.markdown_extensions.pymdownx.snippets]
 base_path = [".", "src"]
-check_paths = true
+check_paths = false # It does not raise a warning
 
 [project.plugins.search]
 

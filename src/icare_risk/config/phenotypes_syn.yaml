@@ -1,0 +1,112 @@
+# phenotypes.yaml
+
+sirs_tachycardia_flag:
+  module: "icare_risk.phenotypes.utils"
+  function: "derive_flag_from_yaml"
+  kwargs:
+    output_name: "sirs_tachycardia_flag"
+    rules:
+      - table: "vitals"
+        names: ["Heart Rate", "HR"]
+        codes: [13472364]
+        operator: ">"
+        threshold: 90.0
+
+sirs_tachypnea_flag:
+  module: "icare_risk.phenotypes.utils"
+  function: "derive_flag_from_yaml"
+  kwargs:
+    output_name: "sirs_tachypnea_flag"
+    rules:
+      - table: "vitals"
+        names: ["Respiratory Rate"]
+        codes: [9096705]
+        operator: ">"
+        threshold: 20.0
+      - table: "pathology"
+        names: ["PaCO2", "pCO2"]
+        codes: []
+        operator: "<"
+        threshold: 32.0
+
+sirs_abnormal_temp_flag:
+  module: "icare_risk.phenotypes.utils"
+  function: "derive_flag_from_yaml"
+  kwargs:
+    output_name: "sirs_abnormal_temp_flag"
+    rules:
+      - table: "vitals"
+        names: ["Temperature", "Body Temperature", "Temperature C"]
+        codes: [10933766, 486347689]
+        operator: ">"
+        threshold: 38.0
+      - table: "vitals"
+        names: ["Temperature", "Body Temperature", "Temperature C"]
+        codes: [10933766, 486347689]
+        operator: "<"
+        threshold: 36.0
+
+sirs_abnormal_wbc_flag:
+  module: "icare_risk.phenotypes.utils"
+  function: "derive_flag_from_yaml"
+  kwargs:
+    output_name: "sirs_abnormal_wbc_flag"
+    rules:
+      - table: "pathology"
+        names: ["White Blood Cells", "WBC", "Leukocytes"]
+        codes: ["wbc"]
+        operator: ">"
+        threshold: 12.0
+      - table: "pathology"
+        names: ["White Blood Cells", "WBC", "Leukocytes"]
+        codes: ["wbc"]
+        operator: "<"
+        threshold: 4.0
+      - table: "pathology"
+        names: ["Bands", "Immature Granulocytes", "Band Neutrophils"]
+        codes: ["bands"]
+        operator: ">"
+        threshold: 10.0
+
+bsi_not_urinary_flag:
+  module: "__main__"
+  function: "derive_bsi_not_urinary"
+  kwargs:
+    output_name: "bsi_not_urinary_flag"
+    urine_culture_codes: ["LOINC-630-4"]
+
+bsi_non_ecoli_flag:
+  module: "__main__"
+  function: "derive_bsi_non_ecoli"
+  kwargs:
+    output_name: "bsi_non_ecoli_flag"
+    blood_culture_codes: ["LOINC-600-7"]
+
+hx_mi_flag:
+  module: "icare_risk.phenotypes.utils"
+  function: "derive_historical_condition"
+  kwargs:
+    output_name: "hx_mi_flag"
+    icd10_codes: []
+    snomed_codes: []
+    icare_codes: ["57054005", "22298006", "1755008"]
+    target_codes: ["I21", "I22", "I25.2", "323..00", "G30..00"]
+    sources:
+      - context_name: "problems"
+        patient_col: "SUBJECT"
+        code_col: "PROBLEM_CODE"
+        vocab_key: "target_codes"
+        match_type: "prefix"
+
+hx_copd_flag:
+  module: "icare_risk.phenotypes.utils"
+  function: "derive_historical_condition"
+  kwargs:
+    output_name: "hx_copd_flag"
+    target_codes: ["J44"]
+    sources:
+      - context_name: "problems"
+        patient_col: "SUBJECT"
+        code_col: "PROBLEM_CODE"
+        vocab_key: "target_codes"
+        match_type: "prefix"

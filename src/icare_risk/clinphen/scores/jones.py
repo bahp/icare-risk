@@ -1,3 +1,10 @@
+# Libraries
+import pandas as pd
+import numpy as np
+
+from typing import Dict, Optional, List
+from icare_risk.clinphen.scores.utils import calculate_weighted_points
+from icare_risk.clinphen.scores.utils import log_score_audit
 
 # Define base weights
 JONES_WEIGHTS = {
@@ -9,12 +16,9 @@ JONES_WEIGHTS = {
 
 JONES_HIERARCHY = {}
 
-def calculate_jones_score(df,
-                          prior_esbl_col='hx_prior_esbl_180d',
-                          prior_abx_col='hx_prior_abx_30d',
-                          chronic_dialysis_col='hx_chronic_dialysis',
-                          transfer_hosp_col='hx_transfer_from_hosp',
-                          **kwargs):
+def compute_jones_score(df: pd.DataFrame,
+                          weights: Optional[Dict[str, int]] = None,
+                          verbose: int = 0) -> pd.Series:
     """
     Computes the Jones et al. (2025) ESBL Risk Score for Non-Urinary Isolates.
 
@@ -63,4 +67,16 @@ def calculate_jones_score(df,
     pd.Series
         A pandas Series containing the computed score for each patient.
     """
-    pass
+    active_weights = weights if weights is not None else JONES_WEIGHTS
+
+    score = calculate_weighted_points(df, active_weights)
+
+    log_score_audit(
+        df,
+        active_weights,
+        score,
+        title="JONES Score Breakdown",
+        verbose=verbose,
+    )
+
+    return score

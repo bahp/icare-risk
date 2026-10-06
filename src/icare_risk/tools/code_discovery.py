@@ -7,8 +7,9 @@ from pathlib import Path
 from datetime import datetime
 
 # Setup Paths dynamically
-project_root = Path.cwd()
-sys.path.append(str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
 
 
 def search_dataframe(df,
@@ -56,24 +57,20 @@ def process_yaml_config(config_path,
                         lookup_dir_str="data/lookups/standard",
                         out_dir_str="outputs/code_searches"):
     """Processes multiple files and campaigns from a YAML file, exporting to a datetimed folder."""
-    # Automatically find project root (assuming tools/ is one level down from root)
-    # If this file is in icare_risk/tools/, project root is two levels up.
-    project_root = Path(__file__).resolve().parent.parent.parent
-
     # Resolve config path safely
     config_file = Path(config_path)
     if not config_file.exists():
-        config_file = project_root / config_path
+        config_file = PROJECT_ROOT / config_path
 
     # Resolve lookup directory safely
     lookup_dir = Path(lookup_dir_str)
     if not lookup_dir.exists():
-        lookup_dir = project_root / lookup_dir_str
+        lookup_dir = PROJECT_ROOT / lookup_dir_str
 
     # Resolve output directory safely
     out_dir_base = Path(out_dir_str)
     if not out_dir_base.is_absolute():
-        out_dir_base = project_root / out_dir_str
+        out_dir_base = PROJECT_ROOT / out_dir_str
 
     with open(config_file, 'r') as f:
         config_data = yaml.safe_load(f)
@@ -185,14 +182,26 @@ def process_yaml_config(config_path,
 
 def main():
     """CLI entry point for code discovery tool."""
+
+    # Libraries
+    from icare_risk.utils.io  import get_pkg_path
+
+    PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+    # Default path locations
+    DEFAULT_YAML_CONFIG = str(get_pkg_path('config/icare/code_search.yaml'))
+    DEFAULT_LOOKUP_FOLDER = PROJECT_ROOT / 'data/lookups/standard'
+    DEFAULT_OUTPUT_FOLDER = PROJECT_ROOT / 'outputs/code_searches'
+
     parser = argparse.ArgumentParser(description="Multi-File Clinical Code Discovery Tool")
     parser.add_argument('--config',
-        type=str, required=True, help='Path to YAML config file')
+        type=str, default=DEFAULT_YAML_CONFIG,
+        help='Path to YAML config file')
     parser.add_argument('--lookup-dir',
-        type=str, default='data/lookups/standard',
+        type=str, default=DEFAULT_LOOKUP_FOLDER,
         help='Directory containing lookup CSVs (default: assets/lookups)')
     parser.add_argument('--out-dir',
-        type=str, default='outputs/code_searches',
+        type=str, default=DEFAULT_OUTPUT_FOLDER,
         help='Base directory for output reports and CSVs (default: outputs/code_searches)')
     args = parser.parse_args()
 

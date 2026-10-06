@@ -395,3 +395,21 @@ terminal and encounter `command not found` or `SystemExit 2` errors, see our [Az
 to quickly resolve the environment path conflicts.
 
 
+# TO ADD IN DOCS:
+
+When explaining how to run tests.
+
+# In Docker
+./make test clinphen/utils/test_filtering.py
+
+# Locally in venv
+./make test local clinphen/utils/test_filtering.py
+
+# In Docker
+./make test-path tests/clinphen/utils/test_filtering.py
+
+# Locally in venv
+./make test-path local tests/clinphen/utils/test_filtering.py
+
+# Run only test_exact_matching inside test_filtering.py
+./make test clinphen/utils/test_filtering.py::TestMatchCodes::test_exact_matching

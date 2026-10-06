@@ -91,6 +91,119 @@ targets:
         contains: [ "hiv", "human immunodeficiency virus" ]
         exclude: [ "aids", "acquired immune deficiency" ]
 
+      - category: "ESBL"
+        contains:
+          - "esbl"
+          - "extended spectrum beta"
+          - "extended-spectrum beta"
+          - "beta lactamase"
+          - "beta-lactamase"
+        exclude: [ ]
+
+      - category: "CPE / Carbapenem Resistance"
+        contains:
+          - "carbapenem"
+          - "cpe"
+        exclude: [ ]
+
+      - category: "MRSA"
+        contains:
+          - "mrsa"
+          - "methicillin resistant"
+          - "methicillin-resistant"
+        exclude: [ ]
+
+      - category: "Urinary Catheter"
+        contains:
+          - "urinary catheter"
+          - "foley"
+          - "indwelling catheter"
+          - "suprapubic catheter"
+          - "catheterization of bladder"
+        exclude:
+          - "removal"
+          - "complication"
+
+      - category: "Nursing Home / Long-Term Care"
+        contains:
+          - "nursing home"
+          - "care home"
+          - "residential care"
+          - "long term care"
+          - "long-term care"
+          - "nursing facility"
+          - "skilled nursing"
+          - "snf"
+          - "assisted living"
+          - "rest home"
+          - "residential home"
+        exclude:
+          - "day care"
+          - "child care"
+          - "foster home"
+          - "family history"
+          - "home care"
+
+      - category: "Chronic Dialysis"
+        contains:
+          - "dialysis"
+          - "hemodialysis"
+          - "haemodialysis"
+          - "peritoneal dialysis"
+          - "end stage renal"
+          - "esrd"
+          - "renal replacement"
+          - "av fistula"
+          - "arteriovenous fistula"
+          - "av graft"
+        exclude:
+          - "acute"
+          - "temporary"
+          - "family history"
+
+      - category: "Antibiotic Exposure / Prior Antibiotics"
+        contains:
+          - "antibiotic"
+          - "antibiotics"
+          - "antibacterial"
+          - "antibacterials"
+          - "antimicrobial"
+          - "antimicrobials"
+          - "antibiotic therapy"
+          - "antibiotic use"
+          - "prior antibiotic"
+          - "previous antibiotic"
+        exclude:
+          - "allergy"
+          - "allergic"
+          - "hypersensitivity"
+          - "adverse"
+          - "intolerance"
+          - "reaction"
+          - "family history"
+          - "refusal"
+          - "contraindication"
+
+      - category: "Recent Hospital Admission"
+        contains:
+          - "hospital admission"
+          - "hospitalized"
+          - "hospitalised"
+          - "hospitalization"
+          - "hospitalisation"
+          - "inpatient stay"
+          - "inpatient admission"
+          - "recent admission"
+          - "previous admission"
+          - "prior admission"
+          - "hospital readmission"
+          - "readmitted"
+        exclude:
+          - "family history"
+          - "outpatient"
+          - "day case"
+          - "day surgery"
+          - "refusal"
 
   # --------------------------------------------------
   # Looking for problems based on ICD10 codes
@@ -123,14 +236,3 @@ targets:
     search_cols: [ "name" ]
     export_cols: [ ]
     campaigns: *charlson_campaigns
-
-  # --------------------------------------------------
-  # Looking for comorbidities in icareDIA.csv
-  # --------------------------------------------------
-  - file: "icarePRO.csv"
-    code_col: "code"
-    search_cols: [ "name" ]
-    export_cols: [ ]
-    campaigns: *charlson_campaigns
-
-

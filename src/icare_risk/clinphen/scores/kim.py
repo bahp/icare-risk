@@ -1,5 +1,11 @@
+import pandas as pd
+
+from typing import Dict, Optional
+from icare_risk.clinphen.scores.utils import calculate_weighted_points
+from icare_risk.clinphen.scores.utils import log_score_audit
+
 # Define base weights
-JONES_WEIGHTS = {
+KIM_WEIGHTS = {
     "kim_hx_prior_esbl": 5,
     "kim_hx_recent_hosp_1yr": 2,
     "kim_hx_nursing_home_resident": 2,
@@ -10,13 +16,10 @@ JONES_WEIGHTS = {
 JONES_HIERARCHY = {}
 
 
-def calculate_kim_score(df,
-                        prior_esbl_col='hx_prior_esbl_any',
-                        hosp_1y_col='hx_hosp_last_365d',
-                        nursing_home_col='hx_nursing_home_resident',
-                        urinary_catheter_col='hx_urinary_catheter_present',
-                        prior_abx_90d_col='hx_prior_abx_90d',
-                        **kwargs):
+def compute_kim_score(df: pd.DataFrame,
+        weights: Optional[Dict[str, int]] = None,
+        verbose: int = 0,
+    ) -> pd.Series:
     """
     Computes the Kim et al. (2019) ESBL Risk Score.
 
@@ -60,4 +63,16 @@ def calculate_kim_score(df,
     pd.Series
         A pandas Series containing the computed score for each patient
     """
-    pass
+    active_weights = weights if weights is not None else KIM_WEIGHTS
+
+    score = calculate_weighted_points(df, active_weights)
+
+    log_score_audit(
+        df,
+        active_weights,
+        score,
+        title="Kim Score Breakdown",
+        verbose=verbose,
+    )
+
+    return score

@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 
 from typing import Dict, Optional, List
+from icare_risk.clinphen.scores.utils import calculate_weighted_points
+from icare_risk.clinphen.scores.utils import log_score_audit
 
 # Define base weights
 CHARLSON_WEIGHTS = {

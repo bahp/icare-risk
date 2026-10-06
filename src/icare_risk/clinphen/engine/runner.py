@@ -274,7 +274,7 @@ class FeatureMatrixBuilder:
             domain_codes=domain_codes,
             domain_cols=domain_cols
         )
-        print(f"Loaded clinical domains into cache in {time.perf_counter() - t0:.2f}s")
+        print(f"Loaded clinical domains into cache in {time.perf_counter() - t0:.2f}s", flush=True)
 
         # 5. Fast dictionary loop with optional progress bar
         episodes_records = df_episodes.to_dict(orient="records")
@@ -285,8 +285,9 @@ class FeatureMatrixBuilder:
             print(f"Loaded clinical domains in {time.perf_counter() - t0:.2f}s")
             try:
                 # Use tqdm.auto for seamless Jupyter Notebook rendering
+                import sys
                 from tqdm.auto import tqdm
-                iterator = tqdm(episodes_records, desc="Processing Episodes", total=len(episodes_records))
+                iterator = tqdm(episodes_records, desc="Processing Episodes", total=len(episodes_records), file=sys.stdout)
             except ImportError:
                 import logging
                 logging.warning(

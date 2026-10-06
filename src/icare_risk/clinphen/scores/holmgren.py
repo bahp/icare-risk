@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 
 from typing import Dict, Optional, List
+from icare_risk.clinphen.scores.utils import calculate_weighted_points
+from icare_risk.clinphen.scores.utils import log_score_audit
 
 # Define base weights
 HOLMGREM_WEIGHTS = {
@@ -12,11 +14,9 @@ HOLMGREM_WEIGHTS = {
 
 HOLMGREM_HIERARCHY = {}
 
-def calculate_holmgren_score(df,
-                             hosp_abroad_col='hx_hosp_abroad_12m',
-                             prev_culture_col='hx_prev_3gcr_culture',
-                             prev_swab_col='hx_prev_3gcr_rectal_swab',
-                             **kwargs):
+def compute_holmgren_score(df: pd.DataFrame,
+                             weights: Optional[Dict[str, int]] = None,
+                             verbose: int = 0):
     """
     Computes the Holmgren score (2020) for 3GCR Enterobacterales bacteraemia.
 
@@ -64,4 +64,16 @@ def calculate_holmgren_score(df,
     pd.Series
         A pandas Series containing the computed score for each patient.
     """
-    pass
+    active_weights = weights if weights is not None else HOLMGREM_WEIGHTS
+
+    score = calculate_weighted_points(df, active_weights)
+
+    log_score_audit(
+        df,
+        active_weights,
+        score,
+        title="Holmgren Score Breakdown",
+        verbose=verbose,
+    )
+
+    return score

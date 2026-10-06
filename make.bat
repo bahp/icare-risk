@@ -122,7 +122,8 @@ goto :eof
 :search
 echo.
 echo --- Discover Clinical Codes (Keywords) ---
-%RUN% %PYTHON% -m %SCRIPTS_PKG%.f_find_clinical_codes %EXTRA_ARGS%
+:: %RUN% %PYTHON% -m %SCRIPTS_PKG%.f_find_clinical_codes %EXTRA_ARGS%
+%RUN% %PYTHON% -m %TOOLS_PKG%.code_discovery %EXTRA_ARGS%
 timeout /t 2 >nul
 goto :eof
 
@@ -143,11 +144,15 @@ timeout /t 2 >nul
 goto :eof
 
 
-
 :test
 echo.
-echo --- Running Unit Tests ---
-%RUN% %PYTHON% -m pytest tests/ %EXTRA_ARGS%
+if "%EXTRA_ARGS%"=="" (
+    echo --- Running All Unit Tests ---
+    %RUN% %PYTHON% -m pytest tests/
+) else (
+    echo --- Running Tests in tests/%EXTRA_ARGS% ---
+    %RUN% %PYTHON% -m pytest tests/%EXTRA_ARGS%
+)
 timeout /t 2 >nul
 goto :eof
 
