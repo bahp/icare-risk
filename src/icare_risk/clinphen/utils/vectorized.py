@@ -7,8 +7,31 @@ from typing import Dict, List, Set, Any, Optional, Union, Tuple
 # ------------------------------------------------------------------
 # Helper methods
 # ------------------------------------------------------------------
+def _format_td(td: pd.Timedelta) -> str:
+    """Human-readable rendering of a resolved Timedelta bound for verbose logging."""
+    if td == pd.Timedelta.min:
+        return "-inf"
+    if td == pd.Timedelta(0):
+        return "0h"
+    return f"{td.total_seconds() / 3600:+.1f}h"
+
+def _first_not_none(*values, default: Any = None) -> Any:
+    """
+    Returns the first value in `values` that is not None, respecting
+    legitimate falsy values (e.g. False, "", 0). Falls back to `default`
+    if every supplied value is None.
+
+    This implements the resolution priority used throughout this module:
+        most-specific (e.g. per-source) > YAML (phenotype config) >
+        domain registry default > hardcoded fallback
+    """
+    for v in values:
+        if v is not None:
+            return v
+    return default
+
 def _default_code_extractor(config: dict, all_configs: dict) -> List[str]:
-    """"""
+    """Default method to extract codes."""
     if "codes" in config:
         return config["codes"]
     if "keywords" in config:
@@ -29,20 +52,6 @@ def _default_code_extractor(config: dict, all_configs: dict) -> List[str]:
     return list(set(extracted))
 
 
-def _first_not_none(*values, default: Any = None) -> Any:
-    """
-    Returns the first value in `values` that is not None, respecting
-    legitimate falsy values (e.g. False, "", 0). Falls back to `default`
-    if every supplied value is None.
-
-    This implements the resolution priority used throughout this module:
-        most-specific (e.g. per-source) > YAML (phenotype config) >
-        domain registry default > hardcoded fallback
-    """
-    for v in values:
-        if v is not None:
-            return v
-    return default
 
 
 def parse_phenotypes_to_batches(yaml_config: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -325,12 +334,15 @@ def evaluate_temporal_windows(
     episodes_df: pd.DataFrame,
     events_df: pd.DataFrame,
     window_configs: Optional[Dict[str, Any]] = None,
+    domain_default_windows: Optional[Dict[str, Any]] = None,
     subject_col: str = "subject",
     admission_col: str = "index_admission",
     event_col: str = "event_name",
     event_time_col: str = "date",
+    domain_col: str = "domain",
     prefix: str = "hx_",
-    default_window: Any = (None, "0h")
+    default_window: Any = (None, "0h"),
+    verbose: int = 1
 ) -> pd.DataFrame:
     """Evaluates temporal phenotype windows per episode directly from long event logs.
 
@@ -339,15 +351,36 @@ def evaluate_temporal_windows(
     episodes_df : pd.DataFrame
         Cohort DataFrame with patient episodes and admission dates.
     events_df : pd.DataFrame
-        Long event log containing [subject_col, event_col, event_time_col].
+        Long event log containing [subject_col, event_col, event_time_col],
+        and optionally `domain_col` (as produced by `run_vectorized`).
     window_configs : dict, optional
         Mapping of event_name to window specs (tuples, strings, or loaded YAML dicts).
-    subject_col, admission_col, event_col, event_time_col : str
+        This is the most specific / highest-priority source of truth.
+    domain_default_windows : dict, optional
+        Mapping of domain name -> window spec, used as a fallback default for
+        any event whose name is not present in `window_configs`. Mirrors the
+        same domain-registry-default pattern used for match_type/text_col
+        elsewhere in this module.
+    subject_col, admission_col, event_col, event_time_col, domain_col : str
         Column names for indexing and temporal matching.
     prefix : str
         Prefix added to output binary indicator columns.
     default_window : tuple or string
-        Fallback window applied to events omitted from window_configs.
+        Final hardcoded fallback applied when neither `window_configs` nor
+        `domain_default_windows` has an entry for an event.
+    verbose : int
+        When > 0, prints, per event_name: which window spec was resolved,
+        which source it came from (event-specific config / domain default /
+        hardcoded fallback), the parsed (min, max) bounds, and how many
+        candidate events fell inside vs. outside that window. This is the
+        actual point in the pipeline where window resolution + filtering
+        happens, so it is the most accurate place to surface this info
+        (as opposed to `run_vectorized`, which only sees the YAML-resolved
+        window before any domain-default fallback is applied).
+
+    Resolution priority for each event's window
+    --------------------------------------------
+        window_configs[event_name]  >  domain_default_windows[domain]  >  default_window
 
     Returns
     -------
@@ -358,13 +391,19 @@ def evaluate_temporal_windows(
         return episodes_df.copy()
 
     window_configs = window_configs or {}
+    domain_default_windows = domain_default_windows or {}
 
     episodes = episodes_df.copy()
     episodes["_episode_id"] = episodes.index
 
+    merge_cols = [subject_col, event_col, event_time_col]
+    has_domain = domain_col in events_df.columns
+    if has_domain:
+        merge_cols.append(domain_col)
+
     # 1. Join event stream to cohort
     merged = episodes[["_episode_id", subject_col, admission_col]].merge(
-        events_df[[subject_col, event_col, event_time_col]],
+        events_df[merge_cols],
         on=subject_col,
         how="inner"
     )
@@ -375,19 +414,71 @@ def evaluate_temporal_windows(
     # 2. Compute relative time delta
     merged["time_delta"] = pd.to_datetime(merged[event_time_col]) - pd.to_datetime(merged[admission_col])
 
+    if verbose > 0:
+        print("\n--- Evaluating Temporal Windows ---")
+        print(f"Events to evaluate: {len(merged):,} across {merged[event_col].nunique()} event name(s).\n")
+
     # 3. Apply per-event window filtering
     valid_mask = pd.Series(False, index=merged.index)
+    window_debug_rows = []
 
     for event_name, group in merged.groupby(event_col):
-        spec = window_configs.get(event_name, default_window)
+
+        # Priority: explicit per-event config > domain-level default > hardcoded fallback
+        event_specific = window_configs.get(event_name)
+        domain_default = None
+        domain_label = None
+        if has_domain:
+            domain_vals = group[domain_col].dropna().unique()
+            if len(domain_vals) > 0:
+                domain_label = domain_vals[0]
+                domain_default = domain_default_windows.get(domain_label)
+
+        if event_specific is not None:
+            source_used = "event_config"
+        elif domain_default is not None:
+            source_used = f"domain_default[{domain_label}]"
+        else:
+            source_used = "hardcoded_default"
+
+        spec = _first_not_none(
+            event_specific,
+            domain_default,
+            default_window
+        )
         min_td, max_td = parse_window(spec)
 
         event_mask = (group["time_delta"] >= min_td) & (group["time_delta"] < max_td)
         valid_mask.loc[group.index] = event_mask
 
+        if verbose > 0:
+            n_candidates = len(group)
+            n_valid = int(event_mask.sum())
+            window_debug_rows.append({
+                "event_name": event_name,
+                "domain": domain_label,
+                "window_source": source_used,
+                "window_spec": spec,
+                "resolved_window": f"[{_format_td(min_td)}, {_format_td(max_td)})",
+                "candidates": n_candidates,
+                "within_window": n_valid,
+                "dropped": n_candidates - n_valid,
+            })
+
+    if verbose > 0 and window_debug_rows:
+        debug_df = pd.DataFrame(window_debug_rows)
+        print(debug_df.to_string(index=False))
+        print(
+            f"\nTotal: {debug_df['candidates'].sum():,} candidate event(s), "
+            f"{debug_df['within_window'].sum():,} fell within their resolved window, "
+            f"{debug_df['dropped'].sum():,} dropped as out-of-window.\n"
+        )
+
     valid_events = merged[valid_mask]
 
     if valid_events.empty:
+        if verbose > 0:
+            print("[!] No events remained after window filtering.")
         return episodes.drop(columns=["_episode_id"])
 
     # 4. Unstack into binary indicator columns
