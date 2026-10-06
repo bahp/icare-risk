@@ -732,7 +732,7 @@ definitions:
         - '409804001'           # Infection caused by ESBL Klebsiella pneumoniae
 
     urinary_catheter:
-      snomed: &urinary_catheter
+      snomed: &urinary_catheter_snomed
         - '17006003'
         - '182524008'
         - '20568009'
@@ -757,7 +757,7 @@ definitions:
         - '79165006'
 
     nursing_home:
-      snomed: &nursing_home
+      snomed: &nursing_home_snomed
         - '409799006'
         - '409800005'
         - '409801009'
@@ -774,7 +774,7 @@ definitions:
         - '939191000000103'
 
     chronic_dialysis:
-      snomed: &chronic_dialysis
+      snomed: &chronic_dialysis_snomed
         - '7459007'
         - '10848006'
         - '17006003'
@@ -891,7 +891,7 @@ definitions:
         - '282348002'
 
     antibiotic_exposure:
-      snomed: &antibiotic_exposure
+      snomed: &antibiotic_exposure_snomed
         - '255631004'
         - '281790008'
         - '301469002'
@@ -900,7 +900,7 @@ definitions:
         - '422181004'
 
     hospital_admission:
-      snomed: &hospital_admission
+      snomed: &hospital_admission_snomed
         - '8715000'
         - '78680009'
         - '81672003'
@@ -1287,6 +1287,385 @@ charlson_hx_hiv:
 
 
 # ------------------------------------------------------
+# Kim Score Components
+# ------------------------------------------------------
+# --8<-- [start:kim_hx_prior_esbl]
+kim_hx_prior_esbl:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: [ 'kim_components' ]
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *esbl_snomed
+# --8<-- [end:kim_hx_prior_esbl]
+
+# --8<-- [start:kim_hx_recent_hosp_1yr]
+kim_hx_recent_hosp_1yr:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['kim_components']
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *hospital_admission_snomed
+        window: ['-8760h', '0h']  # 1 year * 365 days * 24 hours
+# --8<-- [end:kim_hx_recent_hosp_1yr]
+
+# --8<-- [start:kim_hx_nursing_home_resident]
+kim_hx_nursing_home_resident:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['kim_components']
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        code: *nursing_home_snomed
+        res195_codes: ['Z59.3']  # Resident in long-term care facility
+# --8<-- [end:kim_hx_nursing_home_resident]
+
+# --8<-- [start:kim_hx_urinary_catheter]
+kim_hx_urinary_catheter:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['kim_components']
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *urinary_catheter_snomed
+        res195_codes: ['Z46.6', 'Y84.6']  # Urinary device encounters/presence
+# --8<-- [end:kim_hx_urinary_catheter]
+
+# --8<-- [start:kim_hx_prior_antibiotics_90d]
+kim_hx_prior_antibiotics_90d:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['kim_components']
+  kwargs:
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'THERAPEUTICAL_CLASS'
+        keywords: ['antibiotics', 'antibacterials']
+        window: [ '-2160h', '0h' ]
+# --8<-- [end:kim_hx_prior_antibiotics_90d]
+
+kim_hx_recent_antibiotics_90d:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: ['prescribing']
+  kwargs:
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'MEDICATION_NAME'
+        keywords:
+          - 'amoxicillin'
+          - 'piperacillin'
+          - 'meropenem'
+          - 'ceftriaxone'
+          - 'ciprofloxacin'
+          - 'ceftazidime'
+          - 'cefepime'
+        window: ['-2160h', '24h']
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'THERAPEUTICAL_CLASS'
+        keywords: ['antibiotics', 'antibacterials']
+        window: ['-2160h', '24h']
+
+# ------------------------------------------------------
+#            Tumbarello Score Components
+# ------------------------------------------------------
+# --8<-- [start:tumbarello_hx_prior_esbl]
+tumbarello_hx_prior_esbl:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['tumbarello_components']
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *esbl_snomed
+# --8<-- [end:tumbarello_hx_prior_esbl]
+
+# --8<-- [start:tumbarello_hx_recent_hosp_90d]
+tumbarello_hx_recent_hosp_90d:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['tumbarello_components']
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *hospital_admission_snomed
+        window: ['-2160h', '0h']  # 90 days * 24 hours
+# --8<-- [end:tumbarello_hx_recent_hosp_90d]
+
+# --8<-- [start:tumbarello_hx_recent_abx_90d]
+tumbarello_hx_recent_abx_90d:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['tumbarello_components']
+  kwargs:
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'THERAPEUTICAL_CLASS'
+        keywords: [ 'antibiotics', 'antibacterials' ]
+        window: [ '-2160h', '0h' ]
+# --8<-- [end:tumbarello_hx_recent_abx_90d]
+
+# --8<-- [start:tumbarello_hx_urinary_catheter]
+tumbarello_hx_urinary_catheter:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: ['problems']
+  category: ['tumbarello_components']
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *urinary_catheter_snomed
+# --8<-- [end:tumbarello_hx_urinary_catheter]
+
+
+# ------------------------------------------------------
+# Jones Score Components (Jones et al., 2025)
+# ------------------------------------------------------
+
+# --8<-- [start:jones_hx_prior_esbl_180d]
+jones_hx_prior_esbl_180d:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['jones_components']
+  logic: 'max'
+  components:
+    - extractor_type: 'keyword'
+      domain: 'prescribing'
+      codes: *esbl_snomed
+      window: ['-4320h', '0h']  # 180 days * 24 hours
+# --8<-- [end:jones_hx_prior_esbl_180d]
+
+# --8<-- [start:jones_hx_prior_antibiotics_30d]
+jones_hx_prior_antibiotics_30d:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: ['prescribing']
+  category: ['jones_components']
+  kwargs:
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'MEDICATION_NAME'
+        keywords:
+          - 'amoxicillin'
+          - 'piperacillin'
+          - 'meropenem'
+          - 'ceftriaxone'
+          - 'ceftazidime'
+          - 'cefepime'
+          - 'ciprofloxacin'
+          - 'levofloxacin'
+          - 'trimethoprim'
+        window: ['-720h', '0h']
+
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'THERAPEUTICAL_CLASS'
+        keywords:
+          - 'antibiotics'
+          - 'antibacterials'
+          - 'penicillins'
+          - 'cephalosporins'
+          - 'fluoroquinolones'
+          - 'carbapenems'
+          - 'sulfonamides'
+        window: ['-720h', '0h']
+# --8<-- [end:jones_hx_prior_antibiotics_30d]
+
+# --8<-- [start:jones_hx_chronic_dialysis]
+jones_hx_chronic_dialysis:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  category: ['jones_components']
+  kwargs:
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'problems'
+        text_col: 'MEDICATION_NAME'
+        codes: *chronic_dialysis_snomed
+# --8<-- [end:jones_hx_chronic_dialysis]
+
+# --8<-- [start:jones_hx_transfer_from_hospital]
+jones_hx_transfer_from_hospital:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: ['problems']
+  category: ['jones_components']
+  kwargs:
+    target_domains: ['encounters']
+    codes: []
+    res195_codes: ['Z75.1', 'Z74.3']  # Transfer encounter indicators or source metadata
+# --8<-- [end:jones_hx_transfer_from_hospital]
+
+# ------------------------------------------------------
+# Gavaghan Score Components
+# ------------------------------------------------------
+
+# --8<-- [start:gavaghan_hx_prior_esbl_365d]
+gavaghan_hx_prior_esbl_365d:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  category: ['gavaghan_components']
+  kwargs:
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'problems'
+        text_col: 'MEDICATION_NAME'
+        codes: *esbl_snomed
+        window: ['-8760h', '0h']  # 365 days * 24 hours
+# --8<-- [end:gavaghan_hx_prior_esbl_365d]
+
+# --8<-- [start:gavaghan_hx_nursing_home_resident]
+gavaghan_hx_nursing_home_resident:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['gavaghan_components']
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        code: *nursing_home_snomed
+        res195_codes: ['Z59.3']  # Resident in long-term care facility
+# --8<-- [end:gavaghan_hx_nursing_home_resident]
+
+# --8<-- [start:gavaghan_hx_urinary_catheter]
+gavaghan_hx_urinary_catheter:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  category: ['gavaghan_components']
+  kwargs:
+    logic: 'max'
+    components:
+      - extractor_type: 'history'
+        domain: 'problems'
+        codes: *urinary_catheter_snomed
+# --8<-- [end:gavaghan_hx_urinary_catheter]
+
+# --8<-- [start:gavaghan_hx_prior_antibiotics_fq_ceph_90d]
+gavaghan_hx_prior_antibiotics_fq_ceph_90d:
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_composite_rules'
+  domains: ['prescribing']
+  category: ['gavaghan_components']
+  kwargs:
+    logic: 'or'
+    components:
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        keywords:
+          - 'ciprofloxacin'
+          - 'levofloxacin'
+          - 'moxifloxacin'
+          - 'ceftriaxone'
+          - 'ceftazidime'
+          - 'cefepime'
+          - 'cefuroxime'
+        window: ['-2160h', '0h']
+
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        text_col: 'THERAPEUTICAL_CLASS'
+        keywords:
+          - 'fluoroquinolones'
+          - 'cephalosporins'
+          - 'antibiotics'
+          - 'antibacterials'
+        window: ['-2160h', '0h']
+# --8<-- [end:gavaghan_hx_prior_antibiotics_fq_ceph_90d]
+
+# --8<-- [start:gavaghan_age_ge_65]
+gavaghan_age_ge_65:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_age_threshold'
+  domains: ['demographics']
+  category: ['gavaghan_components']
+  kwargs:
+    min_age: 65
+# --8<-- [end:gavaghan_age_ge_65]
+
+# ------------------------------------------------------
+# Holmgren Score Components
+# ------------------------------------------------------
+
+# --8<-- [start:holmgren_hx_hospital_care_abroad]
+holmgren_hx_hospital_care_abroad:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: ['problems', 'encounters']
+  category: ['holmgren_components']
+  kwargs:
+    target_domains: ['encounters', 'problems']
+    codes: []
+    res195_codes: ['Z75.81']  # Foreign/abroad healthcare encounter markers
+    window: ['-8760h', '0h']  # 12 months * 24 hours
+# --8<-- [end:holmgren_hx_hospital_care_abroad]
+
+# --8<-- [start:holmgren_hx_previous_3gcr_culture]
+holmgren_hx_previous_3gcr_culture:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: ['problems', 'pathology']
+  category: ['holmgren_components']
+  kwargs:
+    target_domains: ['problems', 'diagnoses']
+    codes: []
+    res195_codes: ['Z22.322']  # Prior resistant organism colonization/infection
+# --8<-- [end:holmgren_hx_previous_3gcr_culture]
+
+# --8<-- [start:holmgren_hx_previous_3gcr_rectal_swab]
+holmgren_hx_previous_3gcr_rectal_swab:
+  enabled: false
+  module: 'icare_risk.clinphen.phenotypes.utils'
+  function: 'derive_from_history_code'
+  domains: ['problems', 'pathology']
+  category: ['holmgren_components']
+  kwargs:
+    target_domains: ['problems', 'diagnoses', 'pathology']
+    codes: []
+    res195_codes: ['Z22.322']  # Screening/surveillance swab carriage code
+# --8<-- [end:holmgren_hx_previous_3gcr_rectal_swab]
+
+
+
+
+
+
+# ------------------------------------------------------
 #                     SIRS Score
 # ------------------------------------------------------
 
@@ -1640,378 +2019,6 @@ pitt_bacteremia_score:
       - 'DOPAMINE'
     vent_codes: [ 'MECH_VENT_01' ]
     arrest_codes: [ 'CARDIAC_ARREST_01' ]
-
-
-# ------------------------------------------------------
-# Kim Score Components
-# ------------------------------------------------------
-# --8<-- [start:kim_hx_prior_esbl]
-kim_hx_prior_esbl:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: [ 'kim_components' ]
-  kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *esbl_snomed
-# --8<-- [end:kim_hx_prior_esbl]
-
-# --8<-- [start:kim_hx_recent_hosp_1yr]
-kim_hx_recent_hosp_1yr:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: ['kim_components']
-  kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *hospital_admission
-        window: ['-8760h', '0h']  # 1 year * 365 days * 24 hours
-# --8<-- [end:kim_hx_recent_hosp_1yr]
-
-# --8<-- [start:kim_hx_nursing_home_resident]
-kim_hx_nursing_home_resident:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: ['kim_components']
-  kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        code: *nursing_home
-        res195_codes: ['Z59.3']  # Resident in long-term care facility
-# --8<-- [end:kim_hx_nursing_home_resident]
-
-# --8<-- [start:kim_hx_urinary_catheter]
-kim_hx_urinary_catheter:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: ['kim_components']
-  kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *urinary_catheter
-        res195_codes: ['Z46.6', 'Y84.6']  # Urinary device encounters/presence
-# --8<-- [end:kim_hx_urinary_catheter]
-
-# --8<-- [start:kim_hx_prior_antibiotics_90d]
-kim_hx_prior_antibiotics_90d:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: ['kim_components']
-  kwargs:
-    logic: 'or'
-    components:
-      - extractor_type: 'keyword'
-        domain: 'prescribing'
-        text_col: 'THERAPEUTICAL_CLASS'
-        keywords: ['antibiotics', 'antibacterials']
-        window: [ '-2160h', '0h' ]
-# --8<-- [end:kim_hx_prior_antibiotics_90d]
-
-kim_recent_antibiotics_or_class:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['prescribing']
-  kwargs:
-    logic: 'or'
-    components:
-      - extractor_type: 'keyword'
-        domain: 'prescribing'
-        text_col: 'code'
-        keywords:
-          - 'amoxicillin'
-          - 'piperacillin'
-          - 'meropenem'
-          - 'ceftriaxone'
-          - 'ciprofloxacin'
-          - 'ceftazidime'
-          - 'cefepime'
-        window: ['-2160h', '24h']
-      - extractor_type: 'keyword'
-        domain: 'prescribing'
-        text_col: 'THERAPEUTICAL_CLASS'
-        keywords: ['antibiotics', 'antibacterials']
-        window: ['-2160h', '24h']
-
-# ------------------------------------------------------
-#            Tumbarello Score Components
-# ------------------------------------------------------
-# --8<-- [start:tumbarello_hx_prior_esbl]
-tumbarello_hx_prior_esbl:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: ['tumbarello_components']
-  kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *esbl_snomed
-# --8<-- [end:tumbarello_hx_prior_esbl]
-
-# --8<-- [start:tumbarello_hx_recent_hosp_90d]
-tumbarello_hx_recent_hosp_90d:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: ['tumbarello_components']
-  kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *hospital_admission
-        window: ['-2160h', '0h']  # 90 days * 24 hours
-# --8<-- [end:tumbarello_hx_recent_hosp_90d]
-
-# --8<-- [start:tumbarello_hx_recent_abx_90d]
-tumbarello_hx_recent_abx_90d:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: ['tumbarello_components']
-  kwargs:
-    logic: 'or'
-    components:
-      - extractor_type: 'keyword'
-        domain: 'prescribing'
-        text_col: 'THERAPEUTICAL_CLASS'
-        keywords: [ 'antibiotics', 'antibacterials' ]
-        window: [ '-2160h', '0h' ]
-# --8<-- [end:tumbarello_hx_recent_abx_90d]
-
-# --8<-- [start:tumbarello_hx_urinary_catheter]
-tumbarello_hx_urinary_catheter:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['problems']
-  category: ['tumbarello_components']
-  kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *urinary_catheter
-        res195_codes: [ 'Z46.6', 'Y84.6' ]  # Urinary device encounters/presence
-# --8<-- [end:tumbarello_hx_urinary_catheter]
-
-
-# ------------------------------------------------------
-# Jones Score Components (Jones et al., 2025)
-# ------------------------------------------------------
-
-# --8<-- [start:jones_hx_prior_esbl_180d]
-jones_hx_prior_esbl_180d:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: ['jones_components']
-  logic: 'max'
-  components:
-    - extractor_type: 'keyword'
-      domain: 'prescribing'
-      codes: *esbl_snomed
-      window: ['-4320h', '0h']  # 180 days * 24 hours
-# --8<-- [end:jones_hx_prior_esbl_180d]
-
-# --8<-- [start:jones_hx_prior_antibiotics_30d]
-jones_hx_prior_antibiotics_30d:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['prescribing']
-  category: ['jones_components']
-  kwargs:
-    logic: 'or'
-    components:
-      - extractor_type: 'keyword'
-        domain: 'prescribing'
-        keywords:
-          - 'amoxicillin'
-          - 'piperacillin'
-          - 'meropenem'
-          - 'ceftriaxone'
-          - 'ceftazidime'
-          - 'cefepime'
-          - 'ciprofloxacin'
-          - 'levofloxacin'
-          - 'trimethoprim'
-        window: ['-720h', '0h']
-
-      - extractor_type: 'keyword'
-        domain: 'prescribing'
-        text_col: 'THERAPEUTICAL_CLASS'
-        keywords:
-          - 'antibiotics'
-          - 'antibacterials'
-          - 'penicillins'
-          - 'cephalosporins'
-          - 'fluoroquinolones'
-          - 'carbapenems'
-          - 'sulfonamides'
-        window: ['-720h', '0h']
-# --8<-- [end:jones_hx_prior_antibiotics_30d]
-
-# --8<-- [start:jones_hx_chronic_dialysis]
-jones_hx_chronic_dialysis:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
-  domains: ['problems']
-  category: ['jones_components']
-  kwargs:
-    codes: []
-    res195_codes: ['Z99.2']  # Chronic dialysis status
-# --8<-- [end:jones_hx_chronic_dialysis]
-
-# --8<-- [start:jones_hx_transfer_from_hospital]
-jones_hx_transfer_from_hospital:
-  enabled: false
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
-  domains: ['problems']
-  category: ['jones_components']
-  kwargs:
-    target_domains: ['encounters']
-    codes: []
-    res195_codes: ['Z75.1', 'Z74.3']  # Transfer encounter indicators or source metadata
-# --8<-- [end:jones_hx_transfer_from_hospital]
-
-# ------------------------------------------------------
-# Gavaghan Score Components
-# ------------------------------------------------------
-
-# --8<-- [start:gavaghan_hx_prior_esbl_365d]
-gavaghan_hx_prior_esbl_365d:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
-  domains: ['problems']
-  category: ['gavaghan_components']
-  kwargs:
-    codes: *esbl_snomed
-    res195_codes: ['Z22.322', 'Z22.3']
-    window: ['-8760h', '0h']  # 365 days * 24 hours
-# --8<-- [end:gavaghan_hx_prior_esbl_365d]
-
-# --8<-- [start:gavaghan_age_ge_65]
-gavaghan_age_ge_65:
-  enabled: false
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_age_threshold'
-  domains: ['demographics']
-  category: ['gavaghan_components']
-  kwargs:
-    min_age: 65
-# --8<-- [end:gavaghan_age_ge_65]
-
-# --8<-- [start:gavaghan_hx_nursing_home_resident]
-gavaghan_hx_nursing_home_resident:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: ['gavaghan_components']
-  kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        code: *nursing_home
-        res195_codes: ['Z59.3']  # Resident in long-term care facility
-# --8<-- [end:gavaghan_hx_nursing_home_resident]
-
-# --8<-- [start:gavaghan_hx_urinary_catheter]
-gavaghan_hx_urinary_catheter:
-  enabled: false
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  category: ['gavaghan_components']
-  kwargs:
-    logic: 'max'
-    components:
-      - extractor_type: 'history'
-        domain: 'problems'
-        codes: *urinary_catheter
-# --8<-- [end:gavaghan_hx_urinary_catheter]
-
-
-# --8<-- [start:gavaghan_hx_prior_antibiotics_fq_ceph_90d]
-gavaghan_hx_prior_antibiotics_fq_ceph_90d:
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_composite_rules'
-  domains: ['prescribing']
-  category: ['gavaghan_components']
-  kwargs:
-    logic: 'or'
-    components:
-      - extractor_type: 'keyword'
-        domain: 'prescribing'
-        keywords:
-          - 'ciprofloxacin'
-          - 'levofloxacin'
-          - 'moxifloxacin'
-          - 'ceftriaxone'
-          - 'ceftazidime'
-          - 'cefepime'
-          - 'cefuroxime'
-        window: ['-2160h', '0h']
-
-      - extractor_type: 'keyword'
-        domain: 'prescribing'
-        text_col: 'THERAPEUTICAL_CLASS'
-        keywords:
-          - 'fluoroquinolones'
-          - 'cephalosporins'
-          - 'antibiotics'
-          - 'antibacterials'
-        window: ['-2160h', '0h']
-# --8<-- [end:gavaghan_hx_prior_antibiotics_fq_ceph_90d]
-
-
-
-# ------------------------------------------------------
-# Holmgren Score Components
-# ------------------------------------------------------
-
-# --8<-- [start:holmgren_hx_hospital_care_abroad]
-holmgren_hx_hospital_care_abroad:
-  enabled: false
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
-  domains: ['problems', 'encounters']
-  category: ['holmgren_components']
-  kwargs:
-    target_domains: ['encounters', 'problems']
-    codes: []
-    res195_codes: ['Z75.81']  # Foreign/abroad healthcare encounter markers
-    window: ['-8760h', '0h']  # 12 months * 24 hours
-# --8<-- [end:holmgren_hx_hospital_care_abroad]
-
-# --8<-- [start:holmgren_hx_previous_3gcr_culture]
-holmgren_hx_previous_3gcr_culture:
-  enabled: false
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
-  domains: ['problems', 'pathology']
-  category: ['holmgren_components']
-  kwargs:
-    target_domains: ['problems', 'diagnoses']
-    codes: []
-    res195_codes: ['Z22.322']  # Prior resistant organism colonization/infection
-# --8<-- [end:holmgren_hx_previous_3gcr_culture]
-
-# --8<-- [start:holmgren_hx_previous_3gcr_rectal_swab]
-holmgren_hx_previous_3gcr_rectal_swab:
-  enabled: false
-  module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
-  domains: ['problems', 'pathology']
-  category: ['holmgren_components']
-  kwargs:
-    target_domains: ['problems', 'diagnoses', 'pathology']
-    codes: []
-    res195_codes: ['Z22.322']  # Screening/surveillance swab carriage code
-# --8<-- [end:holmgren_hx_previous_3gcr_rectal_swab]
 
 
 # -------------------------------------
