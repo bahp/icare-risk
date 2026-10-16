@@ -47,10 +47,10 @@
 | 41 | `problems` | `95344007` | leg ulcer | none | enumerated |
 | 42 | `problems` | `95345008` | foot ulcer | none | enumerated |
 | 43 | `problems` | `9829001` | gu - perforated gastric ulcer | none | enumerated |
-| 44 | `res195` | `K25` | *[No match found in lookup database]* | N/A | N/A |
-| 45 | `res195` | `K26` | *[No match found in lookup database]* | N/A | N/A |
-| 46 | `res195` | `K27` | *[No match found in lookup database]* | N/A | N/A |
-| 47 | `res195` | `K28` | *[No match found in lookup database]* | N/A | N/A |
+| 44 | `problems` | `K25` | *[No match found in lookup database]* | N/A | N/A |
+| 45 | `problems` | `K26` | *[No match found in lookup database]* | N/A | N/A |
+| 46 | `problems` | `K27` | *[No match found in lookup database]* | N/A | N/A |
+| 47 | `problems` | `K28` | *[No match found in lookup database]* | N/A | N/A |
 
 </div>
 

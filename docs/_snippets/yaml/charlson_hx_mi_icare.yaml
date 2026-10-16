@@ -2,7 +2,7 @@ charlson_hx_mi_icare:
   module: icare_risk.clinphen.phenotypes.icare
   function: derive_charlson_history_rules
   category:
-  - charlson_components
+  - sample 2
   kwargs:
     snomed_codes:
     - '22298006'

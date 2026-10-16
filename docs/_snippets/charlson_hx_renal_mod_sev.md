@@ -54,20 +54,18 @@
 | 48 | `problems` | `77182004` | membranous glomerulonephritis | none | enumerated |
 | 49 | `problems` | `90688005` | chronic renal failure | none | enumerated |
 | 50 | `problems` | `90708001` | kidney disease | none | enumerated |
-| 51 | `res195` | `N030000` | diabetic cheiroarthropathy | N/A | N/A |
-| 52 | `res195` | `N030011` | diabetic cheiropathy | N/A | N/A |
-| 53 | `res195` | `N030100` | diabetic charcot arthropathy | N/A | N/A |
-| 54 | `res195` | `N05.2` | *[No match found in lookup database]* | N/A | N/A |
-| 55 | `res195` | `N05.3` | *[No match found in lookup database]* | N/A | N/A |
-| 56 | `res195` | `N05.4` | *[No match found in lookup database]* | N/A | N/A |
-| 57 | `res195` | `N05.5` | *[No match found in lookup database]* | N/A | N/A |
-| 58 | `res195` | `N05.6` | *[No match found in lookup database]* | N/A | N/A |
-| 59 | `res195` | `N18` | *[No match found in lookup database]* | N/A | N/A |
-| 60 | `res195` | `N19` | *[No match found in lookup database]* | N/A | N/A |
-| 61 | `res195` | `N25.0` | *[No match found in lookup database]* | N/A | N/A |
-| 62 | `res195` | `Z49` | *[No match found in lookup database]* | N/A | N/A |
-| 63 | `res195` | `Z94.0` | *[No match found in lookup database]* | N/A | N/A |
-| 64 | `res195` | `Z99.2` | *[No match found in lookup database]* | N/A | N/A |
+| 51 | `problems` | `N03` | *[No match found in lookup database]* | N/A | N/A |
+| 52 | `problems` | `N05.2` | *[No match found in lookup database]* | N/A | N/A |
+| 53 | `problems` | `N05.3` | *[No match found in lookup database]* | N/A | N/A |
+| 54 | `problems` | `N05.4` | *[No match found in lookup database]* | N/A | N/A |
+| 55 | `problems` | `N05.5` | *[No match found in lookup database]* | N/A | N/A |
+| 56 | `problems` | `N05.6` | *[No match found in lookup database]* | N/A | N/A |
+| 57 | `problems` | `N18` | *[No match found in lookup database]* | N/A | N/A |
+| 58 | `problems` | `N19` | *[No match found in lookup database]* | N/A | N/A |
+| 59 | `problems` | `N25.0` | *[No match found in lookup database]* | N/A | N/A |
+| 60 | `problems` | `Z49` | *[No match found in lookup database]* | N/A | N/A |
+| 61 | `problems` | `Z94.0` | *[No match found in lookup database]* | N/A | N/A |
+| 62 | `problems` | `Z99.2` | *[No match found in lookup database]* | N/A | N/A |
 
 </div>
 

@@ -1,12 +1,25 @@
 tumbarello_hx_prior_esbl:
   module: icare_risk.clinphen.phenotypes.utils
-  function: derive_from_history_code
-  domains:
-  - problems
+  function: derive_composite_rules
   category:
   - tumbarello_components
   kwargs:
-    codes: []
-    res195_codes:
-    - Z22.322
-    - Z22.3
+    logic: max
+    components:
+    - extractor_type: history
+      domain: problems
+      codes:
+      - '409800005'
+      - '409801009'
+      - '409799006'
+      - '721910001'
+      - '1032841000000102'
+      - '726500000'
+      - '713929002'
+      - '713928005'
+      - '721909006'
+      - '770390002'
+      - '939191000000103'
+      - '409803007'
+      - '409802002'
+      - '409804001'

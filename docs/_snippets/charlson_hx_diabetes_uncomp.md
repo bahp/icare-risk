@@ -32,18 +32,18 @@
 | 26 | `problems` | `73211009` | diabetes mellitus | none | enumerated |
 | 27 | `problems` | `81531005` | type 2 diabetes mellitus in obese | none | enumerated |
 | 28 | `problems` | `858301000000107` | pre-diabetes | none | enumerated |
-| 29 | `res195` | `E10.0` | *[No match found in lookup database]* | N/A | N/A |
-| 30 | `res195` | `E10.1` | *[No match found in lookup database]* | N/A | N/A |
-| 31 | `res195` | `E10.6` | *[No match found in lookup database]* | N/A | N/A |
-| 32 | `res195` | `E10.8` | *[No match found in lookup database]* | N/A | N/A |
-| 33 | `res195` | `E10.9` | *[No match found in lookup database]* | N/A | N/A |
-| 34 | `res195` | `E11.0` | *[No match found in lookup database]* | N/A | N/A |
-| 35 | `res195` | `E11.1` | *[No match found in lookup database]* | N/A | N/A |
-| 36 | `res195` | `E11.6` | *[No match found in lookup database]* | N/A | N/A |
-| 37 | `res195` | `E11.8` | *[No match found in lookup database]* | N/A | N/A |
-| 38 | `res195` | `E11.9` | *[No match found in lookup database]* | N/A | N/A |
-| 39 | `res195` | `E13` | *[No match found in lookup database]* | N/A | N/A |
-| 40 | `res195` | `E14` | *[No match found in lookup database]* | N/A | N/A |
+| 29 | `problems` | `E10.0` | *[No match found in lookup database]* | N/A | N/A |
+| 30 | `problems` | `E10.1` | *[No match found in lookup database]* | N/A | N/A |
+| 31 | `problems` | `E10.6` | *[No match found in lookup database]* | N/A | N/A |
+| 32 | `problems` | `E10.8` | *[No match found in lookup database]* | N/A | N/A |
+| 33 | `problems` | `E10.9` | *[No match found in lookup database]* | N/A | N/A |
+| 34 | `problems` | `E11.0` | *[No match found in lookup database]* | N/A | N/A |
+| 35 | `problems` | `E11.1` | *[No match found in lookup database]* | N/A | N/A |
+| 36 | `problems` | `E11.6` | *[No match found in lookup database]* | N/A | N/A |
+| 37 | `problems` | `E11.8` | *[No match found in lookup database]* | N/A | N/A |
+| 38 | `problems` | `E11.9` | *[No match found in lookup database]* | N/A | N/A |
+| 39 | `problems` | `E13` | *[No match found in lookup database]* | N/A | N/A |
+| 40 | `problems` | `E14` | *[No match found in lookup database]* | N/A | N/A |
 
 </div>
 

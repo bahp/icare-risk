@@ -1,12 +1,36 @@
 kim_hx_urinary_catheter:
   module: icare_risk.clinphen.phenotypes.utils
-  function: derive_from_history_code
-  domains:
-  - problems
+  function: derive_composite_rules
   category:
   - kim_components
   kwargs:
-    codes: []
-    res195_codes:
-    - Z46.6
-    - Y84.6
+    logic: max
+    components:
+    - extractor_type: history
+      domain: problems
+      codes:
+      - '17006003'
+      - '182524008'
+      - '20568009'
+      - '225084001'
+      - '23973005'
+      - '266765001'
+      - '266768004'
+      - '286861005'
+      - '384649001'
+      - '395321006'
+      - '410254003'
+      - '429516009'
+      - '430976005'
+      - '432587002'
+      - '439053001'
+      - '440311000'
+      - '445191009'
+      - '473051003'
+      - '704486002'
+      - '723542006'
+      - '737944006'
+      - '79165006'
+      res195_codes:
+      - Z46.6
+      - Y84.6

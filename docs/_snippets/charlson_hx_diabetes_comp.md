@@ -23,16 +23,16 @@
 | 17 | `problems` | `90771000119100` | end stage renal disease on dialysis due to type 1 diabetes mellitus | none | enumerated |
 | 18 | `problems` | `90791000119104` | end stage renal disease on dialysis due to type 2 diabetes mellitus | none | enumerated |
 | 19 | `problems` | `96441000119101` | chronic kidney disease due to type 1 diabetes mellitus | none | enumerated |
-| 20 | `res195` | `E10.2` | *[No match found in lookup database]* | N/A | N/A |
-| 21 | `res195` | `E10.3` | *[No match found in lookup database]* | N/A | N/A |
-| 22 | `res195` | `E10.4` | *[No match found in lookup database]* | N/A | N/A |
-| 23 | `res195` | `E10.5` | *[No match found in lookup database]* | N/A | N/A |
-| 24 | `res195` | `E10.7` | *[No match found in lookup database]* | N/A | N/A |
-| 25 | `res195` | `E11.2` | *[No match found in lookup database]* | N/A | N/A |
-| 26 | `res195` | `E11.3` | *[No match found in lookup database]* | N/A | N/A |
-| 27 | `res195` | `E11.4` | *[No match found in lookup database]* | N/A | N/A |
-| 28 | `res195` | `E11.5` | *[No match found in lookup database]* | N/A | N/A |
-| 29 | `res195` | `E11.7` | *[No match found in lookup database]* | N/A | N/A |
+| 20 | `problems` | `E10.2` | *[No match found in lookup database]* | N/A | N/A |
+| 21 | `problems` | `E10.3` | *[No match found in lookup database]* | N/A | N/A |
+| 22 | `problems` | `E10.4` | *[No match found in lookup database]* | N/A | N/A |
+| 23 | `problems` | `E10.5` | *[No match found in lookup database]* | N/A | N/A |
+| 24 | `problems` | `E10.7` | *[No match found in lookup database]* | N/A | N/A |
+| 25 | `problems` | `E11.2` | *[No match found in lookup database]* | N/A | N/A |
+| 26 | `problems` | `E11.3` | *[No match found in lookup database]* | N/A | N/A |
+| 27 | `problems` | `E11.4` | *[No match found in lookup database]* | N/A | N/A |
+| 28 | `problems` | `E11.5` | *[No match found in lookup database]* | N/A | N/A |
+| 29 | `problems` | `E11.7` | *[No match found in lookup database]* | N/A | N/A |
 
 </div>
 

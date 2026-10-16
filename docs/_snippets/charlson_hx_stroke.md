@@ -17,15 +17,15 @@
 | 11 | `problems` | `429235008` | history of cardioembolic stroke | none | enumerated |
 | 12 | `problems` | `720191000000104` | stroke and tia | none | enumerated |
 | 13 | `problems` | `817701000000103` | acute stroke care | none | enumerated |
-| 14 | `res195` | `G45` | *[No match found in lookup database]* | N/A | N/A |
-| 15 | `res195` | `G46` | *[No match found in lookup database]* | N/A | N/A |
-| 16 | `res195` | `I60` | *[No match found in lookup database]* | N/A | N/A |
-| 17 | `res195` | `I61` | *[No match found in lookup database]* | N/A | N/A |
-| 18 | `res195` | `I62` | *[No match found in lookup database]* | N/A | N/A |
-| 19 | `res195` | `I63` | *[No match found in lookup database]* | N/A | N/A |
-| 20 | `res195` | `I64` | *[No match found in lookup database]* | N/A | N/A |
-| 21 | `res195` | `I65` | *[No match found in lookup database]* | N/A | N/A |
-| 22 | `res195` | `I66` | *[No match found in lookup database]* | N/A | N/A |
+| 14 | `problems` | `G45` | *[No match found in lookup database]* | N/A | N/A |
+| 15 | `problems` | `G46` | *[No match found in lookup database]* | N/A | N/A |
+| 16 | `problems` | `I60` | *[No match found in lookup database]* | N/A | N/A |
+| 17 | `problems` | `I61` | *[No match found in lookup database]* | N/A | N/A |
+| 18 | `problems` | `I62` | *[No match found in lookup database]* | N/A | N/A |
+| 19 | `problems` | `I63` | *[No match found in lookup database]* | N/A | N/A |
+| 20 | `problems` | `I64` | *[No match found in lookup database]* | N/A | N/A |
+| 21 | `problems` | `I65` | *[No match found in lookup database]* | N/A | N/A |
+| 22 | `problems` | `I66` | *[No match found in lookup database]* | N/A | N/A |
 
 </div>
 

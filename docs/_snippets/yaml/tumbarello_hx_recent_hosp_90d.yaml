@@ -1,12 +1,22 @@
 tumbarello_hx_recent_hosp_90d:
-  enabled: false
   module: icare_risk.clinphen.phenotypes.utils
-  function: derive_from_history_code
-  domains:
-  - encounters
+  function: derive_composite_rules
   category:
   - tumbarello_components
   kwargs:
-    window:
-    - -2160h
-    - 0h
+    logic: max
+    components:
+    - extractor_type: history
+      domain: problems
+      codes:
+      - '8715000'
+      - '78680009'
+      - '81672003'
+      - '183463008'
+      - '183469007'
+      - '439359009'
+      - '1082351000000104'
+      - '788921000000108'
+      window:
+      - -2160h
+      - 0h

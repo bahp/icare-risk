@@ -12,12 +12,12 @@
 | 6 | `problems` | `400047006` | peripheral vascular disease | none | enumerated |
 | 7 | `problems` | `840580004` | peripheral arterial disease | none | enumerated |
 | 8 | `problems` | `858191000000103` | fh: peripheral vascular disease | none | enumerated |
-| 9 | `res195` | `I71` | *[No match found in lookup database]* | N/A | N/A |
-| 10 | `res195` | `I73.9` | *[No match found in lookup database]* | N/A | N/A |
-| 11 | `res195` | `I79.0` | *[No match found in lookup database]* | N/A | N/A |
-| 12 | `res195` | `R02` | *[No match found in lookup database]* | N/A | N/A |
-| 13 | `res195` | `Z95.8` | *[No match found in lookup database]* | N/A | N/A |
-| 14 | `res195` | `Z95.9` | *[No match found in lookup database]* | N/A | N/A |
+| 9 | `problems` | `I71` | *[No match found in lookup database]* | N/A | N/A |
+| 10 | `problems` | `I73.9` | *[No match found in lookup database]* | N/A | N/A |
+| 11 | `problems` | `I79.0` | *[No match found in lookup database]* | N/A | N/A |
+| 12 | `problems` | `R02` | *[No match found in lookup database]* | N/A | N/A |
+| 13 | `problems` | `Z95.8` | *[No match found in lookup database]* | N/A | N/A |
+| 14 | `problems` | `Z95.9` | *[No match found in lookup database]* | N/A | N/A |
 
 </div>
 

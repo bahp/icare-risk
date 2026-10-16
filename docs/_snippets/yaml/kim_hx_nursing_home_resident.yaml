@@ -1,11 +1,27 @@
 kim_hx_nursing_home_resident:
   module: icare_risk.clinphen.phenotypes.utils
-  function: derive_from_history_code
-  domains:
-  - problems
+  function: derive_composite_rules
   category:
   - kim_components
   kwargs:
-    codes: []
-    res195_codes:
-    - Z59.3
+    logic: max
+    components:
+    - extractor_type: history
+      domain: problems
+      code:
+      - '409799006'
+      - '409800005'
+      - '409801009'
+      - '409802002'
+      - '409803007'
+      - '409804001'
+      - '713928005'
+      - '713929002'
+      - '721909006'
+      - '721910001'
+      - '726500000'
+      - '770390002'
+      - '1032841000000102'
+      - '939191000000103'
+      res195_codes:
+      - Z59.3

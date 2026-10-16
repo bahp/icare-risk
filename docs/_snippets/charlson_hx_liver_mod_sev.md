@@ -21,16 +21,16 @@
 | 15 | `problems` | `89580002` | cryptogenic cirrhosis | none | enumerated |
 | 16 | `problems` | `91109007` | gastric varices | none | enumerated |
 | 17 | `problems` | `9953008` | acute alcoholic hepatitis | none | enumerated |
-| 18 | `res195` | `I85.0` | *[No match found in lookup database]* | N/A | N/A |
-| 19 | `res195` | `I85.9` | *[No match found in lookup database]* | N/A | N/A |
-| 20 | `res195` | `I86.4` | *[No match found in lookup database]* | N/A | N/A |
-| 21 | `res195` | `I98.2` | *[No match found in lookup database]* | N/A | N/A |
-| 22 | `res195` | `K70.4` | *[No match found in lookup database]* | N/A | N/A |
-| 23 | `res195` | `K71.1` | *[No match found in lookup database]* | N/A | N/A |
-| 24 | `res195` | `K72.1` | *[No match found in lookup database]* | N/A | N/A |
-| 25 | `res195` | `K72.9` | *[No match found in lookup database]* | N/A | N/A |
-| 26 | `res195` | `K76.6` | *[No match found in lookup database]* | N/A | N/A |
-| 27 | `res195` | `K76.7` | *[No match found in lookup database]* | N/A | N/A |
+| 18 | `problems` | `I85.0` | *[No match found in lookup database]* | N/A | N/A |
+| 19 | `problems` | `I85.9` | *[No match found in lookup database]* | N/A | N/A |
+| 20 | `problems` | `I86.4` | *[No match found in lookup database]* | N/A | N/A |
+| 21 | `problems` | `I98.2` | *[No match found in lookup database]* | N/A | N/A |
+| 22 | `problems` | `K70.4` | *[No match found in lookup database]* | N/A | N/A |
+| 23 | `problems` | `K71.1` | *[No match found in lookup database]* | N/A | N/A |
+| 24 | `problems` | `K72.1` | *[No match found in lookup database]* | N/A | N/A |
+| 25 | `problems` | `K72.9` | *[No match found in lookup database]* | N/A | N/A |
+| 26 | `problems` | `K76.6` | *[No match found in lookup database]* | N/A | N/A |
+| 27 | `problems` | `K76.7` | *[No match found in lookup database]* | N/A | N/A |
 
 </div>
 

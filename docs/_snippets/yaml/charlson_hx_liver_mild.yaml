@@ -1,27 +1,33 @@
 charlson_hx_liver_mild:
   module: icare_risk.clinphen.phenotypes.utils
-  function: derive_from_history_code
+  function: derive_composite_rules
   domains:
   - problems
   category:
   - charlson_components
   kwargs:
-    codes:
-    - '61977001'
-    - '111891008'
-    - '768126006'
-    - '128302006'
-    - '442685003'
-    - '62944002'
-    - '9953008'
-    res195_codes:
-    - B18
-    - K70.0
-    - K70.1
-    - K70.2
-    - K70.3
-    - K70.9
-    - K71
-    - K73
-    - K74
-    - K76.0
+    logic: max
+    components:
+    - extractor_type: history
+      domain: problems
+      codes:
+      - '61977001'
+      - '111891008'
+      - '768126006'
+      - '128302006'
+      - '442685003'
+      - '62944002'
+      - '9953008'
+    - extractor_type: history
+      domain: problems
+      codes:
+      - B18
+      - K70.0
+      - K70.1
+      - K70.2
+      - K70.3
+      - K70.9
+      - K71
+      - K73
+      - K74
+      - K76.0

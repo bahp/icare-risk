@@ -18,15 +18,15 @@
 | 12 | `problems` | `65323003` | polymyalgia rheumatica | none | enumerated |
 | 13 | `problems` | `69896004` | rheumatoid arthritis | none | enumerated |
 | 14 | `problems` | `735600005` | rheumatoid arthritis without erosion | none | enumerated |
-| 15 | `res195` | `M05` | *[No match found in lookup database]* | N/A | N/A |
-| 16 | `res195` | `M06` | *[No match found in lookup database]* | N/A | N/A |
-| 17 | `res195` | `M31.5` | *[No match found in lookup database]* | N/A | N/A |
-| 18 | `res195` | `M32` | *[No match found in lookup database]* | N/A | N/A |
-| 19 | `res195` | `M33` | *[No match found in lookup database]* | N/A | N/A |
-| 20 | `res195` | `M34` | *[No match found in lookup database]* | N/A | N/A |
-| 21 | `res195` | `M35.1` | *[No match found in lookup database]* | N/A | N/A |
-| 22 | `res195` | `M35.3` | *[No match found in lookup database]* | N/A | N/A |
-| 23 | `res195` | `M36.0` | *[No match found in lookup database]* | N/A | N/A |
+| 15 | `problems` | `M05` | *[No match found in lookup database]* | N/A | N/A |
+| 16 | `problems` | `M06` | *[No match found in lookup database]* | N/A | N/A |
+| 17 | `problems` | `M31.5` | *[No match found in lookup database]* | N/A | N/A |
+| 18 | `problems` | `M32` | *[No match found in lookup database]* | N/A | N/A |
+| 19 | `problems` | `M33` | *[No match found in lookup database]* | N/A | N/A |
+| 20 | `problems` | `M34` | *[No match found in lookup database]* | N/A | N/A |
+| 21 | `problems` | `M35.1` | *[No match found in lookup database]* | N/A | N/A |
+| 22 | `problems` | `M35.3` | *[No match found in lookup database]* | N/A | N/A |
+| 23 | `problems` | `M36.0` | *[No match found in lookup database]* | N/A | N/A |
 
 </div>
 

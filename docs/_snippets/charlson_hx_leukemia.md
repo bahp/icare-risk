@@ -10,11 +10,11 @@
 | 4 | `problems` | `92814002` | *[No match found in lookup database]* | N/A | N/A |
 | 5 | `problems` | `92818009` | cml - chronic myeloid leukaemia | none | enumerated |
 | 6 | `problems` | `93143009` | leukaemia | none | enumerated |
-| 7 | `res195` | `C91` | *[No match found in lookup database]* | N/A | N/A |
-| 8 | `res195` | `C92` | *[No match found in lookup database]* | N/A | N/A |
-| 9 | `res195` | `C93` | *[No match found in lookup database]* | N/A | N/A |
-| 10 | `res195` | `C94` | *[No match found in lookup database]* | N/A | N/A |
-| 11 | `res195` | `C95` | *[No match found in lookup database]* | N/A | N/A |
+| 7 | `problems` | `C91` | *[No match found in lookup database]* | N/A | N/A |
+| 8 | `problems` | `C92` | *[No match found in lookup database]* | N/A | N/A |
+| 9 | `problems` | `C93` | *[No match found in lookup database]* | N/A | N/A |
+| 10 | `problems` | `C94` | *[No match found in lookup database]* | N/A | N/A |
+| 11 | `problems` | `C95` | *[No match found in lookup database]* | N/A | N/A |
 
 </div>
 

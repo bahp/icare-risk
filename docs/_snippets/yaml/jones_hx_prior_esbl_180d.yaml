@@ -1,14 +1,27 @@
 jones_hx_prior_esbl_180d:
   module: icare_risk.clinphen.phenotypes.utils
-  function: derive_from_history_code
-  domains:
-  - problems
+  function: derive_composite_rules
   category:
   - jones_components
-  kwargs:
-    codes: []
-    res195_codes:
-    - Z22.322
+  logic: max
+  components:
+  - extractor_type: keyword
+    domain: prescribing
+    codes:
+    - '409800005'
+    - '409801009'
+    - '409799006'
+    - '721910001'
+    - '1032841000000102'
+    - '726500000'
+    - '713929002'
+    - '713928005'
+    - '721909006'
+    - '770390002'
+    - '939191000000103'
+    - '409803007'
+    - '409802002'
+    - '409804001'
     window:
     - -4320h
     - 0h
