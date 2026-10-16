@@ -68,41 +68,100 @@ def _resolve_eav_lookups(table_config: dict, data_config: dict) -> None:
 def _resolve_lookups(table_config: dict) -> None:
     """Scans for lookup files and merges them with any manually defined tuples.
 
-    .. note: We could add weight col, and use total_ocurrences.
+    Key fix vs. the original implementation:
+      - `lookup_columns` = the ACTUAL column names present in the lookup CSV.
+        These are used to extract the raw data.
+      - `columns`        = the FINAL column names used downstream when the
+        tuple is unpacked into the generated table (see
+        `generate_relational_table`'s categorical_tuple branch).
+      These two lists are positionally aligned but are not required to share
+      names, which is why the original code (which used `columns` to index
+      into the CSV) was failing / silently wrong.
+
+    Also adds support for `weight_col`: if present in the lookup CSV, it is
+    used to build a normalized `_weights` list so that
+    `generate_relational_table` can perform frequency-weighted sampling
+    instead of uniform random choice.
     """
     schema = table_config.get("schema", {})
 
     for col_name, col_def in schema.items():
-        if col_def.get("type") == "categorical_tuple":
+        if col_def.get("type") != "categorical_tuple":
+            continue
 
-            # 1. Initialize the values list if it wasn't manually defined in YAML
-            if "values" not in col_def:
-                col_def["values"] = []
+        # 1. Initialize the values list if it wasn't manually defined in YAML
+        if "values" not in col_def:
+            col_def["values"] = []
 
-            # 2. If a lookup file is specified, load it and append to the list
-            if "lookup_file" in col_def:
-                file_path = Path(col_def["lookup_file"])
-                if not file_path.exists():
-                    raise FileNotFoundError(f"Lookup file not found: {file_path}")
+        manual_value_count = len(col_def["values"])
 
-                df_lookup = pd.read_csv(file_path)
-                target_cols = col_def.get("columns", [])
+        # 2. If a lookup file is specified, load it and append to the list
+        if "lookup_file" in col_def:
+            file_path = Path(col_def["lookup_file"])
+            if not file_path.exists():
+                raise FileNotFoundError(f"Lookup file not found: {file_path}")
 
-                # Verify all requested columns exist in the CSV
-                missing_cols = [c for c in target_cols if c not in df_lookup.columns]
-                if missing_cols:
-                    raise ValueError(f"Lookup {file_path} missing columns: {missing_cols}")
+            df_lookup = pd.read_csv(file_path)
 
-                # Extract as list of lists and append to existing values
-                file_values = df_lookup[target_cols].values.tolist()
-                col_def["values"].extend(file_values)
+            # Source columns = what's really in the CSV.
+            # Fallback to `columns` only for backward compatibility with
+            # configs that never set `lookup_columns` (i.e. CSV headers
+            # already match the desired output names).
+            source_cols = col_def.get("lookup_columns", col_def.get("columns", []))
+            target_cols = col_def.get("columns", [])
 
-            # 3. Final validation to ensure we have data to generate from
-            if not col_def["values"]:
+            if len(source_cols) != len(target_cols):
                 raise ValueError(
-                    f"Generation error on '{col_name}': You must provide either "
-                    f"'values' or a valid 'lookup_file' (or both)."
+                    f"'{col_name}': 'lookup_columns' ({len(source_cols)} cols) and "
+                    f"'columns' ({len(target_cols)} cols) must be the same length "
+                    f"and positionally aligned."
                 )
+
+            # Verify all requested source columns exist in the CSV
+            missing_cols = [c for c in source_cols if c not in df_lookup.columns]
+            if missing_cols:
+                raise ValueError(f"Lookup {file_path} missing columns: {missing_cols}")
+
+            # Extract as list of lists, in source order (== target order)
+            file_values = df_lookup[source_cols].values.tolist()
+            col_def["values"].extend(file_values)
+
+            # 2b. Optional, SAFE frequency-weighted sampling support.
+            # If weight_col is missing/misspelled in the CSV, we warn and
+            # skip weighting entirely rather than raising an exception.
+            weight_col = col_def.get("weight_col")
+            if weight_col:
+                if weight_col not in df_lookup.columns:
+                    print(
+                        f"  ⚠️ '{col_name}': weight_col '{weight_col}' not found in "
+                        f"{file_path.name} (available columns: {list(df_lookup.columns)}). "
+                        f"Skipping weighting — falling back to uniform sampling."
+                    )
+                else:
+                    weights = df_lookup[weight_col].astype(float).fillna(0).tolist()
+
+                    # Give any manually-defined (non-lookup) tuples an even
+                    # share of the average lookup weight so they stay
+                    # selectable alongside weighted CSV rows.
+                    if manual_value_count:
+                        avg_weight = (sum(weights) / len(weights)) if weights else 1.0
+                        weights = [avg_weight] * manual_value_count + weights
+
+                    total = sum(weights)
+                    if total > 0:
+                        col_def["_weights"] = [w / total for w in weights]
+                    else:
+                        print(
+                            f"  ⚠️ '{col_name}': weight_col '{weight_col}' summed to 0, "
+                            f"falling back to uniform sampling."
+                        )
+
+        # 3. Final validation to ensure we have data to generate from
+        if not col_def["values"]:
+            raise ValueError(
+                f"Generation error on '{col_name}': You must provide either "
+                f"'values' or a valid 'lookup_file' (or both)."
+            )
 
 
 def _load_eav_concepts(table_config: dict) -> dict:

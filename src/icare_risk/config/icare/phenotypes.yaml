@@ -1090,7 +1090,6 @@ charlson_hx_liver_mild:
 charlson_hx_diabetes_uncomp:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_composite_rules'
-  domains: ['problems']
   category: ['charlson_components']
   kwargs:
     logic: 'max'
@@ -1101,6 +1100,23 @@ charlson_hx_diabetes_uncomp:
       - extractor_type: 'history'
         domain: 'problems'
         codes: *diabetes_uncomp_icd10
+      - extractor_type: 'keyword'
+        domain: 'prescribing'
+        keywords:
+          - 'insulin'
+          - 'metformin'
+          - 'empagliflozin'
+          - 'dapagliflozin'
+          - 'canagliflozin'
+          - 'semaglutide'
+          - 'liraglutide'
+          - 'dulaglutide'
+          - 'sitagliptin'
+          - 'linagliptin'
+          - 'gliclazide'
+          - 'glimepiride'
+          - 'pioglitazone'
+
 # --8<-- [end:charlson_hx_diabetes_uncomp]
 
 # --- 2 Point Categories ---

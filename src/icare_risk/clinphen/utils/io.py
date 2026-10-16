@@ -47,3 +47,53 @@ def check_lengths(data_dir: str | Path, file_format: str = 'parquet'):
         except Exception as e:
             print(f"{file_path.name:<50} ERROR reading file ({e})")
     print("-" * 60)
+
+def save_phenotype_artifacts(
+    df_raw: pd.DataFrame,
+    df_windowed: pd.DataFrame,
+    df_aggregated: pd.DataFrame,
+    output_dir: Path | str,
+    prefix: str = "icare_",
+) -> None:
+    """Saves raw events, window-filtered events, and aggregated phenotype dataframes
+
+    to Parquet format with explicit save location messages.
+
+    Parameters
+    ----------
+    df_raw : pd.DataFrame
+        Raw extracted matching events from `run_vectorized`.
+    df_windowed : pd.DataFrame
+        Window-filtered events from `evaluate_temporal_windows`.
+    df_aggregated : pd.DataFrame
+        Aggregated patient/spell level phenotypes from `aggregate_composite_phenotypes`.
+    output_dir : Path | str
+        Directory where parquet files will be written.
+    artifact_prefix : str
+        Prefix for the generated filenames (e.g., 'icare', 'esbl_cohort_v1').
+    """
+    out_path = Path(output_dir)
+    out_path.mkdir(parents=True, exist_ok=True)
+
+    artifacts = {
+        f"{prefix}events_extracted_raw.parquet": (
+            df_raw,
+            "Raw extracted matching events",
+        ),
+        f"{prefix}events_extracted_windowed.parquet": (
+            df_windowed,
+            "Window-filtered events",
+        ),
+        f"{prefix}phenotypes_aggregated.parquet": (
+            df_aggregated,
+            "Aggregated patient/spell phenotypes",
+        ),
+    }
+
+    print("\n--- Saving Phenotype Artifacts ---")
+    for filename, (df, description) in artifacts.items():
+        file_filepath = out_path / filename
+        df.to_parquet(file_filepath, index=False)
+        print(f" Saved {description} ({len(df):,} rows)")
+        print(f"   └─ Path: {file_filepath.resolve()}")
+    print("-----------------------------------\n")
