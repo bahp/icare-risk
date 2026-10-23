@@ -242,9 +242,10 @@ echo --- Cleaning old distribution files & build caches ---
 if exist dist\* del /q dist\*
 if exist build rmdir /s /q build
 if exist src\icare_risk.egg-info rmdir /s /q src\icare_risk.egg-info
+
 echo --- Syncing notebooks into package source tree ---
 if not exist src\icare_risk\notebooks mkdir src\icare_risk\notebooks
-copy /y notebooks\*.ipynb src\icare_risk\notebooks\
+copy /y notebooks\preparation\*.ipynb src\icare_risk\notebooks\
 
 echo --- Building PyPI Package ---
 %RUN% python -m build

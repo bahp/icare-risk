@@ -149,7 +149,7 @@ publish:
 build-pkg:
 	@echo "\n--- Syncing notebooks into package source tree ---"
 	mkdir -p src/icare_risk/notebooks
-	cp -rf notebooks/*.ipynb src/icare_risk/notebooks/
+	cp -rf notebooks/preparation/*.ipynb src/icare_risk/notebooks/
 
 	@echo "\n--- Building PyPI Package (Wheel & Source) ---"
 	$(RUN) python -m build
