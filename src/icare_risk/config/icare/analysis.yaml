@@ -352,6 +352,7 @@ outputs:
   subgroup_directory: results/subgroups
   feature_importance_directory: results/feature_importance
   shap_directory: results/feature_importance/shap
+  sensitivity_directory: results/sensitivity
   decision_curve_directory: results/decision_curve
   final_directory: results/final
 
