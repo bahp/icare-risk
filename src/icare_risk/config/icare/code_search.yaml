@@ -7,6 +7,7 @@ targets:
   # Target 1: The ICD-10 File
   - file: "ICD10.csv"
     code_col: "Code"
+    name_col: "Description"
     search_cols: ["Description", "Detail"] # Searches both columns
     export_cols: [ ]
     campaigns: &charlson_campaigns
@@ -85,7 +86,7 @@ targets:
 
       - category: "AIDS"
         contains: [ "aids", "acquired immune deficiency" ]
-        exclude: [ "without aids" ]
+        exclude: [ "without aids", "hearing aids", "mobility aids" ]
 
       - category: "HIV"
         contains: [ "hiv", "human immunodeficiency virus" ]
@@ -205,6 +206,26 @@ targets:
           - "day surgery"
           - "refusal"
 
+      - category: "Pitt - Mechanical Ventilation"
+        contains:
+          - "mechanical ventilation"
+          - "ventilator support"
+          - "invasive ventilation"
+          - "respirator"
+          - "tracheostomy with ventilation"
+        exclude:
+          - "history of"
+          - "weaning"
+
+      - category: "Pitt - Cardiac Arrest"
+        contains:
+          - "cardiac arrest"
+          - "cardiorespiratory arrest"
+          - "cardiac arrest with successful resuscitation"
+        exclude:
+          - "history of"
+          - "family history"
+
   # --------------------------------------------------
   # Looking for problems based on ICD10 codes
   # --------------------------------------------------
@@ -223,6 +244,7 @@ targets:
   # ------------------------------------------------
   - file: "res195.csv"
     code_col: "code"
+    name_col: "description"
     search_cols: [ "description" ] # Searches across three columns
     export_cols: [ ]
     campaigns: *charlson_campaigns
@@ -234,5 +256,27 @@ targets:
   - file: "icarePRO.csv"
     code_col: "code"
     search_cols: [ "name" ]
+    export_cols: [ ]
+    campaigns: *charlson_campaigns
+
+  # --------------------------------------------------
+  # icareDIA diagnosis file
+  # --------------------------------------------------
+  - file: "icareDIA.csv"
+    label: "icareDIA_ICD"
+    code_col: "diagnosis_code_icd"
+    name_col: "diagnosis_desc_icd"
+    search_cols: [ "diagnosis_desc_icd", "diagnosis_desc_snomed" ]
+    export_cols: [ ]
+    campaigns: *charlson_campaigns
+
+  # --------------------------------------------------
+  # icareDIA diagnosis file — SNOMED coded
+  # --------------------------------------------------
+  - file: "icareDIA.csv"
+    label: "icareDIA_SNOMED"
+    code_col: "diagnosis_code_snomed"
+    name_col: "diagnosis_desc_snomed"
+    search_cols: [ "diagnosis_desc_snomed" ]
     export_cols: [ ]
     campaigns: *charlson_campaigns

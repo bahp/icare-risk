@@ -1,7 +1,7 @@
 # Libraries
 import numpy as np
 import pandas as pd
-from typing import List, Callable, Tuple, Any
+from typing import List, Callable, Tuple, Any, Optional
 
 from icare_risk.clinphen.temporal.context import EpisodeContext
 from icare_risk.clinphen.registry.registry import phenotype
@@ -39,6 +39,21 @@ def compute_pitt_mental(gcs: pd.Series) -> pd.Series:
     choices = [4, 2, 1]
     points = np.select(conditions, choices, default=0)
     return pd.Series(points, index=gcs.index)
+
+
+def compute_pitt_hypo(sbp: pd.Series,
+                      on_vasopressors: Optional[pd.Series] = None) -> pd.Series:
+    sbp = pd.to_numeric(sbp, errors='coerce')
+
+    # SBP < 90 gets 2 points
+    points = np.where(sbp < 90.0, 2, 0)
+
+    # If a separate boolean/binary vasopressor flag series is passed, combine them (max 2 points)
+    if on_vasopressors is not None:
+        vaso_pts = pd.to_numeric(on_vasopressors, errors='coerce').fillna(0).astype(bool)
+        points = np.where(vaso_pts | (sbp < 90.0), 2, points)
+
+    return pd.Series(points, index=sbp.index)
 
 
 

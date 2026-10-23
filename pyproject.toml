@@ -46,6 +46,7 @@ include = ["icare_risk", "icare_risk.*"]
 [tool.setuptools.package-data]
 "icare_risk.config" = ["*.yaml", "tests/fixtures/*.csv"]
 "icare_risk.config.icare" = ["*.yaml"]
+"icare_risk.notebooks" = ["*.ipynb"]
 
 [tool.setuptools_scm]
 fallback_version = "0.0.0-dev"
@@ -58,4 +59,5 @@ icare-risk-thresholds = "icare_risk.scripts.d_evaluate_thresholds:main"
 icare-risk-validate = "icare_risk.scripts.e_validate_scores:main"
 icare-risk-search = "icare_risk.scripts.f_find_clinical_codes:main"
 
-code-discover = "icare_risk.tools.code_discovery:main"
+icare-risk-code-discover = "icare_risk.tools.code_discovery:main"
+icare-risk-get-notebooks = "icare_risk.tools.extract_notebooks:main"

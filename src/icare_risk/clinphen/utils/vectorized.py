@@ -582,95 +582,158 @@ def aggregate_composite_phenotypes(
     return result
 
 
-def compute_phenotype_recency(
+
+
+
+
+
+
+
+def prepare_event_matrix(
+        df_events_raw: pd.DataFrame,
+        subject_col: str = "SUBJECT",
+        event_time_col: str = "event_dt_tm",
+) -> pd.DataFrame:
+    """Preprocesses raw events once: strips component suffixes and deduplicates."""
+    df_stacked = df_events_raw.copy()
+    df_stacked["event_name"] = df_stacked["event_name"].str.split("__comp").str[0]
+    return df_stacked.drop_duplicates(
+        subset=[subject_col, "event_name", event_time_col]
+    )
+
+
+def _compute_recency(df_idx, ev_sub, event, subject_col, spell_col, admission_col, event_time_col):
+    """Calculates days since the most recent prior event."""
+    col_name = f"{event}_dslast"
+    merged = pd.merge_asof(
+        df_idx,
+        ev_sub[[subject_col, event_time_col]],
+        by=subject_col,
+        left_on=admission_col,
+        right_on=event_time_col,
+        direction="backward",
+        allow_exact_matches=False,
+    )
+    merged[col_name] = (merged[admission_col] - merged[event_time_col]).dt.total_seconds() / 86400.0
+    return merged[[subject_col, spell_col, col_name]]
+
+
+def _compute_onset(df_idx, ev_sub, event, subject_col, spell_col, admission_col, event_time_col):
+    """Calculates days since the earliest prior event (disease duration)."""
+    col_name = (f"{event}_dsfirst")
+    prior_evs = pd.merge(
+        df_idx[[subject_col, spell_col, admission_col]],
+        ev_sub[[subject_col, event_time_col]],
+        on=subject_col,
+        how="inner"
+    )
+    prior_evs = prior_evs[prior_evs[event_time_col] < prior_evs[admission_col]]
+
+    if prior_evs.empty:
+        df_res = df_idx[[subject_col, spell_col]].copy()
+        df_res[col_name] = pd.NA
+        return df_res
+
+    first_events = (
+        prior_evs.groupby([subject_col, spell_col, admission_col])[event_time_col]
+        .min()
+        .reset_index()
+    )
+    first_events[col_name] = (
+                                     first_events[admission_col] - first_events[event_time_col]
+                             ).dt.total_seconds() / 86400.0
+
+    return first_events[[subject_col, spell_col, col_name]]
+
+
+def _compute_frequency(df_idx, ev_sub, event, subject_col, spell_col, admission_col, event_time_col):
+    """Counts total prior occurrences of the event."""
+    col_name = f"{event}_cnt"
+    prior_evs = pd.merge(
+        df_idx[[subject_col, spell_col, admission_col]],
+        ev_sub[[subject_col, event_time_col]],
+        on=subject_col,
+        how="inner"
+    )
+    prior_evs = prior_evs[prior_evs[event_time_col] < prior_evs[admission_col]]
+
+    if prior_evs.empty:
+        df_res = df_idx[[subject_col, spell_col]].copy()
+        df_res[col_name] = 0
+        return df_res
+
+    counts = (
+        prior_evs.groupby([subject_col, spell_col])[event_time_col]
+        .count()
+        .reset_index(name=col_name)
+    )
+
+    # Ensure all episodes are represented, filling missing with 0
+    df_res = df_idx[[subject_col, spell_col]].merge(counts, on=[subject_col, spell_col], how="left")
+    df_res[col_name] = df_res[col_name].fillna(0).astype(int)
+    return df_res
+
+
+def compute_phenotype_history(
         df_episodes: pd.DataFrame,
         df_events_raw: pd.DataFrame,
         target_phenotypes: Optional[List[str]] = None,
+        metrics: Optional[List[str]] = None,  # e.g., ["last", "first", "count"]
         subject_col: str = "SUBJECT",
         spell_col: str = "SPELL_IDENTIFIER",
         admission_col: str = "index_admission",
         event_time_col: str = "event_dt_tm",
 ) -> pd.DataFrame:
     """
-    Groups raw component events into parent phenotypes and computes days elapsed
-    since the most recent occurrence for each episode.
-
-    If target_phenotypes is None, it computes recency for ALL phenotypes.
+    Orchestrator function that cleans events once and computes requested history metrics.
     """
-    # 1. Strip component suffixes (e.g., __comp0) to group by parent phenotype
-    df_stacked = df_events_raw.copy()
-    df_stacked["event_name"] = df_stacked["event_name"].str.split("__comp").str[0]
+    if metrics is None:
+        metrics = ["last", "first", "count"]
 
-    # 2. Deduplicate simultaneous occurrences of components for the same parent
-    df_stacked = df_stacked.drop_duplicates(
-        subset=[subject_col, "event_name", event_time_col]
-    )
+    # 1. PREPROCESS ONCE
+    df_events = prepare_event_matrix(df_events_raw, subject_col, event_time_col)
 
-    # 3. Determine targets (either provided list or all available)
-    targets = target_phenotypes if target_phenotypes else df_stacked["event_name"].unique()
+    # 2. SETUP TARGETS & INDICES
+    targets = target_phenotypes if target_phenotypes else df_events["event_name"].unique()
 
-    # 4. Iteratively compute recency using your existing function
     df_out = df_episodes.copy()
+    df_idx = df_episodes[[subject_col, spell_col, admission_col]].copy()
+    df_idx = df_idx.dropna(subset=[admission_col]).sort_values(admission_col)
+    events_clean = df_events.dropna(subset=[event_time_col]).sort_values(event_time_col)
+
+    # 3. ITERATE & COMPUTE
     for event in targets:
-        df_out = compute_time_since_last_event(
-            df_episodes=df_out,
-            df_events=df_stacked,
-            event_name=event,
-            subject_col=subject_col,
-            spell_col=spell_col,
-            admission_col=admission_col,
-            event_time_col=event_time_col
-        )
+        ev_sub = events_clean[events_clean["event_name"] == event]
+
+        if "last" in metrics:
+            res_last = _compute_recency(df_idx, ev_sub, event, subject_col, spell_col, admission_col, event_time_col)
+            df_out = pd.merge(df_out, res_last, on=[subject_col, spell_col], how="left")
+
+        if "first" in metrics:
+            res_first = _compute_onset(df_idx, ev_sub, event, subject_col, spell_col, admission_col, event_time_col)
+            df_out = pd.merge(df_out, res_first, on=[subject_col, spell_col], how="left")
+
+        if "count" in metrics:
+            res_count = _compute_frequency(df_idx, ev_sub, event, subject_col, spell_col, admission_col, event_time_col)
+            df_out = pd.merge(df_out, res_count, on=[subject_col, spell_col], how="left")
 
     return df_out
 
-def compute_time_since_last_event(
-    df_episodes: pd.DataFrame,
-    df_events: pd.DataFrame,
-    event_name: str = None,
-    subject_col: str = "SUBJECT",
-    spell_col: str = "SPELL_IDENTIFIER",
-    admission_col: str = "index_admission",
-    event_time_col: str = "event_dt_tm",
-) -> pd.DataFrame:
-    """Calculates days elapsed from the most recent prior event in df_events
 
-    to the episode's index_admission.
-    """
-    df_idx = df_episodes[[subject_col, spell_col, admission_col]].copy()
-    events = df_events.copy()
 
-    if event_name:
-        events = events[events["event_name"] == event_name]
-        col_name = f"days_since_{event_name}"
-    else:
-        col_name = "days_since_last_event"
 
-    # Sort strictly for merge_asof
-    df_idx = df_idx.dropna(subset=[admission_col]).sort_values(admission_col)
-    events = events.dropna(subset=[event_time_col]).sort_values(event_time_col)
 
-    # Find the latest event strictly preceding admission_datetime
-    merged = pd.merge_asof(
-        df_idx,
-        events[[subject_col, event_time_col]],
-        by=subject_col,
-        left_on=admission_col,
-        right_on=event_time_col,
-        direction="backward",
-        allow_exact_matches=False,  # strictly prior (< index_admission)
-    )
 
-    merged[col_name] = (
-        merged[admission_col] - merged[event_time_col]
-    ).dt.total_seconds() / 86400.0
 
-    return pd.merge(
-        df_episodes,
-        merged[[subject_col, spell_col, col_name]],
-        on=[subject_col, spell_col],
-        how="left",
-    )
+
+
+
+
+
+
+
+
+
 
 def run_vectorized(domains, phenotypes, verbose: int = 1):
     """

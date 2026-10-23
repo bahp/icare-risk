@@ -1084,8 +1084,8 @@ def calculate_kim_score(df,
 
     ??? note "Clinical Criteria & Point Allocation (Click to expand)"
         It focuses on identifying risk factors specifically for community-onset BSIs caused
-        by ESBL-producing E. coli and Klebsiella species[cite: 6]. This model is particularly useful
-        for differentiating resistant from susceptible strains right at the point of admission[cite: 6].
+        by ESBL-producing E. coli and Klebsiella species. This model is particularly useful
+        for differentiating resistant from susceptible strains right at the point of admission.
 
         | Clinical Variable           | Condition Evaluated                       | Points |
         | :-------------------------- | :---------------------------------------- | :----: |

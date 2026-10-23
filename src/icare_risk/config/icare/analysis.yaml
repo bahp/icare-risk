@@ -1,0 +1,479 @@
+# icare_risk analysis configuration
+#
+# Edit this file instead of hard-coding dataset-specific settings in notebooks.
+# Paths are interpreted relative to the working directory used to run the notebook.
+# Keep column names exactly as they appear in the admission-level dataset.
+#
+# Recommended workflow after changing this file:
+#   - input/cohort/split settings: rerun notebooks 00 onward
+#   - score settings: rerun notebooks 02 onward
+#   - model/feature settings: rerun notebooks 03 onward
+#   - evaluation-only settings: rerun the affected evaluation notebooks
+
+# -----------------------------------------------------------------------------
+# INPUT DATA
+# -----------------------------------------------------------------------------
+# Purpose: identify the admission-level dataset used by the complete workflow.
+# Configure this section when the upstream pipeline produces a new CSV/Parquet file.
+# The file should contain one row per admission and all candidate predictor columns.
+input:
+  # One row per admission. This file should already be produced by the upstream
+  # clinical-data pipeline. CSV and Parquet are supported.
+  path: ../notebooks/data/synthetic/10000p/03_derived_analysis_dataset.parquet
+
+  # Passed to pandas when reading CSV input. Leave empty for Parquet or when the
+  # CSV uses standard defaults. Example: {sep: ",", low_memory: false}
+  read_csv_kwargs: {}
+
+# -----------------------------------------------------------------------------
+# COLUMN NAMES
+# -----------------------------------------------------------------------------
+# Purpose: tells the package which columns identify admissions, patients, dates,
+# and the outcome. Change these names if the upstream dataset uses different
+# names.
+columns:
+  # Identifiers are retained in outputs but should not be used as predictors.
+  admission_id: SPELL_IDENTIFIER
+  patient_id: SUBJECT
+
+  # Date used for temporal ordering and temporal train/validation/test splitting.
+  admission_date: ADMISSION_DATE
+  discharge_date: DISCHARGE_DATE
+
+  # Binary outcome to predict. This must be the outcome available in the input
+  # file. Unknown or unmapped labels are excluded from supervised analyses.
+  target: esbl_label_test
+
+# -----------------------------------------------------------------------------
+# OUTCOME ENCODING
+# -----------------------------------------------------------------------------
+# Purpose: convert the configured outcome labels into binary values for supervised
+# learning and evaluation. Unknown or missing labels are excluded, not treated as
+# ESBL-negative. Add exact observed labels to the lists below.
+target_mapping:
+  positive_values: ["esbl", "positive", 1, "1"]
+  negative_values: ["non-esbl", "non esbl", "negative", 0, "0"]
+
+# -----------------------------------------------------------------------------
+# DATA VALIDATION
+# -----------------------------------------------------------------------------
+# Purpose: define the minimum structural checks required before analysis starts.
+# If a required column is absent, stop and fix the input or this configuration
+# rather than allowing later notebooks to fail unpredictably.
+validation:
+  required_columns:
+    - SPELL_IDENTIFIER
+    - SUBJECT
+    - ADMISSION_DATE
+    - esbl_label_test
+
+  # Optional checks used by audit functions. Set to false only when the dataset
+  # intentionally contains repeated admission identifiers. It is not implmented
+  # yet.
+  #require_unique_admission_id: true
+
+# -----------------------------------------------------------------------------
+# ANALYSIS SETTINGS
+# -----------------------------------------------------------------------------
+# Purpose: define the temporal split and general analysis defaults used throughout
+# the notebooks. These dates must be fixed before model fitting and test evaluation.
+analysis:
+  # Pandas frequency used for temporal summaries. Examples: YS, QS, MS, 3MS.
+  temporal_frequency: YS
+
+  # Chronological boundaries. Admissions before train_end are training data;
+  # admissions from train_end up to validation_end are validation data; admissions
+  # on/after validation_end are the final temporal test set.
+  train_end: 2022-06-01
+  validation_end: 2022-12-31
+
+  # Initial threshold for descriptive threshold metrics. Do not use this as the
+  # only clinical threshold; notebook 13 selects development-derived thresholds.
+  evaluation_threshold: 0.5
+
+# -----------------------------------------------------------------------------
+# CROSS-VALIDATION
+# -----------------------------------------------------------------------------
+# Purpose: control repeated development-set cross-validation. This estimates model
+# stability within the development period; it does not replace temporal testing.
+cross_validation:
+  # Repeated stratified folds are performed within development data only.
+  n_splits: 5
+  n_repeats: 3
+  random_state: 42
+
+# -----------------------------------------------------------------------------
+# CLINICAL SCORE REGISTRY
+# -----------------------------------------------------------------------------
+# Purpose: register pre-existing clinical score columns. These values can be
+# evaluated directly and can also be used as predictors in newly fitted models.
+# Registering a score here does not recalculate it.
+#
+# These entries identify existing score columns. They do not train models.
+# Direct evaluation of the raw scores should use the score column itself.
+scores:
+  charlson_score:
+    source_column: charlson_score
+  kim_score:
+    source_column: kim_score
+  tumbarello_score:
+    source_column: tumbarello_score
+  jones_score:
+    source_column: jones_score
+  gavaghan_score:
+    source_column: gavaghan_score
+  holmgren_score:
+    source_column: holmgren_score
+
+# -----------------------------------------------------------------------------
+# FEATURE SETS
+# -----------------------------------------------------------------------------
+# Purpose: define reusable groups of predictor columns. Models refer to these names
+# instead of listing columns in notebooks. Change this section when deciding which
+# admission-time variables each model may use.
+#
+# A feature set is a named list of predictors used by one or more models.
+# Components and raw scores are intentionally separate concepts:
+#   - *_score: existing calculated score used as one predictor
+#   - *_components: underlying variables used to train a new model
+#   - clinical_baseline: admission-time clinical and demographic variables
+#
+# Never include the outcome, identifiers, or post-prediction variables here.
+feature_sets:
+  charlson_components:
+    columns:
+      - charlson_hx_mi
+      - charlson_hx_chf
+      - charlson_hx_pvd
+      - charlson_hx_stroke
+      - charlson_hx_dementia
+      - charlson_hx_pulmonary
+      - charlson_hx_rheum
+      - charlson_hx_pud
+      - charlson_hx_liver_mild
+      - charlson_hx_diabetes_uncomp
+      - charlson_hx_hemiplegia
+      - charlson_hx_renal_mod_sev
+      - charlson_hx_diabetes_comp
+      - charlson_hx_cancer_solid
+      - charlson_hx_leukemia
+      - charlson_hx_lymphoma
+      - charlson_hx_liver_mod_sev
+      - charlson_hx_cancer_met
+      - charlson_hx_aids
+      - charlson_hx_hiv
+
+  kim_components:
+    columns:
+      - kim_hx_prior_esbl
+      - kim_hx_recent_hosp_1yr
+      - kim_hx_nursing_home_resident
+      - kim_hx_urinary_catheter
+      - kim_hx_prior_antibiotics_90d
+
+  tumbarello_components:
+    columns:
+      - tumbarello_hx_prior_esbl
+      - tumbarello_hx_recent_hosp_90d
+      - tumbarello_hx_recent_abx_90d
+      - tumbarello_hx_urinary_catheter
+
+  jones_components:
+    columns:
+      - jones_hx_prior_esbl_180d
+      - jones_hx_prior_antibiotics_30d
+      - jones_hx_chronic_dialysis
+      # - jones_hx_transfer_from_hospital
+
+  gavaghan_components:
+    columns:
+      - gavaghan_hx_prior_esbl_365d
+      - gavaghan_hx_nursing_home_resident
+      - gavaghan_hx_prior_antibiotics_90d
+      #- gavaghan_hx_urinary_catheter
+      #- gavaghan_age_ge_65
+
+  holmgren_components:
+    columns: [holmgren_score]
+
+  # Existing score values used directly as predictors in a newly fitted model.
+  all_score_values:
+    columns:
+      - charlson_score
+      - kim_score
+      - tumbarello_score
+      - jones_score
+      - gavaghan_score
+      - holmgren_score
+
+  # Baseline model variables available at or before the admission decision point.
+  # Add/remove variables only after checking feature availability and leakage.
+  clinical_baseline:
+    columns:
+      - AGE_AT_ADMISSION
+      - GENDER_DESC
+      - MAIN_SPECIALTY_CODE_DESC
+      - INDEX_OF_MULTIPLE_DEPRIVATION_DECILE
+      - charlson_hx_mi
+      - charlson_hx_chf
+      - charlson_hx_pvd
+      - charlson_hx_stroke
+      - charlson_hx_pulmonary
+      - charlson_hx_liver_mild
+      - charlson_hx_diabetes_uncomp
+      - charlson_hx_diabetes_comp
+      - charlson_hx_renal_mod_sev
+      - charlson_hx_cancer_solid
+      - charlson_hx_leukemia
+      - charlson_hx_lymphoma
+      #- kim_hx_prior_esbl
+      #- kim_hx_recent_hosp_1yr
+      #- kim_hx_nursing_home_resident
+      #- kim_hx_urinary_catheter
+      #- kim_hx_prior_antibiotics_90d
+      #- tumbarello_hx_prior_esbl
+      #- tumbarello_hx_recent_hosp_90d
+      #- tumbarello_hx_recent_abx_90d
+      #- tumbarello_hx_urinary_catheter
+      #- jones_hx_prior_esbl_180d
+      #- jones_hx_prior_antibiotics_30d
+      #- jones_hx_chronic_dialysis
+      #- jones_hx_transfer_from_hospital
+      #- gavaghan_hx_prior_esbl_365d
+      #- gavaghan_hx_nursing_home_resident
+      #- gavaghan_hx_urinary_catheter
+      #- gavaghan_hx_prior_antibiotics_90d
+      #- holmgren_hx_hospital_care_abroad
+      #- holmgren_hx_previous_3gcr_culture
+      #- holmgren_hx_previous_3gcr_rectal_swab
+      #- sirs_total_score
+      #- pitt_bacteremia_score
+      #- num_encounters_last_365d
+      #- days_since_last_discharge
+
+  # Convenience set for exploratory work. Review the audit output before using
+  # this set for a manuscript model. Explicit clinical_baseline is safer.
+  all_available_baseline:
+    include_all: true
+    exclude:
+      - SUBJECT
+      - SPELL_IDENTIFIER
+      - ENCNTR_ID
+      - EPISODE_IDENTIFIER
+      - ADMISSION_DATE
+      - ADMISSION_TIME
+      - DISCHARGE_DATE
+      - BIRTH_DATE
+      - DEATH_DATE
+      - UPDATE_DT_TM
+      - esbl_status
+      - split
+      - _target_numeric
+      - closest_culture_date
+      - time_to_culture_days
+      - time_to_culture_hours
+      - qualifying_last_abx
+
+# -----------------------------------------------------------------------------
+# MODEL DEFINITIONS
+# -----------------------------------------------------------------------------
+# Purpose: specify which algorithms are fitted, which feature set each uses, and
+# their hyperparameters. Adding a model here makes it available to training,
+# prediction, evaluation, subgroup, and explainability notebooks.
+#
+# Each model refers to one feature_set. Parameters are passed to the estimator.
+# Logistic regression is interpretable; XGBoost can capture nonlinearities and
+# interactions but needs stronger validation and explainability checks.
+models:
+  - name: lr_kim_components
+    type: logistic_regression
+    feature_set: kim_components
+    params:
+      C: 1.0
+
+  - name: lr_all_score_values
+    type: logistic_regression
+    feature_set: all_score_values
+    params:
+      C: 1.0
+
+  - name: lr_clinical_baseline
+    type: logistic_regression
+    feature_set: clinical_baseline
+    params:
+      C: 1.0
+
+  - name: xgb_kim_components
+    type: xgboost
+    feature_set: kim_components
+    params:
+      n_estimators: 300
+      max_depth: 3
+      learning_rate: 0.05
+      subsample: 0.8
+      colsample_bytree: 0.8
+
+  - name: xgb_all_score_values
+    type: xgboost
+    feature_set: all_score_values
+    params:
+      n_estimators: 300
+      max_depth: 3
+      learning_rate: 0.05
+      subsample: 0.8
+      colsample_bytree: 0.8
+
+  - name: xgb_clinical_baseline
+    type: xgboost
+    feature_set: clinical_baseline
+    params:
+      n_estimators: 300
+      max_depth: 3
+      learning_rate: 0.05
+      subsample: 0.8
+      colsample_bytree: 0.8
+
+# -----------------------------------------------------------------------------
+# OUTPUT DIRECTORIES
+# -----------------------------------------------------------------------------
+# Purpose: define where intermediate datasets, fitted models, predictions, tables,
+# and figures are saved. Existing files may be replaced by later sequential runs;
+# copy results elsewhere if they need to be preserved.
+#
+# Outputs are written here. Directories are created by the relevant notebooks.
+outputs:
+  audit_directory: results/audit
+  processed_dataset: data/processed/admissions_with_split.parquet
+  score_summary: results/scores/score_summary.csv
+  model_directory: models/fitted
+  prediction_directory: results/predictions
+  metrics_directory: results/metrics
+  temporal_directory: results/temporal
+  subgroup_directory: results/subgroups
+  feature_importance_directory: results/feature_importance
+  shap_directory: results/feature_importance/shap
+  decision_curve_directory: results/decision_curve
+  final_directory: results/final
+
+# -----------------------------------------------------------------------------
+# EXPLAINABILITY AND REDUCED MODELS
+# -----------------------------------------------------------------------------
+# Purpose: control feature-importance, SHAP, and parsimonious-model analyses.
+# These settings affect explanation runtime and reduced-model feature counts, not
+# the definition of the primary full models.
+explainability:
+  # Number of repetitions for permutation importance.
+  permutation_repeats: 20
+
+  # Maximum rows passed to SHAP for global explanations. This limits runtime and
+  # memory only; it does not affect model fitting or prediction performance.
+  shap_max_rows: 2000
+  random_state: 42
+
+  # Reduced models use rankings calculated from development data only.
+  parsimonious_feature_sizes: [5, 10, 20, 30]
+  ranking_model_type: logistic_regression
+  ranking_model_params: {C: 1.0}
+
+# -----------------------------------------------------------------------------
+# SUBGROUP DEFINITIONS
+# -----------------------------------------------------------------------------
+# Purpose: define reusable patient subgroups for stratified performance analysis.
+# Simple definitions use one condition; compound definitions combine conditions
+# with logic: all or any. Add a subgroup here instead of editing notebook code.
+#
+# A simple subgroup has column/operator/value. A compound subgroup uses:
+#   logic: all  -> every condition must be true
+#   logic: any  -> at least one condition must be true
+#
+# Supported operators include ==, !=, >, >=, <, <=, in, not_in, isna, notna.
+# Keep subgroup variables in the full prediction table; prediction generation
+# appends probabilities to the original admission-level data.
+subgroup_analysis:
+  minimum_n: 50
+  minimum_events: 10
+
+subgroups:
+  age_under_65:
+    column: AGE_AT_ADMISSION
+    operator: "<"
+    value: 65
+
+  age_65_or_over:
+    column: AGE_AT_ADMISSION
+    operator: ">="
+    value: 65
+
+  female:
+    column: GENDER_DESC
+    operator: "=="
+    value: Female
+
+  male:
+    column: GENDER_DESC
+    operator: "=="
+    value: Male
+
+  diabetes:
+    column: charlson_hx_diabetes_uncomp
+    operator: "=="
+    value: 1
+
+  renal_disease:
+    column: charlson_hx_renal_mod_sev
+    operator: "=="
+    value: 1
+
+  cancer:
+    column: charlson_hx_cancer_solid
+    operator: "=="
+    value: 1
+
+  intensive_care:
+    column: MAIN_SPECIALTY_CODE_DESC
+    operator: in
+    value: [intensive care]
+
+  medicine:
+    column: MAIN_SPECIALTY_CODE_DESC
+    operator: in
+    value: [general medicine, acute medicine]
+
+  surgery:
+    column: MAIN_SPECIALTY_CODE_DESC
+    operator: in
+    value: [oral surgery, general surgery]
+
+  elder_female_diabetes:
+    description: "Patients aged 65 or older, female, with diabetes"
+    logic: all
+    conditions:
+      - column: AGE_AT_ADMISSION
+        operator: ">="
+        value: 65
+
+      - column: GENDER_DESC
+        operator: "=="
+        value: "Female"
+
+      - column: charlson_hx_diabetes_uncomp
+        operator: "=="
+        value: 1
+
+  diabetes_or_renal:
+    description: "Patients with diabetes or renal disease"
+    logic: any
+    conditions:
+      - column: charlson_hx_diabetes_uncomp
+        operator: "=="
+        value: 1
+
+      - column: charlson_hx_diabetes_comp
+        operator: "=="
+        value: 1
+
+      - column: charlson_hx_renal_mod_sev
+        operator: "=="
+        value: 1
+
+

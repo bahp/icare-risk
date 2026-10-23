@@ -149,9 +149,9 @@ def has_medication_in_window(df, **kwargs):
             indicates that at least one medication from `target_meds` was found
             within the specified `window_hours`.
     """
-    target_meds = kwargs.get('target_meds', [])
-    window_hours = kwargs.get('window_hours', 24)
-    context = kwargs.get('context_dfs', {})
+    target_meds = kwargs.get('target_meds')
+    window_hours = kwargs.get('window_hours')
+    context = kwargs.get('context_dfs')
 
     # Use your existing helper to get the list of meds for each row
     prescribed_series = _get_prescriptions_in_window(df,
@@ -834,7 +834,7 @@ def derive_sirs_tachypnea(df, **kwargs):
     """
     flag = pd.Series(0, index=df.index)
 
-    rr_col = kwargs.get('rr_col', 'rr_24h_max')
+    rr_col = kwargs.get('rr_col')
     paco2_col = kwargs.get('paco2_col', 'paco2')  # Optional, if available in labs
 
     if rr_col in df.columns:
@@ -876,7 +876,7 @@ def derive_sirs_abnormal_temp(df, **kwargs):
     flag = pd.Series(0, index=df.index)
 
     # Accept a list to check both max and min rolling windows for extremes
-    temp_cols = kwargs.get('temp_cols', ['temp_24h_max', 'temp_24h_min', 'temp'])
+    temp_cols = kwargs.get('temp_cols')
     if isinstance(temp_cols, str):
         temp_cols = [temp_cols]
 
@@ -944,13 +944,13 @@ def derive_sirs_abnormal_wbc(df, **kwargs):
     flag = pd.Series(0, index=df.index)
 
     # 1. Get column names
-    wbc_col = kwargs.get('wbc_col', 'wbc')
-    bands_col = kwargs.get('bands_col', 'bands')  # Optional, if available
+    wbc_col = kwargs.get('wbc_col')
+    bands_col = kwargs.get('bands_col')  # Optional, if available
 
     # 2. Get dynamic thresholds (with safe clinical defaults)
-    wbc_high = kwargs.get('wbc_high', 12.0)
-    wbc_low = kwargs.get('wbc_low', 4.0)
-    bands_threshold = kwargs.get('bands_threshold', 10.0)
+    wbc_high = kwargs.get('wbc_high')
+    wbc_low = kwargs.get('wbc_low')
+    bands_threshold = kwargs.get('bands_threshold')
 
     if wbc_col in df.columns:
         wbc = pd.to_numeric(df[wbc_col], errors='coerce')
@@ -1023,7 +1023,7 @@ def derive_bsi_not_urinary(df, **kwargs):
     pandas.Series
         A binary series of integers (1 if source is non-urinary, 0 if urinary).
     """
-    urine_code = kwargs.get('urine_culture_code', 'LOINC-630-4')
+    urine_code = kwargs.get('urine_culture_code')
     merged = _get_nearest_micro_record(df, kwargs.get('context_dfs', {}), ['ORDER_CODE'])
 
     if merged is None:

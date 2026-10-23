@@ -147,15 +147,14 @@ publish:
 .PHONY: build-pkg test-pkg
 
 build-pkg:
+	@echo "\n--- Syncing notebooks into package source tree ---"
+	mkdir -p src/icare_risk/notebooks
+	cp -rf notebooks/*.ipynb src/icare_risk/notebooks/
+
 	@echo "\n--- Building PyPI Package (Wheel & Source) ---"
 	$(RUN) python -m build
 
 test-pkg: build-pkg
-	@echo "\n--- Cleaning old distribution files & build caches ---"
-	rm -rf dist/* build/ src/*.egg-info
-	@echo "\n--- Building PyPI Package (Wheel & Source) ---"
-	$(RUN) python -m build
-
 	@echo "\n--- 1. Creating Isolated Venv ---"
 	$(RUN) python -m venv /tmp/pkg_test_venv
 	$(RUN) /tmp/pkg_test_venv/bin/pip install --upgrade pip --quiet
@@ -172,9 +171,16 @@ test-pkg: build-pkg
 	$(RUN) bash -c "/tmp/pkg_test_venv/bin/icare-risk-features --help"
 	@echo "CLI Entry Points verified successfully!"
 
-	@echo "\n--- 5. Running Pytest Suite ---"
+	@echo "\n--- 5. Testing Notebook Extraction Command ---"
+	$(RUN) mkdir -p /tmp/notebook_test
+	$(RUN) bash -c "cd /tmp/notebook_test && /tmp/pkg_test_venv/bin/icare-risk-get-notebooks"
+	@echo "Verifying notebooks were extracted..."
+	$(RUN) bash -c "ls -la /tmp/notebook_test/*.ipynb"
+	@echo "Notebook Extraction verified successfully!"
+
+	@echo "\n--- 6. Running Pytest Suite ---"
 	$(RUN) bash -c "cd /tmp && /tmp/pkg_test_venv/bin/pytest /app/tests/ -v"
 
-	@echo "\n--- 6. Cleaning Up ---"
+	@echo "\n--- 7. Cleaning Up ---"
 	$(RUN) rm -rf /tmp/pkg_test_venv
 	@echo "Package verification complete!"

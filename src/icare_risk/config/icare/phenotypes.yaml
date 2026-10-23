@@ -55,20 +55,46 @@ definitions:
 
     myocardial_infarction:
       snomed: &mi_snomed
+        # --- Acute & Unspecified Myocardial Infarctions ---
         - '22298006'           # Myocardial infarction (disorder)
         - '57054005'           # Acute myocardial infarction (disorder)
-        - '1755008'            # Old myocardial infarction (disorder)
         - '129574000'          # Postoperative myocardial infarction (disorder)
-        - '401303003'          # Acute ST segment elevation myocardial infarction (disorder)
-        - '70211005'           # Non-ST segment elevation myocardial infarction (disorder)
-        - '401314000'          # Acute non-ST segment elevation myocardial infarction (disorder)
+        - '194821006'          # MI - myocardial infarction aborted
         - '194828000'          # Acute transmural myocardial infarction (disorder)
         - '194841006'          # Subendocardial infarction (disorder)
-        - '398320008'          # Acute anterior myocardial infarction (disorder)
+        - '233843008'          # MI - silent myocardial infarction
+        - '394710008'          # First myocardial infarction
         - '398210009'          # Acute inferior myocardial infarction (disorder)
+        - '398320008'          # Acute anterior myocardial infarction (disorder)
         - '54329005'           # Acute myocardial infarction of anterior wall (disorder)
         - '57797005'           # Acute myocardial infarction of inferior wall (disorder)
-        - '16837681000119100'  # Acute ST segment elevation myocardial infarction (UK Extension)
+        - '58612006'           # Acute lateral myocardial infarction
+        - '65547006'           # Acute inferolateral myocardial infarction
+        - '703164000'          # Acute STEMI (ST elevation myocardial infarction) of anterior wall
+        - '703165004'          # Acute anterior ST segment elevation myocardial infarction with right ventricular involvement
+        - '703211006'          # Subsequent STEMI (ST elevation myocardial infarction)
+        - '703213009'          # Acute STEMI (ST elevation myocardial infarction) of inferior wall
+        - '703253007'          # Acute STEMI (ST elevation myocardial infarction) of inferior wall with right ventricular involvement
+        - '703326006'          # Mitral regurgitation due to acute myocardial infarction
+        - '703360004'          # Subsequent non-st segment elevation myocardial infarction
+        - '723860000'          # Arrhythmia as current complication following acute myocardial infarction
+        - '7326005'            # Inferior myocardial infarction on electrocardiogram
+        - '737438001'          # Myocardial infarction clinical management plan
+        - '73795002'           # Acute inferior myocardial infarction
+        - '76593002'           # Acute myocardial infarction of inferoposterior wall (disorder)
+        - '868224003'          # Acute STEMI due to AM branch of RCA occlusion
+        - '879955009'          # MINOCA - myocardial infarction with non-obstructive coronary artery
+        - '15713081000119108'  # Acute STEMI due to left coronary artery occlusion
+        - '16837681000119104'  # Type 2 myocardial infarction
+        - '16837681000119100'  # Acute STEMI (UK Extension)
+        - '401303003'          # Acute ST segment elevation myocardial infarction (STEMI)
+        - '401314000'          # Acute non-ST segment elevation myocardial infarction (NSTEMI)
+        - '70211005'           # Non-ST segment elevation MI / Acute anterolateral MI
+
+        # --- Historical / Healed MIs (Include if tracking baseline comorbidity) ---
+        - '1755008'            # Old / Healed myocardial infarction (disorder)
+        - '308065005'          # H/O: myocardial infarction in last year
+        - '399211009'          # Previous myocardial infarction
 
       res195: &mi_res195
         # ICD-10
@@ -416,20 +442,136 @@ definitions:
 
     metastatic_solid_tumor:
 
-      codes: [
-        '254895003', '92691004', '254895003', '278054005', '90725004', '312104005', '700423003', '254878006',
-        '721716004', '255109008', '733354000', '276952000', '255029007', '25370001', '255109008', '443961001',
-        '253017000', '254838004', '1338007', '278054005', '254634000', '105121000119102', '123845008',
-        '254915003', '255071008', '254582000', '372138000', '254900004', '123845008', '27090000', '41607009',
-        '73711000119107', '28899001', '1338007', '27090000', '79282002', '109889007', '109841003', '90725004',
-        '109841003', '372141009', '372140005', '254900004', '254632001', '1701000119104', '255084004', '399490008',
-        '255084004', '35917007', '402815007', '86616005', '70179006', '128636006', '276804009', '254900004',
-        '448993007', '447882007', '285310000', '254634000', '92546004', '12400006', '254609000', '702391001',
-        '12400006', '254701007', '254651007', '68453008', '87737001', '109969005', '109969005', '128929007',
-        '1091921000000100', '1929004', '847741000000106', '55150002', '109979007', '118605002', '734076008',
-        '118600007', '14537002', '443487006', '21964009', '393563007', '420120008', '2092003', '399068003',
-        '93870000', '363358000', '363418001', '399326009', '254900004', '363402007', '363418001', '363351006',
-        '363419009', '363518003', '254837009', '363406005', '1157063004' ]
+      codes:
+        # --- Distant Metastatic Disease (M1 / Secondary Malignancy) ---
+        - '1155991005'         # Metastatic cancer to leptomeninges
+        - '128462008'          # Metastatic cancer
+        - '134421000'          # Metastatic fracture of bone
+        - '14799000'           # Neoplasm, metastatic
+        - '15956181000119102'  # Metastatic adenocarcinoma to bilateral lungs
+        - '1661000119106'      # Metastasis to lung from adenocarcinoma
+        - '1691000119104'      # Metastasis to liver from adenocarcinoma
+        - '188462001'          # Secondary malignant neoplasm of brain and spinal cord
+        - '237761007'          # Adrenal insufficiency due to adrenal metastasis
+        - '255052006'          # Metastasis - unknown primary
+        - '277208005'          # Metastasis stages
+        - '285604008'          # Metastasis to lung of unknown primary
+        - '285605009'          # Metastasis to pleura of unknown primary
+        - '285613005'          # Metastasis to liver of unknown primary
+        - '285618001'          # Metastasis to bone of unknown primary
+        - '285643007'          # Metastasis to adrenal gland of unknown primary
+        - '307226002'          # Metastatic adenocarcinoma of unknown origin
+        - '314987003'          # Metastasis from malignant melanoma of skin
+        - '314990009'          # Metastasis from malignant tumour of bone
+        - '314994000'          # Metastatic prostate cancer
+        - '314997007'          # Metastasis from malignant tumour of rectum
+        - '314998002'          # Metastasis from malignant tumor of colon
+        - '314999005'          # Metastasis from malignant tumor of pancreas
+        - '315000005'          # Metastasis from malignant tumour of liver
+        - '315003007'          # Metastasis from malignant tumour of oesophagus
+        - '315004001'          # Metastasis from malignant tumor of breast
+        - '315006004'          # Metastasis from malignant tumor of lung
+        - '315241008'          # Pain of metastatic malignancy
+        - '353561000119103'    # Cancer metastatic to right lung
+        - '353741000119106'    # Cancer metastatic to left lung
+        - '354081000119101'    # Metastatic adenocarcinoma
+        - '370030003'          # M1 (IVB): distant metastasis
+        - '370079006'          # Choriocarcinoma, metastatic
+        - '371497001'          # Distant metastasis
+        - '372158004'          # Malignant melanoma, metastatic
+        - '403906006'          # Metastatic squamous cell carcinoma
+        - '422782004'          # Primary malignant neoplasm of ovary, with widespread metastatic disease
+        - '423987006'          # Primary malignant neoplasm of vulva, with widespread metastatic disease
+        - '424887002'          # Thyroid cancer metastatic to bone
+        - '443493003'          # Metastatic malignant melanoma
+        - '4590003'            # Metastatic adenocarcinoma
+        - '55440008'           # Metastasis stage M1
+        - '6219000'            # Malignant tumour - uncertain whether primary or metastatic
+        - '64204000'           # Metastatic squamous cell carcinoma
+        - '702392008'          # Metastatic renal cell carcinoma
+        - '704152002'          # Metastatic neuroblastoma
+        - '705176003'          # Metastatic carcinoid tumour
+        - '708937004'          # Metastatic seminoma
+        - '709190005'          # Metastatic leiomyosarcoma
+        - '709191009'          # Metastatic papillary thyroid carcinoma
+        - '712849003'          # Prostate cancer metastatic to bone
+        - '713425003'          # Metastatic spinal cord compression
+        - '767444009'          # Germline BRCA-mutated, HER2-negative metastatic breast cancer
+        - '781076008'          # Metastatic colorectal cancer
+        - '79282002'           # Carcinoma, metastatic
+        - '813671000000107'    # Secondary malignant neoplasm of liver and intrahepatic bile duct
+        - '838281000'          # Metastatic renal cell carcinoma
+        - '91281000119103'     # Metastatic adenocarcinoma to bone
+        - '94161006'           # Metastasis to adrenal gland
+        - '94179005'           # Metastatic malignant neoplasm to ascending colon
+        - '94186002'           # Cancer metastatic to urinary bladder
+        - '94217008'           # Metastasis to bone marrow
+        - '94219006'           # Metastatic malignant neoplasm to bone of lower limb
+        - '94222008'           # Cancer metastatic to bone
+        - '94225005'           # Metastasis to brain
+        - '94232001'           # Metastatic malignant neoplasm to bronchus of right upper lobe
+        - '94260004'           # Metastatic malignant neoplasm to colon
+        - '94297009'           # Metastatic malignant neoplasm to female breast
+        - '94300004'           # Secondary malignant neoplasm of femur
+        - '94312000'           # Cancer metastatic to gallbladder
+        - '94313005'           # Metastatic malignant neoplasm to gastrointestinal tract
+        - '94348003'           # Cancer metastatic to abdominal organs
+        - '94360002'           # Cancer metastatic to kidney
+        - '94365007'           # Metastatic colorectal cancer
+        - '94381002'           # Metastasis to liver
+        - '94387003'           # Metastatic malignant neoplasm to lower outer quadrant of female breast
+        - '94391008'           # Cancer metastatic to lung
+        - '94401004'           # Metastatic malignant neoplasm to male breast
+        - '94455000'           # Metastatic malignant neoplasm to ovary
+        - '94459006'           # Metastatic malignant neoplasm to pancreas
+        - '94478006'           # Metastatic malignant neoplasm to pelvic bone
+        - '94491007'           # Metastasis to pituitary
+        - '94503003'           # Cancer metastatic to prostate
+        - '94513006'           # Cancer metastatic to rectum
+        - '94514000'           # Metastatic malignant neoplasm to renal pelvis
+        - '94521000'           # Metastatic malignant neoplasm to rib
+        - '94524008'           # Metastatic malignant neoplasm to right upper lobe of lung
+        - '94527001'           # Secondary malignant neoplasm of sacrum
+        - '94538001'           # Metastatic malignant neoplasm to sigmoid colon
+        - '94579000'           # Cancer metastatic to skin
+        - '94580002'           # Metastasis to small intestine
+        - '94600009'           # Metastasis to spinal cord
+        - '94602001'           # Metastasis to spine
+        - '94603006'           # Metastasis to spleen
+        - '94626004'           # Omental metastasis
+        - '94627008'           # Metastasis to peritoneum
+        - '94628003'           # Secondary malignant neoplasm of the retroperitoneum
+        - '94634005'           # Cancer metastatic to thyroid
+        - '94641004'           # Cancer metastatic to trachea
+        - '94655007'           # Metastatic malignant neoplasm to upper outer quadrant of female breast
+        - '94681006'           # Cancer metastatic to vulva
+        - '96981000119102'     # Malignant neoplasm of rectosigmoid junction metastatic to brain
+
+        # --- History of Metastatic Disease (Included for Charlson Comorbidity Scoring) ---
+        - '1098951000119108'    # History of cancer metastatic to liver
+        - '1098961000119105'    # History of cancer metastatic to lung
+        - '1098971000119104'    # History of cancer metastatic to brain
+
+        # --- COMMENTED OUT: Excluded (Regional Lymph Node Metastases, TNM Staging, Surgical Procedures, Local Extensions) ---
+        # - '1098931000119102'   # History of cancer metastatic to lymph nodes (Regional N-stage metastasis, NOT distant M1)
+        # - '1671000119100'      # Metastasis to lymph node from squamous cell carcinoma (Regional N-stage)
+        # - '1681000119102'      # Metastasis to lymph node from adenocarcinoma (Regional N-stage)
+        # - '254326001'          # Tumor-node-metastasis (TNM) breast tumour staging (Staging administrative system)
+        # - '254353002'          # Tumor-node-metastasis (TNM) brain tumour staging (Staging administrative system)
+        # - '260876003'          # Metastatic testicular tumor volume status (Clinical measurement)
+        # - '285644001'          # Metastasis to lymph node of unknown primary (Regional N-stage)
+        # - '303201005'          # Metastasis to multiple lymph nodes (Regional N-stage)
+        # - '307616002'          # Excision of liver metastasis (Surgical procedure code)
+        # - '369814002'          # T3 (III): endometrial tumour with local/regional spread (Local/regional extension)
+        # - '369831009'          # T3c (IIIC): fallopian tube/ovarian tumor with regional lymph node metastasis (Regional N-stage)
+        # - '370023009'          # N1: metastasis in regional lymph node or nodes (Regional N-stage)
+        # - '370123006'          # N1: regional lymph node metastasis (Regional N-stage)
+        # - '373167007'          # pN3b: tumour of breast with metastasis (Regional N-stage)
+        # - '385380006'          # Metastasis category finding (Staging classification code)
+        # - '397500009'          # pT3c and/or N1 (IIIC): regional lymph node metastasis (Regional N-stage)
+        # - '94347008'          # Metastatic malignant neoplasm to intra-abdominal lymph nodes (Regional N-stage)
+        # - '94392001'          # Cancer metastatic to lymph nodes (Regional N-stage)
+
       res195_codes: [
         'C00', 'C01', 'C02', 'C03', 'C04', 'C05', 'C06', 'C07', 'C08', 'C09', 'C10', 'C11', 'C12', 'C13', 'C14',
         'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22', 'C23', 'C24', 'C25', 'C26', 'C30', 'C31', 'C32',
@@ -547,23 +689,97 @@ definitions:
 
     dementia:
       snomed: &dementia_snomed
-        - '702429008'          # Dementia
-        - '230270009'          # Alzheimer's disease
-        - '56267009'           # Alzheimer dementia
-        - '80098002'           # Dementia in conditions classified elsewhere
-        - '52448006'           # Dementia, unspecified
-        - '52448006'           # Dementia, unspecified
+        # --- Alzheimer's & Senile / Presenile Dementia ---
+        - '10532003'           # Alzheimer's dementia, early onset, with depressed mood
+        - '12348006'           # Presenile dementia
+        - '142001000119106'    # Alzheimer's dementia with depressed mood
+        - '142011000119109'    # Alzheimer's disease co-occurrent with delirium
+        - '142811000119104'    # Alzheimer's dementia
+        - '15662003'           # Senile dementia
+        - '1581000119101'      # Dementia of the Alzheimer type with behavioural disturbance
+        - '191449005'          # Uncomplicated senile dementia
+        - '191455000'          # Presenile dementia with depression
+        - '26852004'           # Alzheimer's dementia, late onset, with depressive mood
+        - '26929004'           # Alzheimer dementia
+        - '31081000119101'     # Early onset dementia with delusions
+        - '371026009'          # Senile dementia with psychosis
+        - '416780008'          # Alzheimer's disease with early onset
+        - '416975007'          # Dementia in Alzheimer's disease with late onset
+        - '443491000000105'    # [X] Dementia in Alzheimer's disease
+        - '4817008'            # Dementia Alzheimer's type, late onset with delirium
+        - '55009008'           # Alzheimer's dementia, late onset, with delusions
+        - '6475002'            # Dementia of the Alzheimer's type, with early onset, uncomplicated
+        - '66108005'           # Dementia of the Alzheimer's type, with late onset, uncomplicated
+
+        # --- Vascular & Ischaemic Dementia ---
+        - '10349009'           # Vascular dementia, with delirium
+        - '14070001'           # Vascular dementia, with depressive mood
+        - '16276361000119109'  # Vascular dementia without behavioural disturbance
+        - '230285003'          # Vascular dementia of acute onset
+        - '230286002'          # Subcortical vascular dementia
+        - '230287006'          # Mixed cortical and subcortical vascular dementia
+        - '288631000119104'    # Vascular dementia with behavioural disturbance
         - '429998004'          # Vascular dementia
-        - '142811000119104'    # Dementia associated with another disease
-        - '1591000119103'      # Dementia in other diseases
-        - '425390006'          # Frontotemporal dementia
-        - '56267009'           # Alzheimer dementia
-        - '26929004'           # Senile dementia
-        - '10171000132106'     # Dementia with behavioral disturbance
-        - '79341000119107'     # Dementia with behavioral disturbance
-        - '135811000119107'    # Dementia in other diseases
-        - '142811000119104'    # Dementia associated with another disease
-        - '26929004'           # Senile dementia
+        - '56267009'           # Vascular dementia
+        - '723123001'          # Ischaemic vascular dementia
+
+        # --- Lewy Body, Frontotemporal, Parkinson's & Other Specific Dementias ---
+        - '101421000119107'    # Dementia due to Parkinson's disease
+        - '135811000119107'    # Lewy body dementia with behavioural disturbance
+        - '198681000000106'    # [X] Lewy body dementia
+        - '21921000119103'     # Dementia due to Pick's disease
+        - '230270009'          # Frontotemporal dementia
+        - '230283005'          # Boxer's dementia
+        - '230288001'          # Semantic dementia
+        - '278857002'          # Dementia of frontal lobe type
+        - '281004'             # Alcoholic dementia
+        - '312991009'          # Lewy body dementia
+        - '425390006'          # Dementia in Parkinson's disease
+        - '442344002'          # Dementia due to Huntington chorea
+        - '702429008'          # FTDP-17 - Frontotemporal dementia with parkinsonism 17
+        - '733194007'          # Dementia with Down syndrome
+        - '783161005'          # Familial British dementia with amyloid angiopathy
+        - '80098002'           # Dementia of the Lewy body type
+
+        # --- General, Unspecified, & Secondary Features in Dementia ---
+        - '10171000132106'     # BPSD - behavioural and psychological symptoms of dementia
+        - '1591000119103'      # Dementia with behavioral disturbance
+        - '191519005'          # Dementia associated with another disease
+        - '402771000000101'    # [X] Delirium superimposed on dementia
+        - '471341000000106'    # [X] Unspecified dementia (disorder)
+        - '52448006'           # Dementia
+        - '724992007'          # Epilepsy co-occurrent and due to dementia
+        - '725898002'          # Delirium superimposed on dementia
+        - '788862002'          # Agitation in dementia
+        - '788866004'          # Anxiety in dementia
+        - '79341000119107'     # Mixed dementia
+
+        # --- History & Sequelae (Included for Charlson Comorbidity Scoring) ---
+        - '161465002'          # H/O: dementia
+
+        # --- COMMENTED OUT: Excluded (False Positives - Unrelated "Senile" Findings, Administrative/Care Plans, Carers, Risk & Screening) ---
+        # - '1095121000000102'   # Dementia advance care plan agreed (Administrative care plan)
+        # - '112109002'          # Senile tremor (Neurological tremor, NOT dementia)
+        # - '18040001'          # Senile osteoporosis (Bone disease, NOT dementia)
+        # - '193589009'          # Nuclear senile cataract (Ophthalmology condition, NOT dementia)
+        # - '233863001'          # Senile aortic stenosis (Valvular heart disease, NOT dementia)
+        # - '237877004'          # Senile systemic amyloidosis (Systemic amyloidosis, NOT dementia)
+        # - '238597002'          # Senile xerosis (Dermatological dry skin, NOT dementia)
+        # - '248711000000102'   # Dementia monitoring (Administrative review)
+        # - '267718000'          # Senile macular degeneration (Ophthalmology condition, NOT dementia)
+        # - '39450006'           # Senile cataract (Ophthalmology condition, NOT dementia)
+        # - '394877006'          # FH: Alzheimer's disease (Family history only)
+        # - '414173003'          # Wet senile macular degeneration (Ophthalmology condition, NOT dementia)
+        # - '414875008'          # Dry senile macular degeneration (Ophthalmology condition, NOT dementia)
+        # - '42570001'           # Senile pruritus (Dermatological itching, NOT dementia)
+        # - '473203000'          # Dementia assessment (Procedure/evaluation code)
+        # - '52441000'           # Senile atrophic vaginitis (Gynecological condition, NOT dementia)
+        # - '53751009'           # Senile purpura (Dermatological vascular fragility, NOT dementia)
+        # - '698464007'          # At risk of dementia (Risk assessment only)
+        # - '816461000000109'   # Suspected dementia (Unconfirmed observation)
+        # - '824401000000105'   # Carer of person with dementia (Social history / relative status)
+        # - '869561000000101'   # Assessment for dementia (Procedure/evaluation code)
+        # - '959361000000105'   # Dementia advance care plan (Administrative care plan document)
 
       res195: &dementia_res195
         # ICD-10
@@ -577,20 +793,137 @@ definitions:
 
     stroke:
       snomed: &stroke_snomed
-        - '230690007'          # Cerebrovascular accident
-        - '1078001000000100'   # Stroke
-        - '817701000000103'    # Cerebral infarction
-        - '720191000000104'    # Cerebrovascular accident
-        - '429235008'          # Ischaemic stroke
-        - '230706003'          # Cerebral infarction
-        - '16002031000119100'  # Cerebrovascular accident
-        - '25133001'           # Cerebral haemorrhage
-        - '39925003'           # Stroke
-        - '16371781000119100'  # Cerebrovascular accident
-        - '422504002'          # Transient ischaemic attack
-        - '275526006'          # Transient cerebral ischaemic attack
-        - '135877001'          # Cerebrovascular disease
+        # --- Acute Stroke, TIA, & Ischaemic / Haemorrhagic Events ---
+        - '1078001000000105'   # Haemorrhagic stroke
+        - '117776611000119102' # Stroke due to occlusion of left posterior communicating artery
+        - '149821000119103'   # Cerebral infarction due to carotid artery occlusion
+        - '16000391000119104' # Cerebrovascular accident due to occlusion of right posterior cerebral artery
+        - '16000431000119109' # Cerebrovascular accident due to occlusion of right middle cerebral artery
+        - '16000511000119103' # Cerebrovascular accident due to occlusion of left middle cerebral artery
+        - '16002031000119102' # Stroke due to thrombus of right middle cerebral artery
+        - '16002111000119106' # Stroke due to thrombus of left middle cerebral artery
+        - '16023991000119104' # Cerebrovascular accident due to occlusion of left pontine artery
+        - '16024031000119100' # Cerebrovascular accident due to occlusion of right pontine artery
+        - '16371781000119100' # Cerebellar stroke
+        - '16644681000119102' # Cerebrovascular accident due to occlusion of both pontine arteries
+        - '16891111000119104' # Cryptogenic stroke
+        - '191505005'          # Acute confusional state, of cerebrovascular origin
+        - '195168007'          # Intracerebral hemorrhage with intraventricular hemorrhage
+        - '195189003'          # Cerebral infarction due to thrombosis of cerebral arteries
+        - '195212005'          # Brainstem stroke syndrome
+        - '195213000'          # Cerebellar stroke syndrome
+        - '195216008'          # Left sided CVA
+        - '195217004'          # Right sided CVA
+        - '195230003'          # Cerebral infarction due to cerebral venous thrombosis, non-pyogenic
+        - '230690007'          # Stroke
+        - '230691006'          # CVA - cerebrovascular accident due to cerebral artery occlusion
+        - '230694003'          # TACS - total anterior cerebral circulation stroke
+        - '230695002'          # Partial anterior cerebral circulation stroke
+        - '230696001'          # Posterior cerebral circulation stroke
+        - '230698000'          # Lacunar stroke
+        - '230706003'          # Haemorrhagic stroke
+        - '230713003'          # Stroke of uncertain pathology
+        - '230714009'          # Anterior circulation stroke of uncertain pathology
+        - '230715005'          # Posterior circulation stroke of uncertain pathology
+        - '230739000'          # Spinal cord stroke
+        - '25133001'           # Completed stroke
+        - '251770561000119107' # Stroke due to embolism of left anterior cerebral artery
+        - '266257000'          # TIA - transient ischaemic attack
+        - '274100004'          # ICH - intracerebral hemorrhage
+        - '276219001'          # Occipital cerebral infarction
+        - '281240008'          # Extension of stroke
+        - '292691000119103'    # Cerebrovascular accident due to occlusion of left vertebral artery
+        - '302909007'          # Diffuse cerebrovascular disease
+        - '307766002'          # Left sided cerebral infarction
+        - '307767006'          # Right sided cerebral infarction
+        - '330791000119108'    # Stroke due to thrombus of left carotid artery
+        - '34181000119102'    # Cerebral infarction due to occlusion of basilar artery
+        - '371040005'          # Thrombotic stroke
+        - '371041009'          # Embolic stroke
+        - '371121002'          # Neonatal stroke
+        - '373606000'          # Occlusive stroke
+        - '38595071000119104' # Cerebrovascular accident due to thrombosis of right posterior cerebral artery
+        - '413102000'          # Basal ganglion stroke
+        - '413758000'          # Cardioembolic stroke
+        - '422504002'          # Ischaemic stroke
+        - '427296003'          # Thalamic stroke
+        - '432504007'          # Cerebral infarction
+        - '443929000'          # Small vessel cerebrovascular disease
+        - '450418003'          # Traumatic intracerebral hemorrhage
+        - '595899961000119100' # Stroke of basal ganglia
+        - '62914000'           # Cerebrovascular disease
+        - '652287331000119104' # Stroke of brainstem
+        - '705128004'          # Cerebral infarction due to embolism of middle cerebral artery
+        - '705130002'          # Cerebral infarction due to thrombosis of middle cerebral artery
+        - '716051003'          # CVA (cerebrovascular accident) during surgery
+        - '720191000000104'    # Stroke and TIA
+        - '722929005'          # Perinatal arterial ischaemic stroke
+        - '724425005'          # Cerebral ischaemic stroke due to intracranial large artery atherosclerosis
+        - '724426006'          # Cerebral ischemic stroke due to extracranial large artery atherosclerosis
+        - '724429004'          # Migraine-induced stroke
+        - '725132001'          # Ischaemic stroke without residual deficits
+        - '769023031000119104' # Thalamic stroke
+        - '788880006'          # Cerebral ischaemic stroke due to dissection of artery
+        - '788882003'          # Cerebral ischaemic stroke due to global hypoperfusion with watershed infarct
+        - '851365731000119106' # Stroke due to thrombosis of left posterior cerebral artery
+        - '95457000'           # Brain stem stroke
+        - '957319791000119104' # Stroke due to thrombosis of left cerebellar artery
+        - '99451000119105'    # Cerebral infarction due to stenosis of carotid artery
 
+        # --- History & Late Effects / Sequelae (Included for Charlson Scoring) ---
+        - '108691000119102'    # Spasticity as sequela of stroke
+        - '137991000119103'    # Seizure disorder as sequela of stroke
+        - '148871000119109'    # Weakness as a late effect of stroke
+        - '161511000'          # H/O: TIA
+        - '16260551000119106'  # Dysphasia as late effect of stroke
+        - '195239002'          # Sequelae of cerebrovascular disease
+        - '195243003'          # Sequelae of cerebral infarction
+        - '23671000119107'    # Sequela of ischaemic cerebral infarction
+        - '275526006'          # H/O: CVA
+        - '277286006'          # Central post-stroke pain
+        - '290631000119103'    # Dysarthria as sequela of cerebrovascular accident
+        - '29941000119105'    # Ataxia as sequela of cerebrovascular disease
+        - '308064009'          # H/O: cerebrovascular disease
+        - '308067002'          # H/O: stroke in last year
+        - '426033005'          # Dysphagia as a late effect of cerebrovascular accident
+        - '442212003'          # Residual cognitive deficit as late effect of cerebrovascular accident
+        - '442617003'          # Aphasia as late effect of cerebrovascular accident
+        - '46421000119102'    # Behaviour disorder as sequela of cerebral infarction
+        - '698767004'          # Post-cerebrovascular accident epilepsy
+        - '713410003'          # Post stroke pain
+        - '724787004'          # Epilepsy due to stroke
+        - '102831000119104'    # Paraplegia or paraparesis as sequela of stroke
+        - '441991000'          # Hemiparesis as late effect of cerebrovascular accident
+        - '442676003'          # Hemiplegia of dominant side as late effect of cerebrovascular disease
+        - '48601000119107'    # Hemiplegia and/or hemiparesis following stroke
+
+        # --- COMMENTED OUT: Excluded (False Positives, Family History, Clinics, Risk Scores) ---
+        # - '102830001'          # CVA tenderness (Costovertebral Angle tenderness - renal physical exam finding!)
+        # - '135877001'          # Stroke risk (Risk assessment code)
+        # - '160363004'          # FH: TIA (Family history of TIA)
+        # - '201501000000108'   # Seen in stroke clinic (Administrative visit record)
+        # - '250922004'          # Left ventricular stroke work (Cardiac measurement)
+        # - '275104002'          # FH: stroke (Family history of stroke)
+        # - '28661005'           # Cerebrovascular system (Anatomical body site code)
+        # - '306810001'          # Seen by stroke service (Administrative visit record)
+        # - '310137004'          # Stroke service (Administrative service unit)
+        # - '39925003'           # MELAS (Mitochondrial disorder)
+        # - '413124000'          # Stroke / TIA referral (Administrative referral)
+        # - '417059002'          # Stroke/TIA monitoring invitation (Administrative invitation)
+        # - '515671000000109'   # TIA clinical management plan (Administrative care plan)
+        # - '519751000000106'   # Stroke 6 month review (Administrative review)
+        # - '52072009'           # Heat stroke (Hyperthermia, completely unrelated to brain ischemia)
+        # - '702924006'          # Stroke clinic (Facility code)
+        # - '736251000'          # Stroke care plan (Administrative document)
+        # - '763008007'          # CHA2DS2-VASc score concept (Risk calculation score)
+        # - '769211000000103'   # Suspected stroke (Unconfirmed clinical finding)
+        # - '80051000119107'   # Stroke care management (Administrative management)
+        # - '817701000000103'   # Acute stroke care (Service delivery)
+        # - '823971000000109'   # Acute stroke care management (Service delivery)
+        # - '857761000000109'   # High risk of TIA (Risk classification)
+        # - '866240007'          # At risk of stroke (Risk classification)
+        # - '870631000000105'   # QStroke 10 year risk calculator (Risk score calculation)
+        # - '893041000000108'   # TIA service (Administrative unit)
       res195: &stroke_res195
         # ICD-10
         - 'I60'                # Subarachnoid haemorrhage
@@ -605,16 +938,91 @@ definitions:
 
     peripheral_vascular_disease:
       snomed: &pvd_snomed
+        # --- Core Peripheral Arterial & Vascular Disease ---
+        - '102557007'          # Arm claudication
+        - '102631000119103'    # Gangrene due to peripheral vascular disease
+        - '12236951000119108'  # Intermittent claudication of bilateral lower limbs co-occurrent and due to atherosclerosis
+        - '12237071000119100'  # Intermittent claudication of left lower limb co-occurrent and due to atherosclerosis
+        - '12237191000119103'  # Intermittent claudication of right lower limb co-occurrent and due to atherosclerosis
+        - '16010791000119102'  # Gangrene of toe of left foot
+        - '16010831000119108'  # Bilateral gangrene of toe
+        - '16010871000119106'  # Gangrene of toe of right foot
+        - '16011231000119102'  # Gangrene of right foot
+        - '16011271000119104'  # Gangrene of left foot
+        - '16011311000119104'  # Gangrene of both feet
+        - '16973004'           # Claudication
+        - '195302000'          # Gangrene of toe
+        - '195303005'          # Gangrene of foot
+        - '195304004'          # Gangrene of finger
+        - '195313002'          # Peripheral artery spasm
+        - '275520000'          # Claudication
+        - '36024000'           # Gangrene
+        - '372070002'          # Gangrene
+        - '399957001'          # Peripheral vascular disease
         - '400047006'          # Peripheral vascular disease
-        - '840580004'          # Peripheral arterial disease
-        - '399957001'          # Peripheral arterial occlusive disease
-        - '400047006'          # Peripheral vascular disease
-        - '400047006'          # Peripheral vascular disease
-        - '858191000000103'    # Peripheral vascular disease
-        - '238796009'          # Peripheral vascular disease
-        - '16010871000119100'  # Peripheral arterial disease
-        - '16011271000119100'  # Peripheral vascular disease
-        - '372070002'          # Peripheral vascular disease
+        - '448981003'          # Gangrene of buttock
+        - '63491006'           # Intermittent claudication
+        - '67087007'           # Dry gangrene
+        - '792845002'          # Intermittent claudication due to atherosclerosis of artery of limb
+        - '840580004'          # Peripheral artery disease
+        - '95443002'           # Venous claudication
+
+        # --- Aortic Aneurysm & Aortic Disease ---
+        - '14336007'           # Ruptured abdominal aortic aneurysm
+        - '195258006'          # Thoracic aortic aneurysm which has ruptured
+        - '195265003'          # Thoracoabdominal aortic aneurysm, ruptured
+        - '195268001'          # Leaking abdominal aortic aneurysm
+        - '233984007'          # Thoracoabdominal aortic aneurysm
+        - '233985008'          # AAA - abdominal aortic aneurysm
+        - '314185007'          # Juxtarenal aortic aneurysm
+        - '425771001'          # Enlarging abdominal aortic aneurysm
+        - '67362008'           # Aortic aneurysm
+        - '73067008'           # Ruptured aortic aneurysm
+        - '74883004'           # Thoracic aortic aneurysm without rupture
+        - '75878002'           # Abdominal aortic aneurysm without rupture
+        - '824031000000109'    # Leaking thoracic aortic aneurysm
+        - '890220003'          # Ascending aortic aneurysm and bicuspid aortic valve
+
+        # --- History & Vascular Interventions / Repairs (Included for Charlson Scoring) ---
+        - '10988321000119100'  # History of peripheral vascular angioplasty
+        - '139301000119100'    # History of repair of thoracic aortic aneurysm
+        - '139941000119104'    # History of endovascular stent graft for repair of abdominal aortic aneurysm
+        - '161514008'          # History of aortic aneurysm
+        - '175282008'          # AAA - repair of abdominal aortic aneurysm using bifurcation graft
+        - '19262003'           # Repair of thoracic aortic aneurysm
+        - '233370007'          # Aortic aneurysm repair
+        - '233376001'          # AAA - repair of abdominal aortic aneurysm using straight graft
+        - '307701005'          # Abdominal aortic aneurysm stenting
+        - '308071004'          # H/O: peripheral vascular disease procedure
+        - '378491000000109'    # Endovascular insertion of stent for thoracic aortic aneurysm
+        - '429205001'          # History of abdominal aortic aneurysm repair
+        - '430545008'          # History of claudication
+        - '441612006'          # Endovascular insertion of stent for infrarenal abdominal aortic aneurysm
+        - '444588006'          # Endovascular repair of abdominal aortic aneurysm
+        - '429679003'          # Repair of thoracic aortic aneurysm with insertion of endovascular stent graft
+        - '473109007'          # History of peripheral vascular disease
+        - '698992006'          # Emergency repair of ruptured infrarenal abdominal aortic aneurysm
+        - '698994007'          # Emergency repair of ruptured suprarenal abdominal aortic aneurysm
+        - '699115002'          # Endovascular repair of thoracic aortic aneurysm using fluoroscopic guidance
+        - '699667004'          # Repair of abdominal aortic aneurysm with insertion of endovascular stent graft
+        - '837591000000108'    # H/O intermittent claudication
+
+        # --- COMMENTED OUT: Excluded (False Positives, Family History, Unrelated Gangrene/Claudication, Administrative/Screening) ---
+        # - '236782005'          # Fournier gangrene of scrotum (Urological infectious necrosis, NOT peripheral vascular disease)
+        # - '240219003'          # Spinal claudication (Neurogenic claudication from spinal stenosis, NOT vascular)
+        # - '247081001'          # Posterior vitreous detachment (PVD abbreviation collision - Ophthalmology!)
+        # - '252094004'          # Claudication distance (Physical examination metric)
+        # - '303081002'          # Spinal claudication (Neurogenic claudication)
+        # - '309752000'          # Hiatus hernia with gangrene (GI surgical emergency)
+        # - '395125009'          # FH: aortic aneurysm (Family history only)
+        # - '414397002'          # Hernia of anterior abdominal wall with gangrene (GI surgical emergency)
+        # - '48526000'           # Ultrasound peripheral vascular flow study (Diagnostic imaging test)
+        # - '67508005'           # Umbilical hernia with gangrene (GI surgical emergency)
+        # - '698356002'          # Abdominal aortic aneurysm screening (Administrative screening)
+        # - '76267008'           # Pulmonary valve disease (PVD abbreviation collision - Cardiac valve disease)
+        # - '80466000'           # Gas gangrene (Clostridial soft tissue infection, NOT vascular ischemia)
+        # - '84231005'           # Inguinal hernia without obstruction and without gangrene (GI condition)
+        # - '858191000000103'    # FH: peripheral vascular disease (Family history only)
 
       res195: &pvd_res195
         # ICD-10
@@ -627,77 +1035,128 @@ definitions:
 
     renal_mod_severe:
       snomed: &renal_mod_severe_snomed
+        # --- Chronic Kidney Disease Stages & General CKD ---
         - '236398000'          # Chronic kidney disease
         - '197594005'          # Chronic renal failure
         - '236403004'          # Chronic kidney disease
-        - '236403004'          # Chronic kidney disease
         - '441815006'          # Chronic kidney disease stage 3
-        - '77182004'           # Renal failure
         - '236436003'          # Chronic kidney disease stage 4
         - '175902000'          # Chronic renal failure
-        - '236436003'          # Chronic kidney disease stage 4
         - '161665007'          # Renal impairment
-        - '324441000000106'    # Chronic kidney disease stage 3
-        - '324311000000101'    # Chronic kidney disease stage 4
-        - '324281000000104'    # Chronic kidney disease stage 5
-        - '691411000119101'    # Chronic kidney disease stage 5
+        - '324281000000104'    # CKD stage 3 without proteinuria
+        - '324311000000101'    # CKD stage 3a with proteinuria
+        - '324441000000106'    # CKD stage 4 with proteinuria
+        - '691411000119101'    # Anaemia in chronic kidney disease stage 5
         - '714152005'          # Chronic kidney disease stage 3
-        - '709044004'          # Chronic kidney disease
-        - '433144002'          # Chronic kidney disease stage 3
-        - '431857002'          # Chronic kidney disease stage 4
-        - '324121000000109'    # Chronic kidney disease stage 5
-        - '433146000'          # Chronic kidney disease stage 5
-        - '707323002'          # Chronic kidney disease
-        - '431856006'          # Chronic kidney disease stage 3
-        - '714153000'          # Chronic kidney disease stage 4
-        - '324501000000107'    # Chronic kidney disease stage 5
+        - '709044004'          # CKD - chronic kidney disease
+        - '433144002'          # CKD stage 3
+        - '431857002'          # CKD stage 4
+        - '324121000000109'    # CKD stage 1 with proteinuria
+        - '433146000'          # CKD stage 5
+        - '707323002'          # Anaemia co-occurrent and due to chronic kidney disease
+        - '431856006'          # CKD stage 2
+        - '714153000'          # Chronic kidney disease 5t
+        - '324501000000107'    # CKD stage 5 with proteinuria
         - '236425005'          # Chronic kidney disease stage 3
-        - '691401000119104'    # Chronic kidney disease stage 5
-        - '709044004'          # Chronic kidney disease
-        - '324181000000105'    # Chronic kidney disease stage 4
-        - '236425005'          # Chronic kidney disease stage 3
-        - '324441000000106'    # Chronic kidney disease stage 3
-        - '700378005'          # Chronic kidney disease stage 3
-        - '324311000000101'    # Chronic kidney disease stage 4
-        - '709044004'          # Chronic kidney disease
-        - '707323002'          # Chronic kidney disease
-        - '324371000000106'    # Chronic kidney disease stage 3
-        - '324371000000106'    # Chronic kidney disease stage 3
-        - '46177005'           # Chronic kidney disease
-        - '46177005'           # Chronic kidney disease
-        - '236433006'          # Chronic kidney disease stage 3
-        - '42399005'           # Chronic kidney disease
-        - '42399005'           # Chronic kidney disease
+        - '691401000119104'    # Anaemia in chronic kidney disease stage 4
+        - '324181000000105'    # CKD stage 2 with proteinuria
+        - '700378005'          # Chronic kidney disease stage 3a
+        - '324371000000106'    # CKD stage 3b with proteinuria
+        - '46177005'           # ESKF - end stage renal failure
+        - '236433006'          # Acute on chronic renal failure
+        - '42399005'           # Renal failure
         - '90688005'           # Chronic renal failure
-        - '236435004'          # Chronic kidney disease stage 5
-        - '236434000'          # Chronic kidney disease stage 4
-        - '129561000119108'    # Chronic kidney disease stage 5
+        - '236435004'          # End stage renal failure on dialysis
+        - '236434000'          # End stage renal failure untreated by renal replacement therapy
         - '425369003'          # Chronic kidney disease stage 3
-        - '46177005'           # Chronic kidney disease
-        - '90688005'           # Chronic renal failure
-        - '14669001'           # Chronic kidney disease
-        - '49708008'           # Renal failure
-        - '14669001'           # Chronic kidney disease
-        - '236425005'          # Chronic kidney disease stage 3
-        - '428982002'          # Chronic kidney disease
-        - '709044004'          # Chronic kidney disease
-        - '161693006'          # Renal impairment
-        - '46177005'           # Chronic kidney disease
-        - '90708001'           # Renal failure
+        - '49708008'           # Anaemia of chronic renal failure
+        - '284991000119104'    # Chronic kidney disease stage 3 due to benign hypertension
+        - '285011000119108'    # Chronic kidney disease stage 5 due to benign hypertension
+        - '104931000119100'    # Chronic kidney disease due to hypertension
+        - '129151000119102'    # Chronic kidney disease stage 4 due to hypertension
+        - '129181000119109'    # Chronic kidney disease stage 2 due to hypertension
+        - '700379002'          # Chronic kidney disease stage 3b
+        - '712487000'          # ESRD due to benign hypertension
+        - '161693006'          # History of renal dialysis
+        - '90708001'           # Nephropathy
         - '236583003'          # Chronic kidney disease stage 5
         - '419139005'          # Chronic kidney disease
         - '307532008'          # Chronic kidney disease
         - '236570004'          # Chronic kidney disease
-        - '46177005'           # Chronic kidney disease
-        - '472953006'          # Chronic kidney disease stage 3
-        - '265764009'          # Renal failure
-        - '709044004'          # Chronic kidney disease
+        - '265764009'          # Renal dialysis
         - '70536003'           # Renal failure
-        - '46177005'           # Chronic kidney disease
-        - '46177005'           # Chronic kidney disease
-        - '429075005'          # Chronic kidney disease
+        - '429075005'          # Dependence on dialysis due to end stage renal disease
         - '236423003'          # Chronic kidney disease stage 3
         - '236578006'          # Chronic kidney disease stage 5
+
+        # --- Acute Renal Failure & History Codes (Included for Charlson Comorbidity Scoring) ---
+        - '129561000119108'    # Acute renal failure
+        - '129721000119106'    # Acute renal failure on dialysis
+        - '137971000119104'    # History of acute renal failure
+        - '14669001'           # Acute renal failure
+        - '236428007'          # Nephrotoxic acute renal failure
+        - '236429004'          # Acute drug-induced renal failure
+        - '23697004'           # Acute renal failure due to rhabdomyolysis
+        - '26367008'           # Radiographic contrast agent nephropathy
+        - '310647000'          # Anaemia secondary to renal failure
+        - '368951000119105'    # Acute renal failure caused by contrast agent
+        - '414417004'          # History of renal failure
+        - '429489008'          # Acute renal failure due to obstruction
+        - '472953006'          # H/O chronic kidney disease
+        - '58574008'           # Acute nephropathy
+
+        # --- Specific Etiologies of Nephropathy / Renal Disease ---
+        - '1148915008'         # Glomerular disease due to thin basement membrane nephropathy
+        - '1148928001'         # Hypocalcaemia due to chronic kidney disease
+        - '13886001'           # Sickle cell nephropathy
+        - '194774006'          # Hypertensive renal disease with renal failure
+        - '197632002'          # Berger's IgA or IgG nephropathy
+        - '197764002'          # Reflux nephropathy
+        - '236407003'          # IgA nephropathy
+        - '236411009'          # IgM nephropathy
+        - '236418003'          # Thin basement membrane nephropathy
+        - '236419006'          # Familial nephropathy
+        - '236495001'          # Urate nephropathy
+        - '32278006'           # Myeloma cast nephropathy
+        - '33763006'           # Hypercalcaemic nephropathy
+        - '38481006'           # Hypertensive nephropathy
+        - '425879009'          # AA amyloid nephropathy
+        - '426598005'          # AL amyloid nephropathy
+        - '4390004'            # Lithium nephropathy
+        - '445404003'          # Familial immunoglobulin A (IgA) nephropathy
+        - '44785005'           # Minimal change nephropathy
+        - '519581000000107'    # Ischaemic nephropathy
+        - '54879000'           # Hypokalaemic nephropathy
+        - '59400006'           # Analgesic nephropathy
+        - '69718008'           # Oxalate nephropathy
+        - '698591006'          # Benign hypertensive renal disease with renal failure
+        - '698757009'          # Nephropathy due to acquired urinary tract obstruction
+        - '710565001'          # Ischaemic nephropathy
+        - '713886006'          # BK virus nephropathy
+        - '722098007'          # Chronic kidney disease following donor nephrectomy
+        - '722119002'          # Idiopathic membranous nephropathy
+        - '722149000'          # Chronic kidney disease due to tumour nephrectomy
+        - '722089009'          # Obstructive nephropathy due to bladder cancer
+        - '765780006'          # Reflux nephropathy of right kidney due to vesicoureteral reflux
+        - '86249007'           # Obstructive nephropathy
+        - '91003006'           # Salt-losing nephropathy
+        - '324151000000104'    # CKD stage 1 without proteinuria
+        - '324211000000106'    # CKD stage 2 without proteinuria
+        - '324251000000105'    # CKD stage 3 with proteinuria
+        - '324341000000100'    # CKD stage 3a without proteinuria
+        - '324411000000105'    # CKD stage 3b without proteinuria
+        - '324471000000100'    # CKD stage 4 without proteinuria
+        - '324541000000105'    # CKD stage 5 without proteinuria
+        - '431855005'          # CKD stage 1
+        - '691381000119104'    # Anaemia due to chronic kidney disease stage 1
+
+        # --- COMMENTED OUT: Excluded (Administrative, Reviews, & Family History) ---
+        # - '248721000000108'    # Chronic kidney disease monitoring (Administrative review entry)
+        # - '249171000000102'    # Chronic kidney disease annual review
+        # - '269301005'          # Renal failure as a complication of care (Iatrogenic event)
+        # - '468871000000108'    # [X] Other chronic renal failure (Catch-all administrative duplicate)
+        # - '609455009'          # Termination of pregnancy complicated by acute renal failure (Obstetric complication)
+        # - '959511000000100'    # Family history of end stage renal disease (Family history only)
 
       res195: &renal_mod_severe_res195
         # ICD-10
@@ -716,199 +1175,193 @@ definitions:
 
     esbl:
       snomed: &esbl_snomed
-        - '409800005'           # ESBL Escherichia coli
-        - '409801009'           # ESBL Klebsiella pneumoniae
-        - '409799006'           # ESBL - extended spectrum beta-lactamase-producing bacteria
-        - '721910001'           # ESBL Enterobacter cloacae
-        - '1032841000000102'    # ESBL (extended spectrum beta-lactamase) resistant bacterial infection
-        - '726500000'           # ESBL (extended spectrum beta-lactamase producing) Enterobacteriaceae
-        - '713929002'           # ESBL Proteus mirabilis
-        - '713928005'           # ESBL Klebsiella oxytoca
-        - '721909006'           # ESBL Citrobacter freundii
-        - '770390002'           # ESBL Klebsiella
-        - '939191000000103'     # H/O: ESBL (extended spectrum beta-lactamase) producing bacteria infection
-        - '409803007'           # Infection caused by ESBL Escherichia coli
-        - '409802002'           # Infection caused by ESBL bacteria
-        - '409804001'           # Infection caused by ESBL Klebsiella pneumoniae
+        - '1032841000000102'   # ESBL (extended spectrum beta-lactamase) resistant bacterial infection
+        - '409799006'          # ESBL - extended spectrum beta-lactamase-producing bacteria
+        - '409800005'          # ESBL Escherichia coli
+        - '409801009'          # ESBL Klebsiella pneumoniae
+        - '409802002'          # Infection caused by ESBL bacteria
+        - '409803007'          # Infection caused by ESBL Escherichia coli
+        - '409804001'          # Infection caused by ESBL Klebsiella pneumoniae
+        - '713928005'          # ESBL Klebsiella oxytoca
+        - '713929002'          # ESBL Proteus mirabilis
+        - '721909006'          # ESBL Citrobacter freundii
+        - '721910001'          # ESBL Enterobacter cloacae
+        - '726500000'          # ESBL (extended spectrum beta-lactamase producing) Enterobacteriaceae
+        - '770390002'          # ESBL Klebsiella
+        - '939191000000103'    # H/O: ESBL (extended spectrum beta-lactamase) producing bacteria infection
 
     urinary_catheter:
       snomed: &urinary_catheter_snomed
-        - '17006003'
-        - '182524008'
-        - '20568009'
-        - '225084001'
-        - '23973005'
-        - '266765001'
-        - '266768004'
-        - '286861005'
-        - '384649001'
-        - '395321006'
-        - '410254003'
-        - '429516009'
-        - '430976005'
-        - '432587002'
-        - '439053001'
-        - '440311000'
-        - '445191009'
-        - '473051003'
-        - '704486002'
-        - '723542006'
-        - '737944006'
-        - '79165006'
+        - '17006003'           # Replacement of urinary catheter (procedure)
+        - '182524008'          # Urinary catheterization (procedure)
+        - '20568009'           # Insertion of indwelling urinary catheter
+        - '225084001'          # Removal of urinary catheter
+        - '23973005'           # Suprapubic cystostomy (procedure)
+        - '266765001'          # Management of urinary catheter
+        - '266768004'          # Irrigation of urinary catheter
+        - '286861005'          # Indwelling urinary catheter (finding / device)
+        - '384649001'          # Catheterization of urinary bladder
+        - '395321006'          # Foley catheter care
+        - '410254003'          # Presence of urinary catheter
+        - '429516009'          # Intermittent urinary catheterization
+        - '430976005'          # Insertion of Foley catheter
+        - '432587002'          # Change of urinary catheter
+        - '439053001'          # Urinary catheterization status
+        - '440311000'          # Suprapubic catheter inserted
+        - '445191009'          # Maintenance of urinary catheter
+        - '473051003'          # Insertion of suprapubic catheter
+        - '704486002'          # Suprapubic catheterization
+        - '723542006'          # Urinary catheter management plan
+        - '737944006'          # Assessment of urinary catheter
+        - '79165006'           # Urinary catheter (physical object)
 
     nursing_home:
       snomed: &nursing_home_snomed
-        - '409799006'
-        - '409800005'
-        - '409801009'
-        - '409802002'
-        - '409803007'
-        - '409804001'
-        - '713928005'
-        - '713929002'
-        - '721909006'
-        - '721910001'
-        - '726500000'
-        - '770390002'
-        - '1032841000000102'
-        - '939191000000103'
+        - '160734000'          # Lives in a nursing home
+        - '183672007'          # Delayed discharge to nursing home
+        - '193051000000100'    # Provision of residential care
+        - '248171000000108'    # Lives in care home
+        - '25711000087100'     # Assisted living facility
+        - '257688003'          # RH - residential home
+        - '394923006'          # Lives in a residential home
+        - '42665001'           # Nursing home (facility)
+        - '883161000000106'    # Preferred place of care - residential home
+
+        # --- COMMENTED OUT: Excluded (Staff Occupations & Incident Locations) ---
+        # - '159741001'          # Nursing home attendant (Occupation - staff member, not patient)
+        # - '439570003'          # Fall in nursing home (Incident/injury location, not living status
 
     chronic_dialysis:
       snomed: &chronic_dialysis_snomed
-        - '7459007'
-        - '10848006'
-        - '17006003'
-        - '20568009'
-        - '27929005'
-        - '54817007'
-        - '67970008'
-        - '71192002'
-        - '77095007'
-        - '79827002'
-        - '105502003'
-        - '108241001'
-        - '111289009'
-        - '115499008'
-        - '152421000119107'
-        - '153891000119101'
-        - '161693006'
-        - '1801000119106'
-        - '180272001'
-        - '182524008'
-        - '225230008'
-        - '232003005'
-        - '233492007'
-        - '234203000'
-        - '234205007'
-        - '236434000'
-        - '236435004'
-        - '236436003'
-        - '236551009'
-        - '238318009'
-        - '238319001'
-        - '238321006'
-        - '251859005'
-        - '251860000'
-        - '251876009'
-        - '251877000'
-        - '263529000'
-        - '265764009'
-        - '276883000'
-        - '302497006'
-        - '302946006'
-        - '32599008'
-        - '331000124109'
-        - '34897002'
-        - '360132007'
-        - '366111000000102'
-        - '385970002'
-        - '385971003'
-        - '397849009'
-        - '406168002'
-        - '418377002'
-        - '418518002'
-        - '423062001'
-        - '428118009'
-        - '428648006'
-        - '428937001'
-        - '428982002'
-        - '429075005'
-        - '430958003'
-        - '431051000124102'
-        - '431781000'
-        - '431873008'
-        - '432654009'
-        - '438341004'
-        - '438604008'
-        - '439073006'
-        - '439470001'
-        - '439785006'
-        - '439786007'
-        - '439846009'
-        - '441000124107'
-        - '443143006'
-        - '443264000'
-        - '443596009'
-        - '449288005'
-        - '449903008'
-        - '450866001'
-        - '46177005'
-        - '462275000'
-        - '467521000000106'
-        - '473190001'
-        - '473397008'
-        - '473398003'
-        - '703102004'
-        - '703166003'
-        - '707324008'
-        - '708932005'
-        - '709862009'
-        - '712487000'
-        - '713724000'
-        - '714152005'
-        - '736690008'
-        - '736920000'
-        - '736922008'
-        - '853651000000105'
-        - '866001000000102'
-        - '898185002'
-        - '90771000119100'
-        - '90791000119104'
-        - '1035471000000100'
-        - '1082861000000106'
-        - '11009631000119100'
-        - '11011871000119101'
-        - '111411000119103'
-        - '1231460007'
-        - '125141000119102'
-        - '128617001'
-        - '32751000119100'
-        - '16218721000119107'
-        - '16320631000119104'
-        - '365001000000107'
-        - '18682911000001103'
-        - '28281000087109'
-        - '282348002'
+        # --- Active / Maintenance Dialysis & Dependence ---
+        - '7459007'            # Hemodialysis (procedure)
+        - '10848006'           # Peritoneal dialysis (procedure)
+        - '54817007'           # Maintenance hemodialysis / creation of AV shunt for dialysis
+        - '67970008'           # Haemodialysis, maintenance at home
+        - '71192002'           # Peritoneal dialysis
+        - '77095007'           # Continuous ambulatory peritoneal dialysis (CAPD)
+        - '79827002'           # Continuous veno-venous hemodialysis / formation of AV fistula
+        - '105502003'          # Dependence on renal dialysis
+        - '108241001'          # Dialysis procedure
+        - '111289009'          # Hemodialysis status
+        - '115499008'          # Pre-dialysis (COMMENT: Usually pre-dialysis stage, consider excluding if looking for active dialysis)
+        - '152421000119107'    # Haemodialysis procedure done
+        - '153891000119101'    # End stage renal disease on dialysis due to hypertension
+        - '161693006'          # History of renal dialysis
+        - '1801000119106'      # Anemia, pre-ESRD erythropoietin protocol
+        - '225230008'          # Chronic peritoneal dialysis
+        - '236435004'          # End stage renal failure on dialysis
+        - '238318009'          # CAPD - continuous ambulatory peritoneal dialysis
+        - '238319001'          # CCPD - continuous cycling peritoneal dialysis
+        - '238321006'          # IPD - intermittent peritoneal dialysis
+        - '251859005'          # Dialysis finding
+        - '251860000'          # Peritoneal dialysis observable
+        - '263529000'          # Peritoneal dialysis used
+        - '265764009'          # Renal dialysis
+        - '28281000087109'     # History of peritoneal dialysis
+        - '302497006'          # Haemodialysis
+        - '331000124109'       # Haemodialysis finding
+        - '34897002'           # Haemodialysis, maintenance in hospital
+        - '366111000000102'    # Surgically created arteriovenous fistula
+        - '406168002'          # Dialysis access maintenance
+        - '418377002'          # Dialysis fluid
+        - '418518002'          # Dialysis unit
+        - '428648006'          # Automated peritoneal dialysis
+        - '428937001'          # Dependence on peritoneal dialysis due to end stage renal disease
+        - '428982002'          # Dependence on haemodialysis due to end stage renal disease
+        - '429075005'          # Dependence on dialysis due to end stage renal disease
+        - '431051000124102'    # Dialysis service
+        - '438604008'          # Peritoneal dialysis therapy discontinued
+        - '443143006'          # Dependence on haemodialysis
+        - '443596009'          # Dependence on peritoneal dialysis
+        - '46177005'           # ESRF - end stage renal failure
+        - '467521000000106'    # [X] Other dialysis
+        - '703102004'          # Dialysis catheter procedure using fluoroscopic guidance
+        - '707324008'          # Anaemia co-occurrent and due to end stage renal disease
+        - '714152005'          # Chronic kidney disease stage 5 on dialysis
+        - '90771000119100'     # End stage renal disease on dialysis due to type 1 diabetes mellitus
+        - '90791000119104'     # End stage renal disease on dialysis due to type 2 diabetes mellitus
+        - '1035471000000100'   # Dialysis therapy started by renal service
+        - '11009631000119100'  # Renal dialysis done
+        - '111411000119103'    # Maintenance hemodialysis status
+        - '1231460007'         # Dialysis
+        - '128617001'          # AV - arteriovenous fistula
+        - '18682911000001103'  # Haemodialysis
+        - '32751000119100'     # Line sepsis associated with dialysis catheter
+        - '430958003'          # Infection of peritoneal dialysis catheter
+        - '431873008'          # Peritonitis due to infected peritoneal dialysis catheter
+        - '449288005'          # Infection of hd av fistula
+        - '736920000'          # Infection related to tunnelled haemodialysis catheter
+        - '853651000000105'    # Thrombosis of dialysis vascular access
+        - '866001000000102'    # Thrombosis of dialysis arteriovenous fistula
+        - '898185002'          # Renal failure with dependence on PIRRT
+
+        # --- COMMENTED OUT: Excluded (Complications, Anatomy/Fistulas, Irrelevant, or Non-Active Status) ---
+        - '11011871000119101'  # Acquired arteriovenous fistula (Anatomical finding, not dialysis itself)
+        - '111289009'          # Pulmonary arteriovenous fistula (Vascular malformation, unrelated to renal dialysis)
+        - '12829007'           # ...
+        - '180272001'          # Insertion of chronic ambulatory peritoneal dialysis catheter (Procedure snippet, usually captured via broader dialysis/catheter codes)
+        - '232003005'          # Retinal dialysis (Ophthalmology procedure—completely unrelated to kidneys!)
+        - '233492007'          # Excision of arteriovenous fistula (Surgical removal/closure)
+        - '234203000'          # Arteriovenous fistula stenosis (Complication)
+        - '234205007'          # Arteriovenous fistula clotted (Complication)
+        - '251876009'          # Graft/AV fistula recirculation (Technical issue/complication)
+        - '251877000'          # AV fistula recirculation (Technical issue)
+        - '27929005'           # AV - creation of arteriovenous fistula (Surgical setup, but better grouped under vascular access)
+        - '282348002'          # AV - acquired renal arteriovenous fistula (Anatomical/vascular)
+        - '302946006'          # Arteriovenous fistula aneurysm (Complication)
+        - '32599008'           # Dialysis-associated amyloidosis (Complication/sequela)
+        - '341000124104'       # Peritoneal dialysis finding
+        - '360132007'          # Peritoneal dialysis catheter (Device)
+        - '365001000000107'    # Peritoneal dialysis associated EPS (Complication)
+        - '385970002'          # Dialysis care assessment
+        - '385971003'          # Dialysis care
+        - '397849009'          # Dialysis catheter (Device)
+        - '423062001'          # Stenosis of arteriovenous dialysis fistula (Complication)
+        - '428118009'          # Peritoneal dialysis catheter procedure
+        - '431781000'          # Insertion of tunnelled dialysis catheter using fluoroscopic guidance
+        - '432654009'          # Peritoneal dialysis catheter insertion
+        - '438341004'          # Laparoscopic insertion of peritoneal dialysis catheter
+        - '439073006'          # Peritoneal dialysis catheter in situ
+        - '439470001'          # Arteriovenous fistula
+        - '439785006'          # Surgically constructed brachiobasilic arteriovenous fistula
+        - '439786007'          # Surgically constructed brachiocephalic arteriovenous fistula
+        - '439846009'          # Surgically constructed radiocephalic arteriovenous fistula
+        - '441000124107'       # Haemodialysis access site patent
+        - '443264000'          # Arteriovenous fistula of right upper extremity
+        - '449903008'          # Dural arteriovenous fistula of spinal cord (Neurological, unrelated)
+        - '450866001'          # Haemodialysis catheter (Device)
+        - '462275000'          # Haemodialysis catheter, implantable (Device)
+        - '703166003'          # Dural arteriovenous fistula (Neurological)
+        - '708932005'          # Emergency haemodialysis (Acute/temporary setting, often separated from chronic)
+        - '709862009'          # Fluoroscopy guided angioplasty of arteriovenous fistula
+        - '713724000'          # Abdominal hernia as complication of peritoneal dialysis
+        - '736922008'          # Insertion of tunnelled haemodialysis catheter
+        - '7459007'            # Revision of arteriovenous fistula with thrombectomy
+        - '1082861000000106'   # Treatment escalation plan decision - not appropriate for dialysis (Explicit negative!)
+        - '125141000119102'    # Non-compliance with renal dialysis (Behavioral status, not the dialysis treatment itself)
 
     antibiotic_exposure:
       snomed: &antibiotic_exposure_snomed
-        - '255631004'
-        - '281790008'
-        - '301469002'
-        - '372875008'
-        - '373270004'
-        - '422181004'
+        - '255631004'          # Antibiotic (product)
+        - '281790008'          # Intravenous antibiotic therapy (procedure)
+        - '372875008'          # Skin antibiotic
+        - '373270004'          # Penicillin - class of antibiotic -
+        - '422181004'          # Antibiotic prophylaxis
+
+        # --- COMMENTED OUT: Complications / Adverse Events (Not Exposure Itself) ---
+        # - '301469002'          # Antibiotic-associated diarrhea (clinical complication/side effect)
 
     hospital_admission:
       snomed: &hospital_admission_snomed
-        - '8715000'
-        - '78680009'
-        - '81672003'
-        - '183463008'
-        - '183469007'
-        - '439359009'
-        - '1082351000000104'
-        - '788921000000108'
+        - '8715000'            # Hospital admission, elective (procedure)
+        - '78680009'           # Hospital admission, emergency
+        - '81672003'           # Hospital admission
+        - '183463008'          # Admission to hospital
+        - '183469007'          # Emergency hospital admission
+        - '439359009'          # Admission to acute hospital
+        - '1082351000000104'   # Admission to hospital from emergency department
+        - '788921000000108'    # Hospital admission for observation
 
 
 
@@ -1518,7 +1971,7 @@ jones_hx_prior_antibiotics_30d:
 # --8<-- [start:jones_hx_chronic_dialysis]
 jones_hx_chronic_dialysis:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
+  function: 'derive_composite_rules'
   category: ['jones_components']
   kwargs:
     logic: 'or'
@@ -1533,7 +1986,7 @@ jones_hx_chronic_dialysis:
 jones_hx_transfer_from_hospital:
   enabled: false
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
+  function: 'derive_composite_rules'
   domains: ['problems']
   category: ['jones_components']
   kwargs:
@@ -1549,7 +2002,7 @@ jones_hx_transfer_from_hospital:
 # --8<-- [start:gavaghan_hx_prior_esbl_365d]
 gavaghan_hx_prior_esbl_365d:
   module: 'icare_risk.clinphen.phenotypes.utils'
-  function: 'derive_from_history_code'
+  function: 'derive_composite_rules'
   category: ['gavaghan_components']
   kwargs:
     logic: 'or'
@@ -1590,7 +2043,7 @@ gavaghan_hx_urinary_catheter:
 # --8<-- [end:gavaghan_hx_urinary_catheter]
 
 # --8<-- [start:gavaghan_hx_prior_antibiotics_fq_ceph_90d]
-gavaghan_hx_prior_antibiotics_fq_ceph_90d:
+gavaghan_hx_prior_antibiotics_90d:
   module: 'icare_risk.clinphen.phenotypes.utils'
   function: 'derive_composite_rules'
   domains: ['prescribing']
@@ -2020,6 +2473,7 @@ pitt_arrest_score:
     codes: ['CARDIAC_ARREST_01']
 
 pitt_bacteremia_score:
+  enabled: false
   module: 'icare_risk.clinphen.phenotypes.pitt'
   function: 'compute_pitt_score'
   domains: [ 'vitals' ] #  'prescribing', 'interventions'

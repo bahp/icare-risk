@@ -9,8 +9,8 @@ from datetime import datetime
 project_root = Path.cwd()
 sys.path.append(str(project_root))
 
-from icare_risk.generators import generate_custom_table
-from icare_risk.generators import generate_eav_timeseries
+from icare_risk._dep.generators import generate_custom_table
+from icare_risk._dep.generators import generate_eav_timeseries
 from icare_risk.utils import load_yaml_config
 
 

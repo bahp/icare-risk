@@ -18,8 +18,6 @@ def search_dataframe(df,
                      startswith=None,
                      endswith=None,
                      exclude=None):
-    """Applies dynamic filters across one or more columns in the dataframe."""
-
     """Applies fast, vectorized regex filters across one or more columns."""
 
     valid_cols = [col for col in search_cols if col in df.columns]
@@ -52,6 +50,42 @@ def search_dataframe(df,
 
     return df[mask]
 
+def build_code_summary(all_matches, code_col, name_col, campaign_col='campaign'):
+    """
+    Deduplicates matches by (code_col, campaign_col) pairs, keeping the most
+    common value of name_col and a count of occurrences for that pairing.
+    A code that matched multiple campaigns will appear once per campaign.
+    Returned sorted by campaign, then code, then name.
+    """
+    out_cols = [code_col, name_col, campaign_col, 'count']
+
+    if all_matches.empty or code_col not in all_matches.columns:
+        return pd.DataFrame(columns=out_cols)
+
+    group_cols = [code_col, campaign_col] if campaign_col in all_matches.columns else [code_col]
+
+    # Count occurrences per (code, campaign)
+    counts = all_matches.groupby(group_cols).size().rename('count')
+
+    # Most common name per (code, campaign)
+    if name_col in all_matches.columns:
+        most_common_name = (
+            all_matches.groupby(group_cols)[name_col]
+            .agg(lambda s: s.value_counts().idxmax() if not s.value_counts().empty else '')
+            .rename(name_col)
+        )
+    else:
+        most_common_name = pd.Series('', index=counts.index, name=name_col)
+
+    summary = pd.concat([most_common_name, counts], axis=1).reset_index()
+
+    if campaign_col not in summary.columns:
+        summary[campaign_col] = ''
+
+    summary = summary[out_cols] \
+        .sort_values(by=[campaign_col, code_col, name_col]) \
+        .reset_index(drop=True)
+    return summary
 
 def process_yaml_config(config_path,
                         lookup_dir_str="data/lookups/standard",
@@ -93,6 +127,7 @@ def process_yaml_config(config_path,
         code_col = target.get('code_col', 'code')
         search_cols_raw = target.get('search_cols', ['description'])
         search_cols = [search_cols_raw] if isinstance(search_cols_raw, str) else search_cols_raw
+        name_col = target.get('name_col', "name")
 
         export_cols_raw = target.get('export_cols')
         export_cols = [export_cols_raw] if isinstance(export_cols_raw, str) else export_cols_raw
@@ -101,6 +136,10 @@ def process_yaml_config(config_path,
         if not file_path.exists():
             report_lines.append(f"\n⚠️ SKIPPING TARGET: {file_name} (File not found in {lookup_dir})")
             continue
+
+        out_label = target.get('label', file_name.replace('.csv', ''))
+        target_dir = out_dir / out_label
+        target_dir.mkdir(parents=True, exist_ok=True)
 
         report_lines.append(f"\n" + "=" * 40)
         report_lines.append(f"📁 TARGET FILE: {file_name}")
@@ -115,6 +154,9 @@ def process_yaml_config(config_path,
         except Exception as e:
             report_lines.append(f"   ❌ Error reading file: {e}")
             continue
+
+        # Collect matches across all campaigns for this file, for the dedup summary
+        file_matches_list = []
 
         for campaign in target.get('campaigns', []):
             cat = campaign.get('category', 'Unnamed Category')
@@ -147,11 +189,17 @@ def process_yaml_config(config_path,
 
                 # Create a safe filename for the campaign CSV
                 safe_cat = re.sub(r'[^a-zA-Z0-9]', '_', cat)
-                csv_filename = f"{file_name.replace('.csv', '')}_{safe_cat}.csv"
-                csv_path = out_dir / csv_filename
+                csv_filename = f"{out_label}_{safe_cat}.csv"
+                csv_path = target_dir / csv_filename
+
+                # Sort export by code first, then by name column (when available)
+                sort_cols = [c for c in [code_col, name_col] if c in valid_export_cols]
+                matches_to_export = matches[valid_export_cols]
+                if sort_cols:
+                    matches_to_export = matches_to_export.sort_values(by=sort_cols)
 
                 # Export full data to CSV silently
-                matches[valid_export_cols].to_csv(out_dir / csv_filename, index=False)
+                matches_to_export.to_csv(csv_path, index=False)
                 report_lines.append(f"  💾 Exported CSV: {csv_filename}")
 
                 # Print only the first 5 rows to the summary to avoid crashing Jupyter
@@ -166,6 +214,34 @@ def process_yaml_config(config_path,
 
                 if len(matches) > 5:
                     report_lines.append(f"      ... and {len(matches) - 5} more rows (see CSV).")
+
+                # Unique codes found within THIS campaign
+                if has_code_col:
+                    campaign_unique_codes = sorted(matches[code_col].astype(str).dropna().unique().tolist())
+                    report_lines.append(
+                        f"  🧩 Unique Codes in Campaign ({len(campaign_unique_codes)}): "
+                        f"{', '.join(campaign_unique_codes)}"
+                    )
+
+                # Keep for the file-level dedup summary
+                tagged_matches = matches.copy()
+                tagged_matches['campaign'] = cat
+                file_matches_list.append(tagged_matches)
+
+        # --- Build deduplicated code summary for this file ---
+        if file_matches_list:
+            all_matches_for_file = pd.concat(file_matches_list, ignore_index=True)
+            code_summary = build_code_summary(all_matches_for_file, code_col, name_col)
+
+            if not code_summary.empty:
+                summary_csv_name = f"{out_label}__code_summary.csv"
+                code_summary.to_csv(target_dir / summary_csv_name, index=False)
+
+                unique_codes = sorted(code_summary[code_col].astype(str).unique().tolist())
+
+                report_lines.append(f"\n--- DEDUPLICATED CODE SUMMARY: {file_name} ---")
+                report_lines.append(f"  💾 Exported CSV: {summary_csv_name}")
+                report_lines.append(f"  Unique Codes: {len(unique_codes)}")
 
     # Output to console and save the summary text file
     final_report = "\n".join(report_lines)

@@ -242,6 +242,10 @@ echo --- Cleaning old distribution files & build caches ---
 if exist dist\* del /q dist\*
 if exist build rmdir /s /q build
 if exist src\icare_risk.egg-info rmdir /s /q src\icare_risk.egg-info
+echo --- Syncing notebooks into package source tree ---
+if not exist src\icare_risk\notebooks mkdir src\icare_risk\notebooks
+copy /y notebooks\*.ipynb src\icare_risk\notebooks\
+
 echo --- Building PyPI Package ---
 %RUN% python -m build
 goto :eof
@@ -250,6 +254,7 @@ goto :eof
 call :build_pkg
 echo.
 echo 1. Creating Isolated Venv...
+
 %RUN% python -m venv /tmp/pkg_test_venv
 %RUN% /tmp/pkg_test_venv/bin/pip install --upgrade pip --quiet
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
@@ -266,19 +271,27 @@ if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 echo.
 echo 4. Running CLI Console Script Smoke Tests...
-%RUN% bash -c "/tmp/pkg_test_venv/bin/icare-risk-generate --help"
-%RUN% bash -c "/tmp/pkg_test_venv/bin/icare-risk-features --help"
+%RUN% bash -c "/tmp/pkg_test_venv/bin/icare-risk-code-discover --help"
 echo CLI Entry Points verified successfully!
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 echo.
-echo 5. Running Pytest Suite...
+echo 5. Testing Notebook Extraction Command...
+:: Create test directory, navigate into it, and execute extraction command
+%RUN% bash -c "mkdir -p /tmp/notebook_test && cd /tmp/notebook_test && /tmp/pkg_test_venv/bin/icare-risk-get-notebooks"
+echo Verifying notebooks were extracted...
+%RUN% bash -c "ls -la /tmp/notebook_test/*.ipynb"
+if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+echo Notebook Extraction verified successfully!
+
+echo.
+echo 6. Running Pytest Suite...
 %RUN% bash -c "cd /tmp && /tmp/pkg_test_venv/bin/pytest /app/tests/ -v"
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 echo.
-echo 6. Cleaning Up...
-%RUN% rm -rf /tmp/pkg_test_venv
+echo 7. Cleaning Up...
+%RUN% rm -rf /tmp/pkg_test_venv /tmp/notebook_test
 echo.
 echo ============================================================
 echo ✅ PACKAGE VERIFICATION COMPLETE
