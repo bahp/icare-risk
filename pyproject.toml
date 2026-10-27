@@ -60,4 +60,5 @@ icare-risk-validate = "icare_risk.scripts.e_validate_scores:main"
 icare-risk-search = "icare_risk.scripts.f_find_clinical_codes:main"
 
 icare-risk-code-discover = "icare_risk.tools.code_discovery:main"
-icare-risk-get-notebooks = "icare_risk.tools.extract_notebooks:main"
+icare-risk-get-notebooks = "icare_risk.utils.io:extract_notebooks"
+icare-risk-get-configs = "icare_risk.utils.io:extract_configs"

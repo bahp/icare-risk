@@ -1,0 +1,7 @@
+model,model_type,feature_set,n_features,n_development_rows,n_test_rows,n_positive_development,n_negative_development
+lr_kim_components,logistic_regression,kim_components,5,7517,2483,1485,6032
+lr_all_score_values,logistic_regression,all_score_values,6,7517,2483,1485,6032
+lr_clinical_baseline,logistic_regression,clinical_baseline,16,7517,2483,1485,6032
+xgb_kim_components,xgboost,kim_components,5,7517,2483,1485,6032
+xgb_all_score_values,xgboost,all_score_values,6,7517,2483,1485,6032
+xgb_clinical_baseline,xgboost,clinical_baseline,16,7517,2483,1485,6032

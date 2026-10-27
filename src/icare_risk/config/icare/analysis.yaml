@@ -19,7 +19,7 @@
 input:
   # One row per admission. This file should already be produced by the upstream
   # clinical-data pipeline. CSV and Parquet are supported.
-  path: ../notebooks/data/synthetic/10000p/03_derived_analysis_dataset.parquet
+  path: "/app/notebooks/data/synthetic/10000p/03_derived_analysis_dataset.parquet"
 
   # Passed to pandas when reading CSV input. Leave empty for Parquet or when the
   # CSV uses standard defaults. Example: {sep: ",", low_memory: false}

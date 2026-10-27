@@ -5,6 +5,13 @@ reports/
 tutorials/
 tests/fix_cases.py
 tests/test_features.py
+notebooks/results
+notebooks/models
+notebooks/c_analysis/results
+notebooks/c_analysis/executed
+notebooks/c_analysis/data
+notebooks/c_analysis/predictions
+notebooks/b_preparation/executed
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

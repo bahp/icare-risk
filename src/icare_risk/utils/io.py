@@ -1,8 +1,10 @@
-from pathlib import Path
-import importlib.resources
-from typing import Any, Dict
+# Libraries
 import yaml
+import shutil
+import importlib.resources
 
+from pathlib import Path
+from typing import Any, Dict
 
 def get_pkg_path(
     relative_path: str = "",
@@ -75,3 +77,88 @@ def load_pkg_yaml(
     yaml_path = get_pkg_path(relative_path, package_name=package_name)
     with open(yaml_path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
+
+
+def _copy_pkg_files(
+        source_subpath: str,
+        target_dir: str | Path,
+        extension: str,
+        verbose: bool = True
+) -> int:
+    """
+    Copy a subset of files matching a given extension from a package subdirectory to a target directory.
+
+    Parameters
+    ----------
+    source_subpath : str
+        Relative path inside the package root pointing to the source directory.
+    target_dir : str or Path
+        Destination folder where matching files will be copied.
+    extension : str
+        File extension filter (e.g., '.yaml', '.ipynb').
+    verbose : bool, default=True
+        Whether to print logging messages containing copied file names and counts.
+
+    Returns
+    -------
+    int
+        Number of files successfully copied.
+    """
+    target, source = Path(target_dir), get_pkg_path(source_subpath)
+    target.mkdir(parents=True, exist_ok=True)
+
+    if not source.is_dir():
+        if verbose:
+            print(f"Error: Source directory not found at {source}")
+        return 0
+
+    copied_files = []
+    for item in source.glob(f"*{extension}"):
+        dest = target / item.name
+        if not dest.exists():
+            shutil.copy2(item, dest)
+            copied_files.append(item.name)
+
+    if verbose:
+        print(f"Successfully copied {len(copied_files)} file(s) to {target.resolve()}:")
+        for name in copied_files:
+            print(f"  - {name}")
+
+    return len(copied_files)
+
+def extract_notebooks(target_dir: str | Path = ".", verbose: bool = True) -> int:
+    """
+    Copy bundled pipeline notebooks from the installed package to the target directory.
+
+    Parameters
+    ----------
+    target_dir : str or Path, default="."
+        Destination folder where notebooks will be copied.
+    verbose : bool, default=True
+        Whether to print logging messages.
+
+    Returns
+    -------
+    int
+        Number of notebooks successfully copied.
+    """
+    return _copy_pkg_files("notebooks", target_dir, ".ipynb", verbose=verbose)
+
+
+def extract_configs(target_dir: str | Path = "config/icare", verbose: bool = True) -> int:
+    """
+    Copy bundled YAML configuration files from the installed package to the target directory.
+
+    Parameters
+    ----------
+    target_dir : str or Path, default="config/icare"
+        Destination folder where configuration files will be copied.
+    verbose : bool, default=True
+        Whether to print logging messages.
+
+    Returns
+    -------
+    int
+        Number of configuration files successfully copied.
+    """
+    return _copy_pkg_files("config/icare", target_dir, ".yaml", verbose=verbose)

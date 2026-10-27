@@ -245,7 +245,9 @@ if exist src\icare_risk.egg-info rmdir /s /q src\icare_risk.egg-info
 
 echo --- Syncing notebooks into package source tree ---
 if not exist src\icare_risk\notebooks mkdir src\icare_risk\notebooks
-copy /y notebooks\preparation\*.ipynb src\icare_risk\notebooks\
+copy /y notebooks\a_download\*.ipynb src\icare_risk\a_download\ 2>nul
+copy /y notebooks\b_preparation\*.ipynb src\icare_risk\b_preparation\ 2>nul
+copy /y notebooks\c_analysis\*.ipynb src\icare_risk\c_analysis\ 2>nul
 
 echo --- Building PyPI Package ---
 %RUN% python -m build

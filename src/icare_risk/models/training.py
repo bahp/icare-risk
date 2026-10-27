@@ -68,6 +68,7 @@ def fit_model(
     params: Mapping | None = None,
     scale_numeric: bool = False,
     target_mapping: Mapping | None = None,
+    verbose: bool = False,
 ) -> Pipeline:
     """Fit a preprocessing and classification pipeline.
 
@@ -100,11 +101,16 @@ def fit_model(
     -------
     sklearn.pipeline.Pipeline
         Fitted preprocessing and classifier pipeline.
-"""
+    """
+    import warnings
     features = list(features)
+    if verbose:
+        print(f"[fit_model] Validating columns across {len(df)} rows...")
+
     missing = [c for c in [*features, target] if c not in df.columns]
     if missing:
         raise KeyError(f"Columns not found: {missing}")
+
     work = df[features + [target]].copy()
     target_mapping = dict(target_mapping or {})
 
@@ -115,9 +121,14 @@ def fit_model(
             numeric_target.notna().all()
             and set(numeric_target.astype(int).unique()).issubset({0, 1})
     )
+
     if is_binary_numeric:
+        if verbose:
+            print(f"[fit_model] Target '{target}' is already binary numeric.")
         work["__binary_target__"] = numeric_target.astype(float)
     else:
+        if verbose:
+            print(f"[fit_model] Encoding target '{target}' using provided mapping...")
         work["__binary_target__"] = encode_binary_target(
             work[target],
             positive_values=target_mapping.get("positive_values"),
@@ -125,20 +136,44 @@ def fit_model(
         )
 
     unresolved = work["__binary_target__"].isna().sum()
+    initial_rows = len(work)
     work = work.dropna(subset=["__binary_target__"])
+
+    if verbose:
+        class_counts = work["__binary_target__"].astype(int).value_counts().to_dict()
+        print(f"[fit_model] Data filtering complete:")
+        print(f"  - Initial rows: {initial_rows}")
+        print(f"  - Excluded rows (unresolved/missing target): {unresolved}")
+        print(f"  - Retained rows for training: {len(work)}")
+        print(f"  - Class distribution: {class_counts}")
+
     if work["__binary_target__"].nunique() < 2:
         raise ValueError("Training target must contain both binary classes after target encoding")
+
+    if verbose:
+        print(f"[fit_model] Building preprocessor (scale_numeric={scale_numeric})...")
     preprocessor = build_preprocessor(work, features, scale_numeric=scale_numeric)
+
+    if verbose:
+        print(f"[fit_model] Building pipeline with estimator '{model_type}'...")
     pipeline = Pipeline([
         ("preprocessor", preprocessor),
         ("classifier", build_estimator(model_type, params)),
     ])
+
     if unresolved:
-        import warnings
         warnings.warn(
             f"Excluded {unresolved} rows with unrecognised or unknown target labels from training.",
             UserWarning,
             stacklevel=2,
         )
+
+    if verbose:
+        print(f"[fit_model] Fitting pipeline on {len(work[features])} samples...")
+
     pipeline.fit(work[features], work["__binary_target__"].astype(int))
+
+    if verbose:
+        print("[fit_model] Pipeline fitting completed successfully.")
+
     return pipeline
