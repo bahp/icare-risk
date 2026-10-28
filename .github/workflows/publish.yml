@@ -38,7 +38,7 @@ jobs:
           mkdir -p src/icare_risk/notebooks
           cp -r notebooks/a_download src/icare_risk/notebooks/a_download
           cp -r notebooks/b_preparation src/icare_risk/notebooks/b_preparation
-          cp -r notebooks/a_analysis src/icare_risk/notebooks/c_analysis
+          cp -r notebooks/c_analysis src/icare_risk/notebooks/c_analysis
 
       - name: Build package (wheel and source distribution)
         run: python -m build
