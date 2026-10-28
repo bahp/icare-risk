@@ -47,12 +47,12 @@ jobs:
           dest=src/icare_risk/notebooks
           rm -rf "$dest" && mkdir -p "$dest"
 
-          # Select folders to include
           for folder in a_download b_preparation c_analysis; do
-            [ -d "notebooks/$folder" ] && cp -r "notebooks/$folder" "$dest/"
+            mkdir -p "$dest/$folder"
+            find "notebooks/$folder" -maxdepth 1 -type f -name '*.ipynb' \
+              -exec cp {} "$dest/$folder/" \;
           done
 
-          # Copy notebooks directly inside notebooks/
           find notebooks -maxdepth 1 -type f -name '*.ipynb' -exec cp {} "$dest/" \;
 
       - name: Build package (wheel and source distribution)
