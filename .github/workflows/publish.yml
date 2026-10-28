@@ -42,12 +42,18 @@ jobs:
           echo "Checking inside notebooks/ if it exists:"
           ls -la notebooks/ || echo "notebooks folder not found in root"
 
-      - name: Copy notebooks into package source
+      - name: Sync selected notebooks into package source
         run: |
-          mkdir -p src/icare_risk/notebooks
-          cp -r notebooks/a_download src/icare_risk/notebooks/a_download
-          cp -r notebooks/b_preparation src/icare_risk/notebooks/b_preparation
-          cp -r notebooks/c_analysis src/icare_risk/notebooks/c_analysis
+          dest=src/icare_risk/notebooks
+          rm -rf "$dest" && mkdir -p "$dest"
+
+          # Select folders to include
+          for folder in a_download b_preparation c_analysis; do
+            [ -d "notebooks/$folder" ] && cp -r "notebooks/$folder" "$dest/"
+          done
+
+          # Copy notebooks directly inside notebooks/
+          find notebooks -maxdepth 1 -type f -name '*.ipynb' -exec cp {} "$dest/" \;
 
       - name: Build package (wheel and source distribution)
         run: python -m build
