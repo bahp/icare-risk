@@ -33,6 +33,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install build
 
+      - name: Debug workspace structure
+        run: |
+          echo "Current working directory:"
+          pwd
+          echo "Files in root:"
+          ls -la
+          echo "Checking inside notebooks/ if it exists:"
+          ls -la notebooks/ || echo "notebooks folder not found in root"
+
       - name: Copy notebooks into package source
         run: |
           mkdir -p src/icare_risk/notebooks
