@@ -105,7 +105,6 @@ def _copy_pkg_files(
         Number of files successfully copied.
     """
     target, source = Path(target_dir), get_pkg_path(source_subpath)
-    target.mkdir(parents=True, exist_ok=True)
 
     if not source.is_dir():
         if verbose:
@@ -113,11 +112,17 @@ def _copy_pkg_files(
         return 0
 
     copied_files = []
-    for item in source.glob(f"*{extension}"):
-        dest = target / item.name
-        if not dest.exists():
-            shutil.copy2(item, dest)
-            copied_files.append(item.name)
+    # Use rglob to recursively find files matching the extension across subfolders
+    for item in source.rglob(f"*{extension}"):
+        if item.is_file():
+            # Calculate relative path to preserve directory structure (e.g., a_download/file.ipynb)
+            rel_path = item.relative_to(source)
+            dest = target / rel_path
+
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            if not dest.exists():
+                shutil.copy2(item, dest)
+                copied_files.append(str(rel_path))
 
     if verbose:
         print(f"Successfully copied {len(copied_files)} file(s) to {target.resolve()}:")
