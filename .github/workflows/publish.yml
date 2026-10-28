@@ -33,6 +33,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install build
 
+      - name: Sync root notebooks into package
+        run: |
+          mkdir -p src/icare_risk/notebooks
+          cp notebooks/*.ipynb src/icare_risk/notebooks/
+
       - name: Build package (wheel and source distribution)
         run: python -m build
 
