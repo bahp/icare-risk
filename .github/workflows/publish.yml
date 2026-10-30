@@ -48,7 +48,7 @@ jobs:
           rm -rf "$dest" && mkdir -p "$dest"
 
           echo "Copying notebooks from source..."
-          for folder in a_download b_preparation c_analysis; do
+          for folder in a_download b_preparation c_analysis d_tutorials; do
             mkdir -p "$dest/$folder"
             cp -r notebooks/$folder/*.ipynb "$dest/$folder/" 2>/dev/null || true
           done

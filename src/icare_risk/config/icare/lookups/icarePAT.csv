@@ -1,0 +1,293 @@
+,code,name,unit,type,range_low,range_high,total_ocurrences
+0,wbc,wbc,10*9/l,float,0.0,4404447508.0,7501814
+1,plt,platelets,10*9/l,float,0.0,4404447508.0,7472157
+2,rbc,rbc,10*12/l,float,0.0,4404447508.0,7472026
+3,mcv,mcv,fl,float,0.0,4404447508.0,7469298
+4,mch,mch,pg,float,0.0,4404447508.0,7469216
+5,ly,lymphocytes,10*9/l,float,0.0,4404447508.0,7362073
+6,cre,creatinine,umol/l,float,1.0,4399456047.0,6914278
+7,k,potassium,mmol/l,float,1.0,4399456047.0,6871208
+8,na,sodium,mmol/l,float,1.0,4399456047.0,6867124
+9,urea,urea,mmol/l,float,0.5,4399456047.0,6842364
+10,alb,albumin,g/l,float,0.0,4399456047.0,5927785
+11,bil,bilirubin,umol/l,float,1.0,4399456047.0,5373827
+12,hgb,haemoglobin,g/l,float,0.34723,4404447508.0,5320607
+13,hct,haematocrit,l/l,float,0.014,4404447508.0,5319983
+14,neut,neutrophils,10*9/l,float,0.0,4404447508.0,5253926
+15,eos,eosinophils,10*9/l,float,0.0,4404447508.0,5235521
+16,mono,monocytes,10*9/l,float,0.0,4404447508.0,5233801
+17,crp,c-reactive protein,mg/l,float,0.2,4399456047.0,4997410
+18,egfr,estimated gfr,ml/min/1.73m2,float,1.0,4399456047.0,4903096
+19,tp,total protein,g/l,float,1.0,4399456047.0,4753561
+20,glob,globulin,g/l,float,0.0,4399456047.0,4713885
+21,phos,phosphate,mmol/l,float,0.2,4399456047.0,4211969
+22,calcor,adjusted calcium,mmol/l,float,0.45,4399456047.0,4210732
+23,alp,alkaline phosphatase,u/l,float,1.0,4399456047.0,4193569
+24,alt,alanine transaminase,u/l,float,1.0,4399456047.0,3827421
+25,calc,calcium,mmol/l,float,0.5,4399456047.0,3038160
+26,glpoc,ward glucose strip,mmol/l,float,0.6,33.3,2223456
+27,wph,ward ph,NOT IN ENUMERATIONS LIST,float,6.8,8.0,2165332
+28,wlac,ward lactate,mmol/l,float,0.3,20.0,2156152
+29,hgb,hgb,g/dl,float,0.0,23345.0,2150326
+30,hct,haematocrit,1/1,float,0.0,436.0,2149705
+31,wg,ward glucose,mmol/l,float,0.2,41.7,2143559
+32,ne,neutrophils,10*9/l,float,0.0,150.2,2129109
+33,ba,basophils,10*9/l,float,0.0,10.9,2127341
+34,eo,eosinophils,10*9/l,float,0.0,245.9,2126700
+35,mo,monocytes,10*9/l,float,0.0,32.2,2126431
+36,mg,magnesium,mmol/l,float,0.25,31637590.0,2066380
+37,gfr,estimated gfr,ml/min/1.73m2,float,1.0,90.0,2007750
+38,whct,ward hct,%,float,9.0,69.0,1998120
+39,alp,alkaline phosphatase,iu/l,float,5.0,9110.0,1704036
+40,alt,alanine transaminase,iu/l,float,5.0,121320.0,1576409
+41,aptt,aptt,seconds,float,0.9,4381735968.0,1496585
+42,pt,prothrombin time,seconds,float,0.9,4381735968.0,1493527
+43,fib,fibrinogen,g/l,float,0.3,4381735968.0,1493083
+44,whb,ward hb,g/l,float,30.0,230.0,1354566
+45,calc,total calcium,mmol/l,float,0.5,6.3,1175833
+46,fer,ferritin,ug/l,float,1.0,9870139.0,998181
+47,tsh,tsh,mu/l,float,0.0,8670242.0,960845
+48,ft4,free t4,pmol/l,float,0.1,8670242.0,959943
+49,gl,glucose,mmol/l,float,0.5,8375642.0,951299
+50,whb,ward hb,g/dl,float,30.0,230.0,765435
+51,bic,bicarbonate,mmol/l,float,1.0,4399456047.0,694027
+52,tg,triglycerides,mmol/l,float,0.07,8183987.0,686322
+53,chol,cholesterol,mmol/l,float,0.2,8183987.0,686304
+54,hdl,hdl cholesterol,mmol/l,float,0.1,8183987.0,685848
+55,ldl,ldl cholesterol,mmol/l,float,0.0,7290516.0,685848
+56,chohdr,cholesterol hdl ratio,NOT IN ENUMERATIONS LIST,float,0.22,7290516.0,685839
+57,glpoc,glucose poct strip blood,mmol/l,float,1.3,27.7,674419
+58,pt,prothrombin time,s,float,0.0,9072.0,537838
+59,transf,transferrin,g/l,float,0.2,6445695.0,527699
+60,aptt,aptt,s,float,0.0,36555.0,521361
+61,fe,iron,umol/l,float,1.0,6445695.0,521020
+62,fib,fibrinogen (clauss),g/l,float,0.0,26132.0,513480
+63,esr,esr,mm/hr,float,0.0,4962894.0,504691
+64,tropis,troponin i (sensitive),ng/l,float,0.5,31637590.0,491319
+65,nonhdl,non hdl cholesterol,mmol/l,float,0.1,7290516.0,457711
+66,inr,inr,ratio,float,0.7,9031048.0,456605
+67,hba1hb,hba1c ifcc standardised,mmol/mol,float,1.0,4399456047.0,444056
+68,trfsat,transferrin saturation (%),%,float,1.0,4567741.0,391818
+69,ld,lactate dehydrogenase,u/l,float,4.0,30690461.0,386984
+70,vitd,vitamin d,nmol/l,float,1.0,31680733.0,379928
+71,ddimer,d dimer,ng/ml feu,float,1.0,4361076346.0,314753
+72,ast,aspartate transaminase,u/l,float,1.0,31555709.0,273310
+73,fol,folic acid,ug/l,float,1.0,7369640.0,261812
+74,igg,immunoglobulin g,g/l,float,0.4,4399456047.0,253747
+75,protu,protein (urine),g/l,float,0.01,500.0,252431
+76,hba1hb,hba1c level -ifcc standardised,mmol/mol,float,0.0,212.0,244149
+77,prcrr,protein creatinine ratio (urine),mg/mmol,float,2.0,63700.0,241692
+78,igm,immunoglobulin m,g/l,float,0.05,4399456047.0,241150
+79,iga,immunoglobulin a,g/l,float,0.05,4399456047.0,240485
+80,ggt,gamma gt,u/l,float,1.0,31555709.0,219693
+81,b12,vitamin b12,ng/l,float,1.0,7435394.0,216662
+82,tacro,tacrolimus level,ug/l,float,0.1,411458.0,215793
+83,vitd,"vitamin d level, blood",nmol/l,float,0.0,560.4,196369
+84,ck,creatine kinase,u/l,float,7.0,10061993.0,194682
+85,ketpoc,ward ketones,mmol/l,float,0.0,8.0,190737
+86,bnp,bnp,ng/l,float,1.0,9889133.0,160156
+87,b12,serum vitamin b12,ng/l,float,83.0,19004.0,145233
+88,ephgb,haemoglobin,g/l,float,2.0,4381251085.0,142608
+89,epmcv,mcv,fl,float,2.0,4381251085.0,142574
+90,wtbil,ward total bilirubin,umol/l,float,4.0,679.0,142404
+91,hba,haemoglobin a,%,float,0.0,4381251085.0,137739
+92,wtbil,ward total bilirubin (poct),umol/l,float,4.0,684.0,137598
+93,ggt,gamma gt,iu/l,float,4.0,6708.0,130346
+94,trfsat,transferrin %sat,%,float,1.0,100.0,128901
+95,ft3,free t3,pmol/l,float,1.5,78.0,123871
+96,ana,ana screen,NOT IN ENUMERATIONS LIST,float,1.0,9565666.0,123791
+97,fol,serum folic acid,ng/ml,float,1.0,40.0,117785
+98,tropis,troponin (sensitive),ng/l,float,0.0,633815.0,112945
+99,ld,ldh,iu/l,float,30.0,53795.0,110339
+100,cd4a,cd4 +ve lymphocytes (absolute),cells/ul,float,0.0,81360.0,110313
+101,ast,aspartate transaminase,iu/l,float,5.0,19056.0,101675
+102,hba1,haemoglobin a1c,%,float,1.0,71.9,99811
+103,cor,cortisol,nmol/l,float,0.0,7719838.0,98893
+104,tacro,tacrolimus,ug/l,float,0.1,261.2,89618
+105,gf,glucose (fasting),mmol/l,float,0.5,40.1,84925
+106,cd4p,cd4 +ve lymphocytes (%),%,float,0.0,99.1,82207
+107,pct,procalcitonin,ug/l,float,0.01,7176764.0,79183
+108,igg,immunoglobulin igg,g/l,float,1.1,103.5,78915
+109,c3,complement c3,g/l,float,0.08,4399456047.0,77051
+110,c4,complement c4,g/l,float,0.0,4399456047.0,77045
+111,iga,immunoglobulin iga,g/l,float,0.05,72.6,76094
+112,igm,immunoglobulin igm,g/l,float,0.05,54.43,75856
+113,ck,creatine kinase,iu/l,float,7.0,1899738.0,71261
+114,ca125,ca 125,ku/l,float,1.0,630289.0,71079
+115,albu,albumin (urine),mg/l,float,2.0,5778152.0,70390
+116,albucr,albumin creatinine ratio (urine),mg/mmol,float,0.0,55555.5,70169
+117,protu,urine protein,g/l,float,0.1,146.46,67008
+118,prcrr,protein creatinine ratio,mg/mmol,float,0.0,15320.0,57204
+119,ca199,ca 19-9,ku/l,float,1.0,17570857.0,55816
+120,ana,ana,NOT IN ENUMERATIONS LIST,enumerated,,,55216
+121,lac,lactate,mmol/l,float,0.17,40.34,54072
+122,cea,cea,ug/l,float,1.0,269845.0,53292
+123,dsde,dsdna ab quantitative,iu/ml,float,4.0,9565666.0,52470
+124,albucr,albumin creatinine ratio,NOT IN ENUMERATIONS LIST,float,0.2,10683.8,49778
+125,albu,urine albumin,mg/l,float,5.0,50000.0,49766
+126,mpa,mycophenolate level,mg/l,float,0.1,80.0,49391
+127,neuta,neutrophils,10*9/l,float,0.0,9324230.0,44000
+128,lympa,lymphocytes,10*9/l,float,0.0,9324230.0,43846
+129,ca153,ca 15-3,ku/l,float,1.0,71804.0,43466
+130,ama,mitochondrial ab,NOT IN ENUMERATIONS LIST,float,1.0,80.0,42908
+131,rf,rheumatoid factor,iu/ml,float,20.0,200.0,42528
+132,monoa,monocytes,10*9/l,float,0.0,9324230.0,41060
+133,anca,anca,NOT IN ENUMERATIONS LIST,enumerated,,,39118
+134,insu,insulin,mu/l,float,0.3,6662.6,38313
+135,mpo,anca myeloperoxidase ab,iu/ml,float,3.0,134.0,38089
+136,pr3,anca proteinase 3 ab,iu/ml,float,1.0,177.0,37954
+137,csa,cyclosporin a,ug/l,float,10.0,17694.0,34410
+138,ca125,"ca 125 level, blood",ku/l,float,1.0,43978.0,32915
+139,anca,anca iif,NOT IN ENUMERATIONS LIST,enumerated,,,31861
+140,anaif,ana confirmation,NOT IN ENUMERATIONS LIST,float,1.0,16.0,31075
+141,aclm,cardiolipin ab igm,u/ml,float,0.0,9565666.0,30766
+142,aclg,cardiolipin ab igg,u/ml,float,1.0,9565666.0,30761
+143,ace,angiotensin converting enzyme,u/l,float,8.0,858275.0,29979
+144,rf,rheumatoid factor,NOT IN ENUMERATIONS LIST,float,20.0,8381.0,29082
+145,c3,c3,g/l,float,0.11,8.0,28919
+146,c4,c4,g/l,float,0.03,0.66,28869
+147,osmo,osmolality,mmol/kg,float,1.0,6297702.0,28792
+148,cd4p,cd4 +ve lymphocytes,%,float,0.0,99.2,28111
+149,bilc,bilirubin conjugated,umol/l,float,2.0,876.0,27388
+150,ancap,anca pattern,NOT IN ENUMERATIONS LIST,float,1.0,9565666.0,26932
+151,eosa,eosinophils,10*9/l,float,0.0,9324230.0,26634
+152,cea,"cea level, blood",ug/l,float,1.0,550000.0,25921
+153,ca199,"ca 19-9 level, blood",ku/l,float,1.0,8701379.0,24909
+154,calpf,calprotectin (faeces),mg/kg,float,15.0,6130814.0,24885
+155,mpa,"mycophenolate level, blood",mg/l,float,0.1,26.3,24669
+156,ddimer,d dimer (innovance),ug/l,float,0.03,942600.0,24656
+157,hba,hb a,NOT IN ENUMERATIONS LIST,float,0.9,95.3,24649
+158,vitd2,vitamin d2,nmol/l,float,0.0,363.0,24237
+159,vitd3,vitamin d3,nmol/l,float,5.0,1084.0,24233
+160,tpo,thyroid peroxidase ab,iu/ml,float,0.0,9565666.0,23824
+161,dsde,anti-dsdna quantitative assay,u/ml,float,4.0,21683.0,23751
+162,anca,anca immunofluorescence,NOT IN ENUMERATIONS LIST,float,1.0,9565666.0,23489
+163,anap,ana pattern,NOT IN ENUMERATIONS LIST,float,1.0,70.0,21700
+164,rcfr,red cell folic acid,ng/ml,float,0.4,8889603.0,21493
+165,anat,ana titre,NOT IN ENUMERATIONS LIST,float,1.0,2560.0,21281
+166,ige,total ige,ku/l,float,1.0,161000.0,20002
+167,pr3,proteinase 3 (pr3) ab,iu/ml,float,2.0,177.0,19890
+168,mpo,mpo ab,iu/ml,float,3.6,134.0,19739
+169,acag,aca: igg,u/ml,float,1.0,120.0,16714
+170,ca153,"ca 15-3 level, blood",ku/l,float,3.0,28384.0,16076
+171,mpo,anca: mpo antibodies,iu/ml,float,0.4,134.0,15918
+172,lpa,lipoprotein (a),nmol/l,float,1.0,828.0,15661
+173,pr3,anca : pr3 antibodies,iu/ml,float,2.0,204.0,15440
+174,glcsf,glucose (csf),mmol/l,float,0.1,6756637.0,13989
+175,inrpoc,inr (poct),ratio,float,0.9,12.0,13761
+176,wbf,folate (whole blood),NOT IN ENUMERATIONS LIST,float,5.0,8889603.0,13455
+177,ige,total ige,iu/l,float,2.0,137500.0,12542
+178,dsde,dsdna ab quantitative,u/ml,float,10.0,30000.0,12354
+179,apob,apolipoprotein b,g/l,float,0.06,4.5,11159
+180,apoa1,apolipoprotein a1,g/l,float,0.1,3.61,11158
+181,rf,rheumatoid factor,u/ml,float,20.0,200.0,10681
+182,ace,ace,iu/l,float,1.0,397.0,10533
+183,ketpoc,ketones poct strip blood,mmol/l,float,0.0,8.0,10374
+184,basoa,basophils,10*9/l,float,0.0,9324230.0,10171
+185,tshr,tsh receptor ab,u/l,float,0.329,9565666.0,9582
+186,thyro,thyroglobulin,ug/l,float,0.2,896773.0,9152
+187,bilc,conjugated bilirubin,umol/l,float,2.0,508.0,8955
+188,osmo,osmolality,mosmol/kg,float,217.0,642.0,8890
+189,wbf,whole blood folate,NOT IN ENUMERATIONS LIST,float,17.6,444.0,8055
+190,calpf,faecal calprotectin,mg/kg,float,15.0,6497.0,7794
+191,tt,thrombin time,seconds,float,4.0,36707.0,7414
+192,glf,glucose (fluid),mmol/l,float,0.3,205.3,7000
+193,igsum,igg sum,NOT IN ENUMERATIONS LIST,float,0.0,79.0,6638
+194,iggtot,igg total,g/l,float,0.95,73.61,6638
+195,glcsf,csf glucose,mmol/l,float,0.1,16.1,6597
+196,pelast,pancreatic elastase,NOT IN ENUMERATIONS LIST,float,1.0,1.0,5602
+197,crec,creatinine clearance,ml/min,float,0.0,491.0,5425
+198,laccsf,lactate (csf),mmol/l,float,0.2,5260041.0,5287
+199,thyrab,thyroglobulin ab,iu/ml,float,20.0,16251.0,5206
+200,zbetag,fungal beta d glucan,NOT IN ENUMERATIONS LIST,float,1.0,1.0,5011
+201,sirol,sirolimus level,ug/l,float,1.0,151.2,4977
+202,tt,thrombin time,s,float,0.12,360.0,4860
+203,cdsave,c.difficile culture save,NOT IN ENUMERATIONS LIST,enumerated,,,4700
+204,tshr,tsh receptor ab,u/ml,float,0.4,30.0,4518
+205,ketpoc,ketones,mmol/l,float,0.0,8.0,4396
+206,agm,aspergillus galactomannan ag,NOT IN ENUMERATIONS LIST,enumerated,,,4359
+207,citplt,citrated platelet count,10*9/l,float,0.0,4405163441.0,4211
+208,trop,troponin i,ng/l,float,3.0,113304.0,4086
+209,cryog,cryoglobulins,NOT IN ENUMERATIONS LIST,float,1.0,5071458.0,4048
+210,tshr,tsh rc ab,u/ml,float,0.4,52.9,3979
+211,thyrab,thyroglobulin ab,u/l,float,20.0,52088.0,3940
+212,estest,esterase test,NOT IN ENUMERATIONS LIST,float,0.125,500.0,3884
+213,albh,serum albumin,g/l,float,8.0,317.0,3456
+214,iggh,serum igg,g/l,float,1.5,259.0,3456
+215,anai,ana immunofluorescence,NOT IN ENUMERATIONS LIST,enumerated,,,3370
+216,estest,leukocytes (using multistix),leukocytes/ul,float,0.7,500.0,3229
+217,zthyro,thyroglobulin,ug/l,float,0.2,42551.0,3123
+218,thyrab,thyroglobulin antibody,iu/ml,float,8.0,92102.0,3123
+219,vitee,vitamin e,umol/l,float,2.4,197.3,3122
+220,pr3blt,anca: pr3 ab confirmation,NOT IN ENUMERATIONS LIST,float,3.0,3.0,2978
+221,mpoblt,anca: mpo ab confirmation,NOT IN ENUMERATIONS LIST,float,3.0,3.0,2978
+222,cryopl,cryoglobulin (plasma),NOT IN ENUMERATIONS LIST,float,1.0,21764.0,2869
+223,iggh,igg,g/l,float,0.33,46.0,2700
+224,albh,albumin,g/l,float,1.0,60.0,2699
+225,ldcsf,lactate dehydrogenase (csf),iu/l,float,17.0,4424222.0,2615
+226,sr2sq,sars-cov-2 sequencing result,NOT IN ENUMERATIONS LIST,float,0.1,0.7,2596
+227,vita,vitamin a,umol/l,float,0.11,6.97,2521
+228,chgb,haemoglobin,g/l,float,25.0,231.0,2508
+229,cmcv,mcv,fl,float,40.4,133.0,2508
+230,lpa,lp(a),mg/l,float,9.0,3620.0,2455
+231,cdtox,clostridium difficile toxin,NOT IN ENUMERATIONS LIST,enumerated,,,2427
+232,sirol,sirolimus,ug/l,float,1.0,91.8,2364
+233,ct,calcitonin icma,ng/l,float,1.0,185000.0,2038
+234,apob,apo b,g/l,float,0.35,6.48,1922
+235,apoa1,apo a1,g/l,float,0.25,2.9,1922
+236,glf,fluid glucose,mmol/l,float,0.3,133.9,1876
+237,vrhba1,variant hba1c,NOT IN ENUMERATIONS LIST,float,1.0,30.0,1802
+238,zelast,pancreatic elastase 1,ug/g,float,15.0,500.0,1745
+239,acam,aca: igm,u/ml,float,0.0,150.0,1700
+240,vitb1,thiamine (vitamin b1),NOT IN ENUMERATIONS LIST,float,1.0,2033130348.0,1335
+241,cryog,cryoglobulins,mg/l,enumerated,,,1263
+242,ldcsf,csf ldh,iu/l,float,18.0,2027.0,1054
+243,apttm,aptt (manual),secs,float,0.18,22881.0,1039
+244,laccsf,csf lactate,mmol/l,float,0.5,18.0,1037
+245,tgf,triglycerides (fluid),mmol/l,float,0.08,58.96,900
+246,zvite,vitamin e,umol/l,float,2.1,500.0,896
+247,sr2lin,sars-cov-2 lineage,NOT IN ENUMERATIONS LIST,float,21.0,23.0,680
+248,zvita,vitamin a,umol/l,float,0.11,4.61,620
+249,cryopl,cryoglobulin (plasma),mg/l,enumerated,,,616
+250,xjak2,xjak2,NOT IN ENUMERATIONS LIST,enumerated,,,463
+251,thyr,thyroglobulin,ug/l,float,30348.0,30348.0,452
+252,igd,immunoglobulin igd,mg/l,float,10.0,15235.0,331
+253,acaigg,aca igg,u/ml,float,0.1,17.5,323
+254,acaigm,aca igm,u/ml,float,0.0,58.1,290
+255,ptm,prothrombin time (manual),secs,float,1.1,571.0,272
+256,cholf,cholesterol (fluid),mmol/l,float,0.2,6.0,228
+257,vrhba1,variant hba1,%,enumerated,,,221
+258,tsat,iron saturation,%,float,4.0,76.0,179
+259,tibc,tibc (total iron binding capacity),umol/l,float,31.0,88.0,167
+260,wurea,ward urea,mmol/l,float,1.4,34.0,151
+261,cormn,cortisol midnight,nmol/l,float,28.0,3300.0,150
+262,cholf,fluid cholesterol,mmol/l,float,0.2,17.6,127
+263,phu,urine ph,NOT IN ENUMERATIONS LIST,float,5.0,8.4,104
+264,igd,immunoglobulin d level,mg/l,enumerated,,,81
+265,phu,ph (urine),NOT IN ENUMERATIONS LIST,float,5.5,19.0,76
+266,hsvg,hsv igg (type specific serology),NOT IN ENUMERATIONS LIST,enumerated,,,75
+267,tgf,fluid triglyceride,mmol/l,float,0.08,128.4,50
+268,procal,procalcitonin,ng/ml,enumerated,,,49
+269,wuleu,ward urine leucocytes,NOT IN ENUMERATIONS LIST,float,15.0,500.0,46
+270,phfa,faecal ph,NOT IN ENUMERATIONS LIST,float,5.0,8.0,31
+271,vitc,NOT IN ENUMERATIONS LIST,NOT IN ENUMERATIONS LIST,enumerated,,,19
+272,wly,NOT IN ENUMERATIONS LIST,10*9/l,enumerated,,,18
+273,wneut,NOT IN ENUMERATIONS LIST,10*9/l,enumerated,,,18
+274,wmono,NOT IN ENUMERATIONS LIST,10*9/l,enumerated,,,18
+275,wmcv,NOT IN ENUMERATIONS LIST,fl,enumerated,,,18
+276,wwbc,NOT IN ENUMERATIONS LIST,10*9/l,enumerated,,,18
+277,whctt,ward hct,l/l,enumerated,,,18
+278,weos,NOT IN ENUMERATIONS LIST,10*9/l,enumerated,,,18
+279,whgb,NOT IN ENUMERATIONS LIST,g/l,enumerated,,,18
+280,wplt,NOT IN ENUMERATIONS LIST,10*9/l,enumerated,,,18
+281,afpfs,NOT IN ENUMERATIONS LIST,ku/l,float,1.0,1.0,16
+282,hiv1b,NOT IN ENUMERATIONS LIST,NOT IN ENUMERATIONS LIST,enumerated,,,11
+283,apttm,NOT IN ENUMERATIONS LIST,seconds,float,30.3,180.0,11
+284,glu,NOT IN ENUMERATIONS LIST,mmol/l,float,2.3,2.3,10
+285,whct,ward hct,l/l,float,28.0,39.0,6
+286,sme,NOT IN ENUMERATIONS LIST,NOT IN ENUMERATIONS LIST,enumerated,,,5
+287,ttm,NOT IN ENUMERATIONS LIST,secs,float,22.8,34.6,
+288,tsat,NOT IN ENUMERATIONS LIST,%,enumerated,,,
+289,tibc,NOT IN ENUMERATIONS LIST,umol/l,enumerated,,,
+290,ketu,NOT IN ENUMERATIONS LIST,NOT IN ENUMERATIONS LIST,enumerated,,,
+291,ptm,NOT IN ENUMERATIONS LIST,seconds,float,160.0,160.0,

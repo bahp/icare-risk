@@ -1,0 +1,18 @@
+SENSITIVITY
+ceftazidime : <=0.5
+ceftriaxone : <0.016
+ceftriaxone : susceptible
+"ceftazidime : susceptible with optimised dosing, refer to antimicrobial policy"
+ceftriaxone : 0.032
+"ceftriaxone : susceptible with optimised dosing, refer to antimicrobial policy"
+ceftriaxone : <=0.5
+ceftriaxone : 0.125
+ceftazidime : 1
+ceftriaxone : 0.016
+cefotaxime : sensitive
+ceftazidime : sensitive
+ceftriaxone : 0.094
+ceftazidime : susceptible
+ceftriaxone : 0.064
+ceftriaxone : sensitive
+ceftriaxone : 0.023

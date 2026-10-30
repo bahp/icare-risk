@@ -1,0 +1,133 @@
+,code,name,unit,type,range_low,range_high,total_ocurrences
+0,13389125,systolic blood pressure cuff,millimetres of mercury,float,0.0,999.0,32663959
+1,13389131,diastolic blood pressure cuff,millimetres of mercury,float,0.0,998.0,32641471
+2,12761333,conscious level,none,float,1.0,1.0,31153071
+3,9096706,respiratory rate,breaths/minute,float,0.0,927.0,30939402
+4,9111827,spo2,percent,float,1.0,999.0,30800390
+5,14177698,oxygen device,none,enumerated,,,29534354
+6,10933766,temperature,degrees celsius,float,0.0,352700.0,26386904
+7,303933839,ews type,none,enumerated,,,24530221
+8,303870107,ews category,none,enumerated,,,23333137
+9,10933808,"mean arterial pressure, cuff",millimetres of mercury,float,0.0,706.0,22994089
+10,13472364,heart rate,beats/minute,float,0.0,9999.0,21838825
+11,303932881,ews total,none,float,0.0,22.0,19028198
+12,12684859,oxygen flow rate,litres/minute,float,0.0,210.0,16693768
+13,13472364,heart rate,none,float,0.0,9996.0,11895793
+14,536348143,news score consciousness,none,float,0.0,3.0,11882971
+15,14160118,news conscious level score,none,float,0.0,3.0,10257725
+16,307722393,news supplemental oxygen calc,none,float,0.0,2.0,8602735
+17,11556535,"lymphocyte count, blood",x10^9/litre,float,0.0,711.0,6829867
+18,303877457,ews status,none,enumerated,,,6532532
+19,11554029,"creatinine level, blood",umol/l,float,9.0,4037.0,6426222
+20,9097010,glasgow coma score,none,float,1.0,15.0,5782203
+21,11554021,"c-reactive protein level, blood",milligrams/litre,float,0.2,978.7,4750755
+22,11552015,"alanine aminotransferase level, blood",unit/l,float,4.0,23204.0,3741834
+23,12777419,fio2 level poc,percent,float,0.0,400.0,3528819
+24,14161850,"ph (poct) level, blood",none,float,6.75,7.99,3377488
+25,10933816,weight measured,kilogram,float,0.0,8316102017.0,3343084
+26,41460516,mtf2e triage score,none,float,0.0,8.0,2409515
+27,14161846,"base excess level poc, blood",millimoles/litre,float,0.0,169.7,2327632
+28,303938619,heart rate source,none,enumerated,,,2115821
+29,9111827,spo2,none,float,1.0,100.0,1492627
+30,49093394,temperature,degrees celsius,float,5.6,46.6,1327190
+31,10933823,height/length measured,centimetre,float,0.0,762.5,1271211
+32,11552015,"alanine aminotransferase level, blood",international unit/litre,float,5.0,121320.0,1237925
+33,486347689,high temperature or fever?,none,float,0.0,0.0,1128803
+34,486348509,new continuous cough?,none,float,0.0,0.0,1128302
+35,486349077,a loss or alteration to taste or smell?,none,float,0.0,0.0,1117198
+36,12780769,height & weight,none,enumerated,,,1017690
+37,9096706,respiratory rate,none,float,0.0,966.0,888045
+38,11554683,"ferritin level, blood",ug/l,float,1.0,1130174.0,835995
+39,132696284,frailty scale category,none,float,0.0,6.666666666666666e+16,685352
+40,39471343,"troponin high sensitivity level, blood",ng/l,float,0.3,1569199.0,576269
+41,189223432,cpr,none,enumerated,,,554886
+42,39470352,"acute kidney injury, alert",none,float,0.0,3.0,461717
+43,170575877,sepsis alert:,none,enumerated,,,447283
+44,149373631,zzz_sepsis_test,none,enumerated,,,436598
+45,9096676,systolic blood pressure,millimetres of mercury,float,0.0,418.0,404042
+46,9096691,diastolic blood pressure,millimetres of mercury,float,0.0,666.0,403191
+47,11556321,"lactate dehydrogenase level, blood",unit/l,float,45.0,60265.0,365863
+48,14018710,"d-dimer (ug/l) level, blood",nano grams per millilitre feu,float,17.0,77630.0,292175
+49,11552873,"brain natriuretic peptide level, blood",ng/l,float,10.0,23238.0,143273
+50,41463372,sao2%,percent,float,0.0,989909.0,138957
+51,41463466,respiratory support device?,none,enumerated,,,135357
+52,268773781,spo2 (an),percent,float,0.0,9898.0,119853
+53,268772933,hr - spo2 (an),beats/minute,float,0.0,78100.0,114735
+54,13388088,fio2 - delivered,percent,float,0.0,100.0,114026
+55,41461128,reintubation/resuscitation required,none,enumerated,,,100240
+56,11556321,"lactate dehydrogenase level, blood",international unit/litre,float,38.0,53795.0,93201
+57,12685567,"mean arterial pressure, invasive",millimetres of mercury,float,0.0,982.0,85236
+58,12684961,oxygen therapy,none,enumerated,,,85235
+59,156611410,resuscitation status,none,enumerated,,,83554
+60,10933759,respiratory support device (itu),none,enumerated,,,81502
+61,268780637,vent mode (an),none,enumerated,,,76996
+62,36929817,oxygen,litres/minute,float,0.001,15144.0,75568
+63,268772833,fio2 (an),percent,float,0.0,5500.0,74496
+64,127376531,tidal volume,none,float,0.0,16718.0,68680
+65,41461294,inspiratory pressure,centimetres water,float,0.0,719.0,66909
+66,12685567,"mean arterial pressure, invasive",none,float,0.0,215.0,61530
+67,268773497,peep (an),centimetres water,float,0.0,444444444.0,58818
+68,268774295,tidal volume - exp (an),millilitres,float,0.0,500500.0,54007
+69,127379598,oxygen tubing & mask,none,enumerated,,,51018
+70,127376520,epap,none,float,0.0,41300.0,43612
+71,127376509,ipap,none,float,0.0,1186.0,40295
+72,13465443,poct base excess,none,enumerated,,,17470
+73,14018710,"d-dimer (ug/l) level, blood",ug/l,float,16.0,442610.0,17101
+74,13290459,patient on oxygen,none,enumerated,,,16412
+75,12779966,systolic blood pressure sitting,none,float,36.6,234.0,15940
+76,12779972,diastolic blood pressure sitting,none,float,34.0,126.0,15913
+77,9096706,respiratory rate,beats/minute,float,1.0,50.0,14745
+78,13004156,news blood pressure lying,none,float,0.0,1.0,12929
+79,12181445,ferritin,none,enumerated,,,12071
+80,13388088,fio2 - delivered,none,float,0.0,9.0,9692
+81,10933766,temperature,none,float,1.0,37.9,7140
+82,13389131,diastolic blood pressure cuff,none,float,1.0,1.0,7065
+83,13389125,systolic blood pressure cuff,none,float,1.0,1.0,7065
+84,9097031,oxygen required,none,enumerated,,,4705
+85,9096940,oxygen flow (percentage),percent,float,10.0,100.0,4328
+86,104233351,bipap,percent,float,0.21,435.0,3635
+87,13290503,oxygen amount,none,float,0.0,100.0,2897
+88,154114716,oxygen device,none,enumerated,,,2223
+89,154102934,o2 sats time (mins),none,float,0.0,99.0,1746
+90,14018307,"troponin i (ng/l) level, blood",ng/l,float,32.0,113304.0,1664
+91,13958758,systolic blood pressure standing,none,float,1.0,213.0,1367
+92,13958764,diastolic blood pressure standing,none,float,36.0,564.0,1359
+93,153934469,copd - device,none,enumerated,,,1309
+94,127376544,peak airway pressure,none,float,0.0,780.0,1018
+95,41463397,respiratory support device comment,none,float,1.0,1.0,923
+96,104232993,cpap,percent,float,0.28,100.0,814
+97,13465443,poct base excess,millimoles/litre,float,0.0,28.7,517
+98,11555405,hco3 cap,none,float,12.5,2409.0,514
+99,186001564,"ward creatinine level, blood",umol/l,float,22.0,1197.0,471
+100,36929817,oxygen,percent,float,14.0,100.0,416
+101,435952131,covid-19 symptom onset date,none,enumerated,,,353
+102,435282257,covid-19 patient triage,none,enumerated,,,347
+103,127376544,peak airway pressure,centimetres water,float,0.0,512.0,293
+104,10933808,"mean arterial pressure, cuff",none,float,1.0,1.0,203
+105,36929817,oxygen,none,enumerated,,,184
+106,36929817,oxygen,litre,float,0.5,65.0,163
+107,227671497,had l+s blood pressure (standing 3 mins),none,enumerated,,,152
+108,12684859,oxygen flow rate,none,enumerated,,,88
+109,41462814,ventilator mode,none,enumerated,,,82
+110,9096691,diastolic blood pressure,none,enumerated,,,57
+111,9096676,systolic blood pressure,none,enumerated,,,57
+112,104233351,bipap,none,enumerated,,,33
+113,49093394,temperature,none,enumerated,,,28
+114,10933816,weight measured,none,enumerated,,,15
+115,10933823,height/length measured,none,enumerated,,,15
+116,13465443,poct base excess,percent,float,0.3,6.8,12
+117,36929817,oxygen,NOT IN ENUMERATIONS LIST,float,1.0,5.0,11
+118,13005405,oxygen saturation,percent,float,90.0,100.0,10
+119,11554029,"creatinine level, blood",milligrams/decilitre,float,0.72,60.0,7
+120,49093187,NOT IN ENUMERATIONS LIST,none,enumerated,,,5
+121,36929817,oxygen,millilitres/minute,float,15.0,2000.0,
+122,36929817,oxygen,milliunits,float,1.0,1.0,
+123,104233351,bipap,millilitres,float,2.0,1000.0,
+124,104233351,bipap,litre,float,0.5,1.0,
+125,36929817,oxygen,millilitres,float,2.0,2.0,
+126,104233351,bipap,millilitres/minute,float,1.0,3.0,
+127,36929817,oxygen,units/hour,float,1.0,1.0,
+128,104232993,cpap,none,enumerated,,,
+129,104233351,bipap,NOT IN ENUMERATIONS LIST,float,3.0,3.0,
+130,104233351,bipap,litres/minute,float,4.0,4.0,
+131,36929817,oxygen,grams/hour,float,1.0,1.0,

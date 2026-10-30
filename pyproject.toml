@@ -45,7 +45,7 @@ include = ["icare_risk", "icare_risk.*"]
 
 [tool.setuptools.package-data]
 "icare_risk.config" = ["*.yaml", "tests/fixtures/*.csv"]
-"icare_risk.config.icare" = ["**/*.yaml", "*.yaml"]
+"icare_risk.config.icare" = ["**/*.yaml", "*.yaml", "**/*.csv", "*.csv"]
 "icare_risk.notebooks" = ["**/*.ipynb", "*.ipynb"]
 
 [tool.setuptools_scm]
