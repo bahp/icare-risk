@@ -82,11 +82,13 @@ def load_pkg_yaml(
 def _copy_pkg_files(
         source_subpath: str,
         target_dir: str | Path,
-        extension: str,
+        extension: str = "",
+        overwrite: bool = False,
         verbose: bool = True
 ) -> int:
     """
-    Copy a subset of files matching a given extension from a package subdirectory to a target directory.
+    Copy a subset of files from a package subdirectory to a target directory.
+    If extension is empty (""), copies all files recursively.
 
     Parameters
     ----------
@@ -94,15 +96,17 @@ def _copy_pkg_files(
         Relative path inside the package root pointing to the source directory.
     target_dir : str or Path
         Destination folder where matching files will be copied.
-    extension : str
-        File extension filter (e.g., '.yaml', '.ipynb').
+    extension : str, default=""
+        File extension filter (e.g., '.yaml', '.ipynb'). If empty, matches all files.
+    overwrite : bool, default=False
+        Whether to overwrite existing files at the destination.
     verbose : bool, default=True
         Whether to print logging messages containing copied file names and counts.
 
     Returns
     -------
     int
-        Number of files successfully copied.
+        Number of files successfully copied/overwritten.
     """
     target, source = Path(target_dir), get_pkg_path(source_subpath)
 
@@ -112,58 +116,46 @@ def _copy_pkg_files(
         return 0
 
     copied_files = []
+    pattern = f"*{extension}" if extension else "*"
+
     # Use rglob to recursively find files matching the extension across subfolders
-    for item in source.rglob(f"*{extension}"):
+    for item in source.rglob(pattern):
         if item.is_file():
-            # Calculate relative path to preserve directory structure (e.g., a_download/file.ipynb)
+            # Calculate relative path to preserve directory structure
             rel_path = item.relative_to(source)
             dest = target / rel_path
 
             dest.parent.mkdir(parents=True, exist_ok=True)
-            if not dest.exists():
+            if not dest.exists() or overwrite:
                 shutil.copy2(item, dest)
                 copied_files.append(str(rel_path))
 
     if verbose:
-        print(f"Successfully copied {len(copied_files)} file(s) to {target.resolve()}:")
+        print(f"Successfully copied/updated {len(copied_files)} file(s) to {target.resolve()}:")
         for name in copied_files:
             print(f"  - {name}")
 
     return len(copied_files)
 
-def extract_notebooks(target_dir: str | Path = ".", verbose: bool = True) -> int:
+def extract_notebooks(target_dir: str | Path = ".",
+                      extension: str = ".ipynb",
+                      overwrite: bool = False,
+                      verbose: bool = True) -> int:
     """
     Copy bundled pipeline notebooks from the installed package to the target directory.
-
-    Parameters
-    ----------
-    target_dir : str or Path, default="."
-        Destination folder where notebooks will be copied.
-    verbose : bool, default=True
-        Whether to print logging messages.
-
-    Returns
-    -------
-    int
-        Number of notebooks successfully copied.
     """
-    return _copy_pkg_files("notebooks", target_dir, ".ipynb", verbose=verbose)
+    return _copy_pkg_files("notebooks",
+        target_dir=target_dir, extension=extension,
+        overwrite=overwrite, verbose=verbose)
 
 
-def extract_configs(target_dir: str | Path = "config/icare", verbose: bool = True) -> int:
+def extract_configs(target_dir: str | Path = "config/icare",
+                    extension: str = ".yaml",
+                    overwrite: bool = False,
+                    verbose: bool = True) -> int:
     """
     Copy bundled YAML configuration files from the installed package to the target directory.
-
-    Parameters
-    ----------
-    target_dir : str or Path, default="config/icare"
-        Destination folder where configuration files will be copied.
-    verbose : bool, default=True
-        Whether to print logging messages.
-
-    Returns
-    -------
-    int
-        Number of configuration files successfully copied.
     """
-    return _copy_pkg_files("config/icare", target_dir, ".yaml", verbose=verbose)
+    return _copy_pkg_files("config/icare",
+        target_dir=target_dir, extension=extension,
+        overwrite=overwrite, verbose=verbose)
