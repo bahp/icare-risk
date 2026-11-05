@@ -212,6 +212,10 @@ def _copy_pkg_files(
     int
         Number of files successfully copied/overwritten.
     """
+    # Libraries
+    import os
+    import stat
+
     target, source = Path(target_dir), get_pkg_path(source_subpath)
 
     if not source.is_dir():
@@ -265,3 +269,61 @@ def extract_configs(target_dir: str | Path = "config/icare",
     return _copy_pkg_files("config/icare",
         target_dir=target_dir, extension=extension,
         overwrite=overwrite, verbose=verbose)
+
+# Libraries
+from pathlib import Path
+from typing import Union
+
+from icare_risk.utils.io import (
+    extract_configs, 
+    extract_notebooks, 
+    _copy_pkg_files
+)
+
+def setup_workspace(target_dir: str | Path = ".") -> None:
+    """
+    Initializes the local workspace for icare_risk:
+      1. Creates the .project_root marker file.
+      2. Extracts default YAML configurations into CONFIG_DIR.
+      3. Extracts pipeline notebooks into notebooks/.
+      4. Extracts lookup CSV files into CONFIG_DIR/lookups.
+    """
+    root = Path(target_dir).resolve()
+    print(f"\n🚀 Initializing iCare-Risk Workspace at: {root}\n")
+
+    # 1. Create the project root marker file
+    marker_path = root / ".project_root"
+    marker_path.touch(exist_ok=True)
+    print(f"  [✓] Created project root marker: {marker_path.name}")
+
+    # Dynamically resolve target folders based on project root layout
+    cfg_target = root / "configs"
+    nb_target = root / "notebooks2"
+    lookups_target = cfg_target / "lookups"
+    output_target = root / "outputs"
+
+    # 2. Extract YAML configurations into configs
+    print("\n--- Extracting Configurations (default) ---")
+    extract_configs(target_dir=cfg_target / 'default', overwrite=True, verbose=True)
+
+    # 2.5. Extract YAML configurations into configs
+    print("\n--- Extracting Configurations (local) ---")
+    extract_configs(target_dir=cfg_target, overwrite=False, verbose=True)
+
+    # 3. Extract pipeline notebooks into notebooks
+    print("\n--- Extracting Pipeline Notebooks ---")
+    extract_notebooks(target_dir=nb_target, overwrite=True, verbose=True)
+
+    # 4. Extract lookup CSV files into configs/lookups
+    print("\n--- Extracting Lookup Files ---")
+    _copy_pkg_files(
+        source_subpath="config/icare/lookups", # Package internal source subpath
+        target_dir=lookups_target,           # Aligned workspace target destination
+        extension="csv",
+        overwrite=True,
+        verbose=1
+    )
+
+    print("\n" + "=" * 60)
+    print("✨ Workspace setup complete! You are ready to run your notebooks.")
+    print("=" * 60 + "\n")
