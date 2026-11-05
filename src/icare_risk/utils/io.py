@@ -298,7 +298,7 @@ def setup_workspace(target_dir: str | Path = ".") -> None:
 
     # Dynamically resolve target folders based on project root layout
     cfg_target = root / "configs"
-    nb_target = root / "notebooks2"
+    nb_target = root / "notebooks"
     lookups_target = cfg_target / "lookups"
     output_target = root / "outputs"
 
@@ -318,7 +318,7 @@ def setup_workspace(target_dir: str | Path = ".") -> None:
     print("\n--- Extracting Lookup Files ---")
     _copy_pkg_files(
         source_subpath="config/icare/lookups", # Package internal source subpath
-        target_dir=lookups_target,           # Aligned workspace target destination
+        target_dir=lookups_target,             # Aligned workspace target destination
         extension="csv",
         overwrite=True,
         verbose=1

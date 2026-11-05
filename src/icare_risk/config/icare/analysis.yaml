@@ -19,11 +19,34 @@
 input:
   # One row per admission. This file should already be produced by the upstream
   # clinical-data pipeline. CSV and Parquet are supported.
-  path: "/app/notebooks/data/synthetic/10000p/03_derived_analysis_dataset.parquet"
+  path: "/app/data/synthetic/10000p/processed/03_derived_analysis_dataset.parquet"
 
   # Passed to pandas when reading CSV input. Leave empty for Parquet or when the
   # CSV uses standard defaults. Example: {sep: ",", low_memory: false}
   read_csv_kwargs: {}
+
+# -----------------------------------------------------------------------------
+# OUTPUT DIRECTORIES
+# -----------------------------------------------------------------------------
+# Purpose: define where intermediate datasets, fitted models, predictions, tables,
+# and figures are saved. Existing files may be replaced by later sequential runs;
+# copy results elsewhere if they need to be preserved.
+#
+# Outputs are written here. Directories are created by the relevant notebooks.
+outputs:
+  processed_dataset: /app/data/synthetic/10000p/processed/admissions_with_split.parquet
+  audit_directory: outputs/results/audit
+  score_summary: outputs/results/scores/score_summary.csv
+  model_directory: outputs/models/fitted
+  prediction_directory: outputs/results/predictions
+  metrics_directory: outputs/results/metrics
+  temporal_directory: outputs/results/temporal
+  subgroup_directory: outputs/results/subgroups
+  feature_importance_directory: outputs/results/feature_importance
+  shap_directory: outputs/results/feature_importance/shap
+  sensitivity_directory: outputs/results/sensitivity
+  decision_curve_directory: outputs/results/decision_curve
+  final_directory: outputs/results/final
 
 # -----------------------------------------------------------------------------
 # COLUMN NAMES
@@ -334,29 +357,6 @@ models:
       colsample_bytree: 0.8
 
 # -----------------------------------------------------------------------------
-# OUTPUT DIRECTORIES
-# -----------------------------------------------------------------------------
-# Purpose: define where intermediate datasets, fitted models, predictions, tables,
-# and figures are saved. Existing files may be replaced by later sequential runs;
-# copy results elsewhere if they need to be preserved.
-#
-# Outputs are written here. Directories are created by the relevant notebooks.
-outputs:
-  audit_directory: results/audit
-  processed_dataset: data/processed/admissions_with_split.parquet
-  score_summary: results/scores/score_summary.csv
-  model_directory: models/fitted
-  prediction_directory: results/predictions
-  metrics_directory: results/metrics
-  temporal_directory: results/temporal
-  subgroup_directory: results/subgroups
-  feature_importance_directory: results/feature_importance
-  shap_directory: results/feature_importance/shap
-  sensitivity_directory: results/sensitivity
-  decision_curve_directory: results/decision_curve
-  final_directory: results/final
-
-# -----------------------------------------------------------------------------
 # EXPLAINABILITY AND REDUCED MODELS
 # -----------------------------------------------------------------------------
 # Purpose: control feature-importance, SHAP, and parsimonious-model analyses.
@@ -476,5 +476,3 @@ subgroups:
       - column: charlson_hx_renal_mod_sev
         operator: "=="
         value: 1
-
-
