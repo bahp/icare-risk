@@ -6,6 +6,110 @@ import importlib.resources
 from pathlib import Path
 from typing import Any, Dict
 
+from pathlib import Path
+import yaml
+
+def get_project_root(marker: str = ".project_root",
+                     strict: bool = True) -> Path:
+    """
+    Finds the project root by searching upward from the current working directory
+    until it encounters the specified marker file/folder.
+    """
+    current = Path.cwd().resolve()
+    for parent in [current] + list(current.parents):
+        if (parent / marker).exists():
+            return parent
+
+    if not strict:
+        return current # Safe fallback 
+
+    # Fail loudly and clearly if the marker is missing
+    raise FileNotFoundError(
+        f"\n[Project Root Error] Could not find the project root marker '<{marker}>' "
+        f"searching upward from: {current}\n"
+        f"Actions to resolve:\n"
+        f"  - Run your workspace initialization script to create the '{marker}' file.\n"
+        f"  - Or set the environment variable: export ICARE_ROOT=/path/to/your/workspace"
+    )
+
+
+def load_yaml_file(path_input: str, 
+                   package_name: str = "icare_risk",
+                   fallback_to_package: bool = False) -> Dict[str, Any]:
+    """
+    Load and parse a YAML configuration file.
+
+    Supports both absolute paths and paths relative to the project root 
+    (resolved via `get_project_root()`).
+
+    Parameters
+    ----------
+    path_input : str or Path
+        Path to the target YAML file. Can be an absolute filesystem path 
+        or a relative path from the project root.
+    package_name : str, default="icare_risk"
+        Name of the target root package module, used if package fallback is enabled.
+    fallback_to_package : bool, default=False
+        If True, falls back to the package's internal bundled defaults if the file 
+        is missing locally. If False, raises a `FileNotFoundError` immediately 
+        if the local file does not exist.
+
+    Returns
+    -------
+    dict
+        Parsed YAML content as a dictionary.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the target configuration file does not exist locally (and package 
+        fallback is disabled or also fails to locate it).
+    yaml.YAMLError
+        If the target file contains invalid YAML syntax.
+
+    Examples
+    --------
+    >>> schema = load_yaml_file("configs/schema.yaml")
+    >>> "data_root" in schema
+    True
+    """
+    path_obj = Path(path_input)
+
+    # 1. Determine path
+    if path_obj.is_absolute():
+        # Absolute path
+        target_path = path_obj
+    else:
+        # Relative to project root
+        root = get_project_root()
+        target_path = root / path_obj.lstrip("/\\") # Safe relative join
+
+    # 2. Load from path
+    if target_path.is_file():
+        with open(target_path, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f)
+            
+    # 3. Optional package fallback
+    if fallback_to_package and not path_obj.is_absolute():
+        try:
+            base_path = importlib.resources.files(package_name)
+            pkg_file_path = Path(str(base_path / path_obj))
+            if pkg_file_path.is_file():
+                with open(pkg_file_path, "r", encoding="utf-8") as f:
+                    return yaml.safe_load(f)
+        except Exception:
+            pass
+        
+    # 4. Fail loudly if not found
+    raise FileNotFoundError(
+        f"\n[Configuration Error] Configuration file not found:\n"
+        f"  - Resolved path: {target_path.resolve()}\n"
+        f"Please check that the path is correct."
+    )
+
+# Example usage:
+# config = load_yaml_config("generate_db.yaml")
+
 def get_pkg_path(
     relative_path: str = "",
     package_name: str = "icare_risk"
@@ -128,6 +232,8 @@ def _copy_pkg_files(
             dest.parent.mkdir(parents=True, exist_ok=True)
             if not dest.exists() or overwrite:
                 shutil.copy2(item, dest)
+                current_permissions = os.stat(dest).st_mode
+                os.chmod(dest, current_permissions | stat.S_IWUSR)
                 copied_files.append(str(rel_path))
 
     if verbose:

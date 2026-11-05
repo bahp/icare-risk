@@ -20,6 +20,22 @@ def _safe_float(val, default, max_bound=10000.0):
     except (ValueError, TypeError):
         return default
 
+from icare_risk.utils.paths import get_project_root
+
+def _resolve_path(file_path_str: str, base_dir: Path = None) -> Path:
+    """Resolves a file path. If it's absolute, returns it as a Path.
+    If it's relative, resolves it relative to the given base_dir (defaulting to project root).
+    """
+    path = Path(file_path_str)
+    if path.is_absolute():
+        return path
+    
+    # Use the centralized project root function if base_dir is not explicitly provided
+    if base_dir is None:
+        base_dir = get_project_root()
+        
+    return (base_dir / path).resolve()
+
 def _resolve_eav_lookups(table_config: dict, data_config: dict) -> None:
     """Reads an EAV CSV lookup file and merges it with any manual YAML overrides."""
     if table_config.get("type") != "eav_timeseries" or "lookup_file" not in table_config:
@@ -97,7 +113,7 @@ def _resolve_lookups(table_config: dict) -> None:
 
         # 2. If a lookup file is specified, load it and append to the list
         if "lookup_file" in col_def:
-            file_path = Path(col_def["lookup_file"])
+            file_path =  _resolve_path(col_def["lookup_file"])
             if not file_path.exists():
                 raise FileNotFoundError(f"Lookup file not found: {file_path}")
 
@@ -169,7 +185,7 @@ def _load_eav_concepts(table_config: dict) -> dict:
     Loads clinical concepts directly from an EAV lookup CSV (Mode B: Range-based generation).
     Each row defines a concept with numeric bounds, units, and metadata.
     """
-    file_path = Path(table_config["lookup_file"])
+    file_path = _resolve_path(table_config["lookup_file"])
     if not file_path.exists():
         raise FileNotFoundError(f"EAV lookup file not found: {file_path}")
 

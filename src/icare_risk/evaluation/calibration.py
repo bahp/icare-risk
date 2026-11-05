@@ -32,26 +32,56 @@ def calibration_summary(
     return result
 
 def calibration_table(
-    y_true, y_prob, *, n_bins=10, strategy="quantile", target_mapping=None,
+    y_true,
+    y_prob,
+    *,
+    n_bins=10,
+    strategy="quantile",
+    target_mapping=None,
 ) -> pd.DataFrame:
-    """Return observed and predicted risk by calibration bin."""
-    y, p = _valid_binary_data(y_true, y_prob, target_mapping)
-    if len(y) == 0:
-        return pd.DataFrame(columns=["bin", "n", "observed_risk", "mean_predicted_risk"])
-    observed, predicted = calibration_curve(y, p, n_bins=n_bins, strategy=strategy)
-    if strategy == "uniform":
-        edges = np.linspace(0, 1, n_bins + 1)
-        bins = pd.cut(p, bins=edges, include_lowest=True, labels=False)
-    else:
-        q = min(n_bins, len(np.unique(p)))
-        bins = pd.qcut(p, q=q, duplicates="drop", labels=False)
-    counts = pd.Series(bins).value_counts(sort=False).to_numpy()
-    return pd.DataFrame({
-        "bin": np.arange(len(observed)) + 1,
-        "n": counts[:len(observed)],
-        "observed_risk": observed,
-        "mean_predicted_risk": predicted,
-    })
+  """Return observed and predicted risk by calibration bin."""
+  y, p = _valid_binary_data(y_true, y_prob, target_mapping)
+  if len(y) == 0:
+    return pd.DataFrame(
+        columns=["bin", "n", "observed_risk", "mean_predicted_risk"]
+    )
+
+  observed, predicted = calibration_curve(y, p, n_bins=n_bins, strategy=strategy)
+
+  # Use scikit-learn's underlying bin edges / strategy to assign bins consistently
+  if strategy == "uniform":
+    bins = pd.cut(
+        p,
+        bins=np.linspace(0, 1, len(observed) + 1),
+        include_lowest=True,
+        labels=False,
+    )
+  else:
+    # Use quantile bins based on the actual number of evaluated probability points/bins returned
+      q_edges = np.percentile(p, np.linspace(0, 100, len(observed) + 1))
+      q_edges[0] = 0.0  # clamp lower bound
+      q_edges[-1] = 1.0  # clamp upper bound
+      bins = pd.cut(
+          p,
+          bins=np.unique(q_edges),
+          include_lowest=True,
+          labels=False,
+      )
+
+  counts = pd.Series(bins).value_counts(sort=False).to_numpy()
+
+  # Ensure counts matches the exact length of observed bins returned by sklearn
+  if len(counts) > len(observed):
+    counts = counts[: len(observed)]
+  elif len(counts) < len(observed):
+    counts = np.pad(counts, (0, len(observed) - len(counts)), constant_values=0)
+
+  return pd.DataFrame({
+      "bin": np.arange(len(observed)) + 1,
+      "n": counts,
+      "observed_risk": observed,
+      "mean_predicted_risk": predicted,
+  })
 
 def evaluate_calibration_table(
     df: pd.DataFrame, *, target_column: str, prediction_columns=None,
