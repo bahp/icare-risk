@@ -226,7 +226,16 @@ def _load_eav_concepts(table_config: dict) -> dict:
 def generate_synthetic_cohort(config_path: str, output_dir: str = None) -> dict:
     """Generates synthetic data from a YAML config file and returns the tables."""
 
-    # 1. Setup target directory
+    # 1. Load Configuration directly from your target YAML file (Standalone)
+    config_file = Path(config_path)
+    if not config_file.exists():
+        raise FileNotFoundError(f"Configuration file not found at: {config_file.absolute()}")
+
+    print(f"⚙️ Loading standalone config from: {config_file.resolve()}")
+    with open(config_file, 'r') as f:
+        data_config = yaml.safe_load(f)
+
+    # 2. Setup target directory
     if output_dir is None:
         date_str = datetime.now().strftime('%Y-%m-%d_%H%M%S')
         out_path = 'app' / 'data' / 'synthetic' / date_str
@@ -235,17 +244,6 @@ def generate_synthetic_cohort(config_path: str, output_dir: str = None) -> dict:
 
     out_path.mkdir(parents=True, exist_ok=True)
     print(f"\n📂 TARGET SAVE DIRECTORY: {out_path.absolute()}\n")
-
-    # 2. Load Configuration securely
-    # Assuming load_yaml_config handles the fallback to default config names
-    # 2. Load Configuration directly from your target YAML file (Standalone)
-    config_file = Path(config_path)
-    if not config_file.exists():
-        raise FileNotFoundError(f"Configuration file not found at: {config_file.absolute()}")
-
-    print(f"⚙️ Loading standalone config from: {config_file.resolve()}")
-    with open(config_file, 'r') as f:
-        data_config = yaml.safe_load(f)
 
     # 3. Establish Global Parameters
     params = data_config.get('generation_params', {})

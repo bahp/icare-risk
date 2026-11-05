@@ -249,7 +249,7 @@ tables:
         type: "unique_id"
       DIAGNOSIS_TUPLE:
         type: "categorical_tuple"
-        lookup_file: "/app/data/lookups/standard/icareDIA.csv"
+        lookup_file: "configs/lookups/icareDIA.csv"
         lookup_columns:
           - "diagnosis_code_icd"
           - "diagnosis_code_snomed"
@@ -334,7 +334,7 @@ tables:
       # Mode A: Categorical Tuple pick with frequency from file
       ORDER_TUPLE:
         type: "categorical_tuple"
-        lookup_file: "/app/data/lookups/standard/icareMIC.csv"
+        lookup_file: "configs/lookups/icareMIC.csv"
         lookup_columns:
           - "order_code"
           - "order_name"
@@ -386,7 +386,7 @@ tables:
         type: "foreign_key" # Alternatively, can be linked to episodes
       PROBLEM_TUPLE:
         type: "categorical_tuple"
-        lookup_file: "/app/data/lookups/standard/icarePRO.csv"
+        lookup_file: "configs/lookups/icarePRO.csv"
         lookup_columns:
           - "code"
           - "name"
@@ -544,7 +544,7 @@ tables:
       # Relational tuple sampling directly from your lookup CSV using occurrence weights
       OBSERVATION_TUPLE:
         type: "categorical_tuple"
-        lookup_file: "/app/data/lookups/standard/icareVIT.csv"
+        lookup_file: "configs/lookups/icareVIT.csv"
         lookup_columns:
           - "code"
           - "name"
@@ -586,7 +586,7 @@ tables:
       # Mirrors microbiology pattern using icarePAT.csv with occurrence weights
       PATHOLOGY_TUPLE:
         type: "categorical_tuple"
-        lookup_file: "/app/data/lookups/standard/icarePAT.csv"
+        lookup_file: "configs/lookups/icarePAT.csv"
         lookup_columns:
           - "code"
           - "name"
