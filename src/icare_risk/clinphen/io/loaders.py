@@ -1,7 +1,7 @@
 """DuckDB access layer: column projection + subject-list pushdown."""
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Union
+from typing import Iterable, List, Optional, Union, Dict, Any
 import duckdb
 import pandas as pd
 
@@ -30,23 +30,99 @@ class DuckDBSource:
         subjects: Optional[Iterable] = None,
         codes: Optional[Iterable[Union[str, int]]] = None,
         columns: Optional[List[str]] = None,
+        filters: Optional[Dict[str, Iterable[Any]]] = None,
+        skip_mapping: bool = False,
+    ) -> pd.DataFrame:
+
+        src_sql = _resolve_source_sql(table_schema.source)
+
+        mapping = table_schema.mapping
+        excluded = set(table_schema.exclude_columns)
+        
+        # 1. Build SELECT clause (Mapped vs Raw)
+        if skip_mapping or (columns and "*" in columns):
+            cols_sql = "*"
+        else:
+            target_cols = columns if columns else list(mapping.keys())
+            
+            select_parts = [
+                f'"{table_schema.subject}" AS subject',
+                f'"{table_schema.timestamp}" AS timestamp'
+            ]
+            
+            for col in target_cols:
+                if col in excluded or col in ("subject", "timestamp"):
+                    continue
+                phys_col = mapping.get(col, col)
+                if phys_col == col:
+                    select_parts.append(f'"{phys_col}"')
+                else:
+                    select_parts.append(f'"{phys_col}" AS "{col}"')
+                    
+            cols_sql = ", ".join(select_parts)
+
+        sql = f"SELECT {cols_sql} FROM {src_sql}"
+
+        # 2. Build WHERE clause (Combine defaults, filters, subjects, and codes)
+        where_clauses = []
+        params = []
+        
+        active_filters = dict(table_schema.filters) if not skip_mapping else {}
+        if filters:
+            active_filters.update(filters)
+
+        if subjects is not None:
+            active_filters["subject"] = subjects
+            
+        if codes is not None:
+            code_col = table_schema.code_col or mapping.get("code", "code")
+            active_filters[code_col] = codes
+
+        for key, val_list in active_filters.items():
+            if not val_list:
+                continue
+            
+            # Resolve logical names to physical column names safely
+            if key in ("subject", "SUBJECT"):
+                phys_col = table_schema.subject
+            elif key in ("timestamp", "TIMESTAMP"):
+                phys_col = table_schema.timestamp
+            else:
+                phys_col = mapping.get(key, key)
+                
+            where_clauses.append(f'CAST("{phys_col}" AS VARCHAR) IN (SELECT * FROM UNNEST(?))')
+            params.append([str(v) for v in val_list])
+
+        if where_clauses:
+            sql += " WHERE " + " AND ".join(where_clauses)
+
+        # 3. Execute and Post-process
+        df = self.con.execute(sql, params).fetchdf()
+        if df.empty:
+            return df
+
+        if not skip_mapping:
+            if "timestamp" in df.columns:
+                df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+            if "subject" in df.columns:
+                df["subject"] = df["subject"].astype(str)
+        else:
+            ts_phys = table_schema.timestamp
+            if ts_phys in df.columns:
+                df[ts_phys] = pd.to_datetime(df[ts_phys], errors="coerce")
+
+        return df
+
+    def load_domain2(
+        self,
+        table_schema: TableSchema,
+        subjects: Optional[Iterable] = None,
+        codes: Optional[Iterable[Union[str, int]]] = None,
+        columns: Optional[List[str]] = None,
+        filters: Optional[Dict[str, Iterable[Any]]] = None,
+        skip_mapping: bool = False
     ) -> pd.DataFrame:
         """
-        all_cols = table_schema.select_columns()
-        wanted = {"subject", "timestamp", *(columns or all_cols.keys())}
-        select_parts = [
-            f'"{phys}" AS "{logical}"' for logical, phys in all_cols.items() if logical in wanted
-        ]
-        src_sql = _resolve_source_sql(table_schema.source)
-        sql = f'SELECT {", ".join(select_parts)} FROM {src_sql}'
-
-        params: list = []
-        if subjects is not None:
-            sql += f' WHERE "{table_schema.subject}" IN (SELECT * FROM UNNEST(?))'
-            params.append(list(subjects))
-
-        df = self.con.execute(sql, params).fetchdf()
-        return normalize_frame(df)
 
         """
         src_sql = _resolve_source_sql(table_schema.source)
@@ -64,14 +140,18 @@ class DuckDBSource:
                 "timestamp": table_schema.timestamp,
             }
 
+            # 2. Add those in mapping (excluding those in exclude columns)
+            excluded = set(table_schema.exclude_columns)
             for logical, physical in table_schema.mapping.items():
-                select_map[logical] = physical
+                if logical not in excluded and physical not in excluded:
+                    select_map[logical] = physical
 
-            # Include any explicitly requested extra physical columns
+            # 3. If user request an specific column, respect them
             if columns:
                 for col in columns:
                     if col not in select_map:
                         select_map[col] = col
+
 
             # Build SELECT clause with aliasing: "OBSERVATION_CODE" AS "code"
             cols_sql = ", ".join(f'"{phys}" AS "{log}"' for log, phys in select_map.items())
@@ -79,15 +159,33 @@ class DuckDBSource:
         sql = f"SELECT {cols_sql} FROM {src_sql}"
 
         # Note: Both sides cast to string to prevent BIGINT/VARCHAR issue.
-        # 2. Pushdown Subject Filter (Must reference physical name)
+        # 4. Pushdown Subject Filter (Must reference physical name)
         if subjects is not None:
             where_clauses.append(f'CAST("{table_schema.subject}" AS VARCHAR) IN (SELECT * FROM UNNEST(?))')
             params.append([str(s) for s in subjects])
 
-        # 3. Pushdown Code Filter (Must reference physical name)
+        # 5. Pushdown Code Filter (Must reference physical name)
         if codes is not None and table_schema.code_col:
-            where_clauses.append(f'CAST("{table_schema.code_col}" AS VARCHAR) IN (SELECT * FROM UNNEST(?))')
+            phys_code_col = table_schema.code_col  # Gets physical name (e.g. 'PROBLEM_CODE')
+            where_clauses.append(f'CAST("{phys_code_col}" AS VARCHAR) IN (SELECT * FROM UNNEST(?))')
             params.append([str(c) for c in codes])
+
+        # 6. Combine schema-level default filters with runtime overrides
+        active_filters = {**table_schema.filters}
+        if filters:
+            active_filters.update(filters)  # Runtime filters take precedence
+
+        if active_filters:
+            for col_name, val_list in active_filters.items():
+                if val_list:
+                    phys_col = table_schema.mapping.get(col_name, col_name)
+                    if phys_col == "subject":
+                        phys_col = table_schema.subject
+                    elif phys_col == "timestamp":
+                        phys_col = table_schema.timestamp
+
+                    where_clauses.append(f'CAST("{phys_col}" AS VARCHAR) IN (SELECT * FROM UNNEST(?))')
+                    params.append([str(v) for v in val_list])
 
         if where_clauses:
             sql += " WHERE " + " AND ".join(where_clauses)
@@ -101,9 +199,19 @@ class DuckDBSource:
         if load_all:
             df["subject"] = df[table_schema.subject]
             df["timestamp"] = pd.to_datetime(df[table_schema.timestamp], errors="coerce")
+
             for logical, physical in table_schema.mapping.items():
                 if physical in df.columns and logical not in df.columns:
                     df[logical] = df[physical]
+
+            # Respect schema-level column exclusions even during wildcard loads
+            if table_schema.exclude_columns:
+                cols_to_drop = [
+                    col for col in table_schema.exclude_columns 
+                    if col in df.columns
+                ]
+                if cols_to_drop:
+                    df = df.drop(columns=cols_to_drop)
         else:
             # If not load_all, the DataFrame is already perfectly aliased by DuckDB
             df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
@@ -152,3 +260,72 @@ class DuckDBSource:
             df["index_discharge"] = pd.NaT
 
         return df
+
+
+
+from typing import Dict, List, Optional, Any
+import pandas as pd
+
+def load_pipeline_datasets(
+    source: DuckDBSource,
+    schema: SchemaConfig,
+    registry: Any,
+    domains_to_load: Optional[List[str]] = None,
+    skip_mapping: bool = True,
+    custom_codes: Optional[Dict[str, list]] = None,
+) -> Dict[str, pd.DataFrame]:
+    """
+    Automatically loads selected domains using global dependencies from the phenotype registry.
+    
+    Args:
+        source: DuckDBSource instance.
+        schema: SchemaConfig instance.
+        registry: Phenotype registry instance.
+        domains_to_load: List of domain names to load (e.g., ['episodes', 'problems']). 
+                         Defaults to core domains if None.
+        skip_mapping: Whether to skip column aliasing (default True for raw comparison).
+        custom_codes: Optional dictionary overriding registry codes per domain.
+    """
+    required_codes, required_cols = registry.get_global_dependencies()
+    custom_codes = custom_codes or {}
+    
+    if domains_to_load is None:
+        domains_to_load = ["episodes", "problems", "diagnosis", "prescribing"]
+        
+    datasets = {}
+    
+    # 1. Load Episodes separately (uses EpisodeTableSchema & normalization)
+    if "episodes" in domains_to_load:
+        query = f"SELECT * FROM read_parquet('{schema.episodes.source}')"
+        episodes_raw = source.con.execute(query).fetchdf()
+        df_ep = schema.episodes.normalize_frame(episodes_raw)
+        
+        if "ADMISSION_DATE" in df_ep.columns:
+            df_ep["ADMISSION_DATE"] = pd.to_datetime(df_ep["ADMISSION_DATE"], errors="coerce")
+        datasets["episodes"] = df_ep
+        
+    # 2. Load Event Domains dynamically using load_domain() and registry pushdowns
+    for domain_name in domains_to_load:
+        if domain_name == "episodes":
+            continue
+            
+        if domain_name in schema.domains:
+            # Fallback priority: Custom override -> Registry extracted codes -> None
+            codes = custom_codes.get(domain_name) or required_codes.get(domain_name)
+            cols = required_cols.get(domain_name)
+            
+            df = source.load_domain(
+                schema.domains[domain_name],
+                skip_mapping=skip_mapping,
+                codes=codes,
+                columns=list(cols) if cols else None
+            )
+            
+            # Normalize timestamp datetime parsing automatically
+            for ts_col in ["PROBLEM_DT_TM", "DIAGNOSIS_DATE", "ORDER_DT_TM", "timestamp"]:
+                if ts_col in df.columns:
+                    df[ts_col] = pd.to_datetime(df[ts_col], errors="coerce")
+                    
+            datasets[domain_name] = df
+            
+    return datasets

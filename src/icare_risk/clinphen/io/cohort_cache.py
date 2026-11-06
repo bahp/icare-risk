@@ -1,7 +1,7 @@
 """Bulk cohort loading with O(1) per-subject lookup."""
 from __future__ import annotations
 
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Any
 
 import pandas as pd
 
@@ -21,16 +21,19 @@ class CohortDataCache:
         subjects: Optional[List] = None,
         domain_codes: Optional[Dict[str, set]] = None,
         domain_cols: Optional[Dict[str, set]] = None,
+        domain_filters: Optional[Dict[str, Dict[str, Iterable[Any]]]] = None,
     ) -> "CohortDataCache":
         """"""
         domain_codes = domain_codes or {}
         domain_cols = domain_cols or {}
+        domain_filters = domain_filters or {}
 
         for domain in sorted(set(domains)):
             table_schema = self.schema.domain(domain)
 
             codes = domain_codes.get(domain)
             cols = domain_cols.get(domain)
+            filters = domain_filters.get(domain)
 
             codes_list = list(codes) if codes else None
             cols_list = list(cols) if cols else None
@@ -39,7 +42,8 @@ class CohortDataCache:
                 table_schema,
                 subjects=subjects,
                 codes=codes_list,
-                columns=cols_list
+                columns=cols_list,
+                filters=filters
             )
 
             if not df.empty:

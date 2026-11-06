@@ -10,10 +10,12 @@ means editing this file only — zero changes anywhere else.
 from __future__ import annotations
 
 import yaml
+import duckdb
 import pandas as pd
 
+from pathlib import Path
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 
 @dataclass(frozen=True)
@@ -29,6 +31,8 @@ class TableSchema:
     subject: str
     timestamp: str
     mapping: Dict[str, str] = field(default_factory=dict)  # logical -> physical
+    filters: Dict[str, list] = field(default_factory=dict)
+    exclude_columns: List[str] = field(default_factory=list)
 
     @property
     def code_col(self) -> Optional[str]:
@@ -112,8 +116,96 @@ class SchemaConfig:
                 f"Unknown domain table '{name}'. Registered domains: {list(self.domains)}"
             ) from exc
 
+    def summary_table(self) -> pd.DataFrame:
+        """Returns a tidy DataFrame summarizing all table paths, keys, and physical column mappings."""
+        rows = []
+        # 1. Episodes row
+        rows.append({
+            "Domain / Table": "episodes",
+            "Source Path": self.episodes.source,
+            "Subject Col": self.episodes.subject,
+            "Timestamp / Date Col": self.episodes.admission_date,
+            "Mapped Physical Columns": list(self.episodes.mapping.values())
+        })
+        # 2. Domain rows
+        for name, domain in self.domains.items():
+            rows.append({
+                "Domain / Table": name,
+                "Source Path": domain.source,
+                "Subject Col": domain.subject,
+                "Timestamp / Date Col": domain.timestamp,
+                "Mapped Physical Columns": list(domain.mapping.values())
+            })
+        return pd.DataFrame(rows)
 
-def load_schema_from_yaml(yaml_path: str) -> SchemaConfig:
+    def validate(self, con: Optional[duckdb.DuckDBPyConnection] = None) -> None:
+        """
+        Validates that all source files exist on disk and contain 
+        the required physical columns specified in the schema.
+        """
+        con = con or duckdb.connect()
+        errors = []
+
+        def _validate_source(source_str: str, required_cols: list[str], label: str):
+            is_file = source_str.lower().endswith(('.parquet', '.csv', '.tsv'))
+            if is_file:
+                if not Path(source_str).exists():
+                    errors.append(f"[{label}] Source file not found on disk: '{source_str}'")
+                    return
+
+            try:
+                lowered = source_str.lower()
+                if lowered.endswith(".parquet"):
+                    from_sql = f"read_parquet('{source_str}')"
+                elif lowered.endswith(".csv"):
+                    from_sql = f"read_csv_auto('{source_str}')"
+                else:
+                    from_sql = source_str
+
+                desc_df = con.execute(f"DESCRIBE SELECT * FROM {from_sql} LIMIT 0").fetchdf()
+                existing_cols = set(desc_df['column_name'].tolist())
+
+                missing = [c for c in required_cols if c not in existing_cols]
+                if missing:
+                    errors.append(
+                        f"[{label}] Missing physical columns in '{source_str}': {missing}.\n"
+                        f"       Available columns in file: {sorted(list(existing_cols))}"
+                    )
+            except Exception as e:
+                errors.append(f"[{label}] Failed to inspect source '{source_str}': {e}")
+
+        # 1. Validate Episodes
+        ep_cols = [
+            self.episodes.subject,
+            self.episodes.encounter,
+            self.episodes.admission_date
+        ]
+        if self.episodes.admission_time:
+            ep_cols.append(self.episodes.admission_time)
+        if self.episodes.discharge_date:
+            ep_cols.append(self.episodes.discharge_date)
+        if self.episodes.spell:
+            ep_cols.append(self.episodes.spell)
+        ep_cols.extend(self.episodes.mapping.values())
+        _validate_source(self.episodes.source, [c for c in ep_cols if c], "episodes")
+
+        # 2. Validate Domains
+        for domain_name, domain_schema in self.domains.items():
+            dom_cols = [
+                domain_schema.subject,
+                domain_schema.timestamp,
+            ]
+            dom_cols.extend(domain_schema.mapping.values())
+            _validate_source(domain_schema.source, [c for c in dom_cols if c], f"domain:{domain_name}")
+
+        if errors:
+            error_msg = "\n".join(f"  * {err}" for err in errors)
+            raise ValueError(f"Schema validation failed with {len(errors)} error(s):\n{error_msg}")
+        
+        print("✅ Schema validation passed! All files exist and all physical columns match successfully.")
+
+
+def load_schema_from_yaml(yaml_path: str, validate: bool = True) -> SchemaConfig:
     with open(yaml_path, 'r') as f:
         config = yaml.safe_load(f)
 
@@ -126,7 +218,12 @@ def load_schema_from_yaml(yaml_path: str) -> SchemaConfig:
     for domain_name, domain_data in config.get('domains', {}).items():
         domains[domain_name] = TableSchema(**domain_data)
 
-    return SchemaConfig(episodes=episodes, domains=domains)
+    # Create schema and validate
+    schema = SchemaConfig(episodes=episodes, domains=domains)
+    if validate:
+        schema.validate()
+
+    return schema
 
 # ---------------------------------------------------------------------------
 # Example environment configuration matching the schema described in the
