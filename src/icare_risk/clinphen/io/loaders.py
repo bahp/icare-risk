@@ -297,8 +297,8 @@ def load_pipeline_datasets(
     # 1. Load Episodes separately (uses EpisodeTableSchema & normalization)
     if "episodes" in domains_to_load:
         query = f"SELECT * FROM read_parquet('{schema.episodes.source}')"
-        episodes_raw = source.con.execute(query).fetchdf()
-        df_ep = schema.episodes.normalize_frame(episodes_raw)
+        df_ep = source.con.execute(query).fetchdf()
+        #df_ep = schema.episodes.normalize_frame(episodes_raw)
         
         if "ADMISSION_DATE" in df_ep.columns:
             df_ep["ADMISSION_DATE"] = pd.to_datetime(df_ep["ADMISSION_DATE"], errors="coerce")
