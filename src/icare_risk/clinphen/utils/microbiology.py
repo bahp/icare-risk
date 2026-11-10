@@ -193,7 +193,7 @@ def assign_esbl_to_episodes(
 import pandas as pd
 
 
-def compute_time_to_closest_culture(
+def compute_time_to_closest_culture_v1(
         df_episodes,
         microbiology_df,
         pre_admission_days=14,
@@ -288,5 +288,116 @@ def compute_time_to_closest_culture(
 
     # Drop temporary datetime helper columns from final output
     final_episodes.drop(columns=['admission_datetime', 'discharge_datetime'], inplace=True, errors='ignore')
+
+    return final_episodes
+
+import pandas as pd
+
+def compute_time_to_closest_culture(
+        df_episodes,
+        microbiology_df,
+        pre_admission_days=14,
+        post_discharge_days=7,
+        round_decimals=1
+):
+    """
+    Computes the time from episode admission to the closest microbiology culture collection.
+    Optimized to prevent Cartesian product memory blowups.
+    """
+    ep_df = df_episodes.copy()
+    micro_df = microbiology_df.copy()
+
+    # 1. Standardize patient IDs to prevent type mismatches (int vs str)
+    ep_df['SUBJECT'] = ep_df['SUBJECT'].astype(str).str.strip()
+    micro_df['SUBJECT'] = micro_df['SUBJECT'].astype(str).str.strip()
+
+    # 2. Construct full admission datetime if time is available
+    if 'ADMISSION_TIME' in ep_df.columns and ep_df['ADMISSION_TIME'].notna().any():
+        ep_df['admission_datetime'] = pd.to_datetime(
+            ep_df['ADMISSION_DATE'].astype(str) + ' ' + ep_df['ADMISSION_TIME'].astype(str),
+            errors='coerce'
+        )
+    else:
+        ep_df['admission_datetime'] = pd.to_datetime(ep_df['ADMISSION_DATE'], errors='coerce')
+
+    ep_df['discharge_datetime'] = pd.to_datetime(ep_df['DISCHARGE_DATE'], errors='coerce')
+    micro_df['collect_datetime'] = pd.to_datetime(micro_df['LATEST_COLLECT_DT'], errors='coerce')
+
+    # Add a temporary unique row index to episodes to avoid heavy grouping later
+    ep_df['__ep_idx'] = range(len(ep_df))
+
+    # Extract unique collection timestamps per subject/test
+    test_dates = micro_df[['SUBJECT', 'LAB_TEST_ID', 'collect_datetime']].drop_duplicates().dropna(
+        subset=['collect_datetime']
+    )
+
+    if test_dates.empty or ep_df.empty:
+        ep_df['closest_culture_date'] = pd.NaT
+        ep_df['time_to_culture_days'] = None
+        ep_df['time_to_culture_hours'] = None
+        ep_df.drop(columns=['admission_datetime', 'discharge_datetime', '__ep_idx'], inplace=True, errors='ignore')
+        return ep_df
+
+    # OPTIMIZATION A: Pre-filter microbiology tests to the patient's global bounding box 
+    # (Earliest admission minus buffer to latest discharge plus buffer)
+    patient_bounds = ep_df.groupby('SUBJECT').agg(
+        min_adm=('admission_datetime', lambda x: x.min() - pd.Timedelta(days=pre_admission_days)),
+        max_dis=('discharge_datetime', lambda x: x.max() + pd.Timedelta(days=post_discharge_days))
+    ).reset_index()
+
+    test_dates = test_dates.merge(patient_bounds, on='SUBJECT', how='inner')
+    test_dates = test_dates[
+        (test_dates['collect_datetime'] >= test_dates['min_adm']) &
+        (test_dates['collect_datetime'] <= test_dates['max_dis'])
+    ].drop(columns=['min_adm', 'max_dis'])
+
+    if test_dates.empty:
+        ep_df['closest_culture_date'] = pd.NaT
+        ep_df['time_to_culture_days'] = None
+        ep_df['time_to_culture_hours'] = None
+        ep_df.drop(columns=['admission_datetime', 'discharge_datetime', '__ep_idx'], inplace=True, errors='ignore')
+        return ep_df
+
+    # 3. Merge episodes with the pre-filtered microbiology records on SUBJECT
+    joined = ep_df.merge(test_dates, on='SUBJECT', how='left', suffixes=('', '_test'))
+
+    # 4. Filter by the precise allowable window per episode
+    window_start = joined['admission_datetime'] - pd.Timedelta(days=pre_admission_days)
+    window_end = joined['discharge_datetime'] + pd.Timedelta(days=post_discharge_days)
+
+    in_window = (joined['collect_datetime'] >= window_start) & (joined['collect_datetime'] <= window_end)
+    valid_tests = joined[in_window].copy()
+
+    if valid_tests.empty:
+        ep_df['closest_culture_date'] = pd.NaT
+        ep_df['time_to_culture_days'] = None
+        ep_df['time_to_culture_hours'] = None
+        ep_df.drop(columns=['admission_datetime', 'discharge_datetime', '__ep_idx'], inplace=True, errors='ignore')
+        return ep_df
+
+    # 5. Calculate absolute time difference
+    valid_tests['time_diff'] = valid_tests['collect_datetime'] - valid_tests['admission_datetime']
+    valid_tests['abs_time_diff'] = valid_tests['time_diff'].abs()
+
+    # 6. OPTIMIZATION B: Group by lightweight '__ep_idx' instead of all columns
+    idx_min = valid_tests.groupby('__ep_idx')['abs_time_diff'].idxmin()
+    closest_tests = valid_tests.loc[idx_min].copy()
+
+    # Format time deltas
+    closest_tests['time_to_culture_days'] = \
+        (closest_tests['time_diff'].dt.total_seconds() / 86400.0).round(round_decimals)
+    closest_tests['time_to_culture_hours'] = \
+        (closest_tests['time_diff'].dt.total_seconds() / 3600.0).round(round_decimals)
+    closest_tests['closest_culture_date'] = closest_tests['collect_datetime'].dt.date
+
+    # Select results to map back
+    result_cols = ['__ep_idx', 'closest_culture_date', 'time_to_culture_days', 'time_to_culture_hours']
+    result_df = closest_tests[result_cols]
+
+    # 7. Merge back to original episodes using the temporary index
+    final_episodes = ep_df.merge(result_df, on='__ep_idx', how='left')
+
+    # Drop temporary helper columns
+    final_episodes.drop(columns=['admission_datetime', 'discharge_datetime', '__ep_idx'], inplace=True, errors='ignore')
 
     return final_episodes
