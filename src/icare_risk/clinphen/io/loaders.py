@@ -9,6 +9,11 @@ from ..config.schema import EpisodeTableSchema, TableSchema
 from ..utils.casting import normalize_frame
 
 
+def get_total_memory_usage(df):
+    total_bytes = df.memory_usage(deep=True).sum()
+    total_mb = total_bytes / (1024 ** 2)
+    return total_mb
+
 def _resolve_source_sql(source: str) -> str:
     lowered = source.lower()
     if lowered.endswith(".parquet"):
@@ -32,6 +37,7 @@ class DuckDBSource:
         columns: Optional[List[str]] = None,
         filters: Optional[Dict[str, Iterable[Any]]] = None,
         skip_mapping: bool = False,
+        case_sensitive: bool = False
     ) -> pd.DataFrame:
 
         src_sql = _resolve_source_sql(table_schema.source)
@@ -89,9 +95,13 @@ class DuckDBSource:
                 phys_col = table_schema.timestamp
             else:
                 phys_col = mapping.get(key, key)
-                
-            where_clauses.append(f'CAST("{phys_col}" AS VARCHAR) IN (SELECT * FROM UNNEST(?))')
-            params.append([str(v) for v in val_list])
+
+            if not case_sensitive:
+                where_clauses.append(f'CAST(UPPER("{phys_col}") AS VARCHAR) IN (SELECT * FROM UNNEST(?))')
+                params.append([str(v).upper() for v in val_list])
+            else:
+                where_clauses.append(f'CAST("{phys_col}" AS VARCHAR) IN (SELECT * FROM UNNEST(?))')
+                params.append([str(v) for v in val_list])
 
         if where_clauses:
             sql += " WHERE " + " AND ".join(where_clauses)
@@ -272,7 +282,9 @@ def load_pipeline_datasets(
     registry: Any,
     domains_to_load: Optional[List[str]] = None,
     skip_mapping: bool = True,
+    case_sensitive: bool = False,
     custom_codes: Optional[Dict[str, list]] = None,
+    verbose: int = 1
 ) -> Dict[str, pd.DataFrame]:
     """
     Automatically loads selected domains using global dependencies from the phenotype registry.
@@ -303,6 +315,9 @@ def load_pipeline_datasets(
         if "ADMISSION_DATE" in df_ep.columns:
             df_ep["ADMISSION_DATE"] = pd.to_datetime(df_ep["ADMISSION_DATE"], errors="coerce")
         datasets["episodes"] = df_ep
+
+        if verbose > 0:
+            print(f"Loaded... episodes ({get_total_memory_usage(df_ep):.2f}MB) shape {df_ep.shape}")
         
     # 2. Load Event Domains dynamically using load_domain() and registry pushdowns
     for domain_name in domains_to_load:
@@ -318,7 +333,8 @@ def load_pipeline_datasets(
                 schema.domains[domain_name],
                 skip_mapping=skip_mapping,
                 codes=codes,
-                columns=list(cols) if cols else None
+                columns=list(cols) if cols else None,
+                case_sensitive=case_sensitive
             )
             
             # Normalize timestamp datetime parsing automatically
@@ -327,5 +343,10 @@ def load_pipeline_datasets(
                     df[ts_col] = pd.to_datetime(df[ts_col], errors="coerce")
                     
             datasets[domain_name] = df
+
+            if verbose > 0:
+                print(f"Loaded... {domain_name} ({get_total_memory_usage(df):.2f}MB) shape {df.shape} | Filtered codes: {len(codes) if codes else 'None'}")
+
+
             
     return datasets
