@@ -201,17 +201,15 @@ class PhenotypeRegistry:
 
                 # 2. Extract codes or recurse further
                 for k, v in obj.items():
-                    if k == "codes":
+                    if k in ("codes", "keywords"):
                         _add_codes(local_domains, v)
-                    elif isinstance(k, str) and k.endswith("_codes"):
-                        # If key is e.g., 'vitals_codes', check if 'vitals' is a known domain
-                        prefix = k.replace("_codes", "")
+                    elif isinstance(k, str) and (k.endswith("_codes") or k.endswith("_keywords")):
+                        prefix = k.replace("_codes", "").replace("_keywords", "")
                         target = [prefix] if prefix in spec_domains else local_domains
                         _add_codes(target, v)
                     else:
                         # Continue scanning nested structures
                         _scan(v, local_domains, spec_domains)
-
             elif isinstance(obj, list):
                 for item in obj:
                     _scan(item, current_domains, spec_domains)
