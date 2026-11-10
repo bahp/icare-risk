@@ -138,7 +138,8 @@ class SchemaConfig:
             })
         return pd.DataFrame(rows)
 
-    def validate(self, con: Optional[duckdb.DuckDBPyConnection] = None) -> None:
+    def validate(self, con: Optional[duckdb.DuckDBPyConnection] = None,
+                       on_error: str = "raise") -> None:
         """
         Validates that all source files exist on disk and contain 
         the required physical columns specified in the schema.
@@ -200,12 +201,25 @@ class SchemaConfig:
 
         if errors:
             error_msg = "\n".join(f"  * {err}" for err in errors)
-            raise ValueError(f"Schema validation failed with {len(errors)} error(s):\n{error_msg}")
-        
+            full_msg = f"Schema validation failed with {len(errors)} error(s):\n{error_msg}"
+            
+            if on_error == 'raise':
+                raise ValueError(full_msg)
+            elif on_error == 'warn':
+                import warnings
+                warnings.warn(full_msg, UserWarning)
+                return
+            elif on_error == 'ignore':
+                return
+            else:
+                raise ValueError(f"Invalid value for on_error: '{on_error}'. Choose from 'raise', 'warn', 'ignore'.")
+            
         print("✅ Schema validation passed! All files exist and all physical columns match successfully.")
 
 
-def load_schema_from_yaml(yaml_path: str, validate: bool = True) -> SchemaConfig:
+def load_schema_from_yaml(yaml_path: str, 
+                          validate: bool = True,
+                          on_error: str = "raise") -> SchemaConfig:
     with open(yaml_path, 'r') as f:
         config = yaml.safe_load(f)
 
@@ -221,7 +235,7 @@ def load_schema_from_yaml(yaml_path: str, validate: bool = True) -> SchemaConfig
     # Create schema and validate
     schema = SchemaConfig(episodes=episodes, domains=domains)
     if validate:
-        schema.validate()
+        schema.validate(on_error=on_error)
 
     return schema
 
