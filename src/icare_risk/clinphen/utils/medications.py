@@ -9,7 +9,7 @@ def get_qualifying_last_abx(
     episode_date_col: str = "ADMISSION_DATE",
     episode_time_col: str = "ADMISSION_TIME",
     admin_dt_col: str = "ADMINISTRATION_DT",
-    order_id_col: str = "TEMPLATE_OIRDED_ID",
+    order_id_col: str = "TEMPLATE_ORDER_ID",
     med_name_col: str = "MEDICATION_NAME_SHORT",
     admin_status_col: str = "ADMINISTRATION_STATUS",
     given_status_val: str = "Given",

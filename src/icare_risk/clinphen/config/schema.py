@@ -105,6 +105,7 @@ class EpisodeTableSchema:
 
 @dataclass(frozen=True)
 class SchemaConfig:
+    data_root: str
     episodes: EpisodeTableSchema
     domains: Dict[str, TableSchema]
 
@@ -220,20 +221,38 @@ class SchemaConfig:
 def load_schema_from_yaml(yaml_path: str, 
                           validate: bool = True,
                           on_error: str = "raise") -> SchemaConfig:
+
+    def _resolve_path(source_str: str) -> str:
+        if not source_str:
+            return source_str
+        path = Path(source_str)
+        # If path is absolute or data_root is not set, keep as is. 
+        # Otherwise join with data_root.
+        if path.is_absolute() or not data_root:
+            return str(path)
+        return str(Path(data_root) / path)
+
+    # Load file
     with open(yaml_path, 'r') as f:
         config = yaml.safe_load(f)
 
+    data_root = config.get('data_root')
+
     # Unpack episodes config
     episodes_data = config.get('episodes', {})
+    episodes_data['source'] = _resolve_path(episodes_data['source'])
     episodes = EpisodeTableSchema(**episodes_data)
 
     # Unpack domains config
     domains = {}
     for domain_name, domain_data in config.get('domains', {}).items():
+        domain_data['source'] = _resolve_path(domain_data['source'])
         domains[domain_name] = TableSchema(**domain_data)
 
     # Create schema and validate
-    schema = SchemaConfig(episodes=episodes, domains=domains)
+    schema = SchemaConfig(data_root=data_root,
+                          episodes=episodes, 
+                          domains=domains)
     if validate:
         schema.validate(on_error=on_error)
 
@@ -245,6 +264,7 @@ def load_schema_from_yaml(yaml_path: str,
 # view names) per-deployment; nothing else in the package needs to change.
 # ---------------------------------------------------------------------------
 DEFAULT_SCHEMA = SchemaConfig(
+    data_root='data',
     episodes=EpisodeTableSchema(
         source="data/episodes.parquet",
         subject="SUBJECT",

@@ -329,7 +329,6 @@ def load_pipeline_datasets(
             f"Available domains are: {sorted(list(available_domains))}"
         )
 
-
     required_codes, required_cols = registry.get_global_dependencies()
     custom_codes = custom_codes or {}
         
@@ -382,9 +381,9 @@ def load_pipeline_datasets(
 
 
 def load_from_duckdb(
-    schema_path: Optional[str] = None,
-    phenotype_path: Optional[str] = None,
-    domains_to_load: Optional[List[str]] = None,
+    schema_path: str = None,
+    phenotype_path: str = None,
+    domains_to_load: List[str] = None,
     custom_codes: Optional[Dict[str, list]] = None,
     skip_mapping: bool = True,
     case_sensitive: bool = False,
@@ -449,3 +448,96 @@ def load_from_duckdb(
 
     # D. Dynamically return dataframes
     return dataframes
+
+
+
+def load_from_pandas(
+    schema_path: Optional[str] = None,
+    domains_to_load: Optional[List[str]] = None,
+    verbose: int = 1
+) -> Dict[str, pd.DataFrame]:
+    """
+    Helper function to load configured datasets directly using pandas 
+    based on schema specifications.
+
+    Parameters
+    ----------
+    schema_path : str, optional
+        Optional path or identifier for the schema YAML config. 
+        Defaults to 'configs/schema.yaml'.
+    domains_to_load : list of str, optional
+        List of domain names to load (e.g., ["episodes", "problems", ...]).
+        Defaults to core domains if None.
+    verbose : int, default=1
+        Verbosity level for print statements.
+
+    Returns
+    -------
+    dict of str to pd.DataFrame
+        A dictionary mapping each requested domain name to its loaded DataFrame.
+    """
+    from icare_risk.clinphen.config.schema import load_schema_from_yaml
+    from icare_risk.utils.paths import get_path
+
+    schema_cfg = get_path(schema_path or 'configs/schema.yaml')
+    schema = load_schema_from_yaml(schema_cfg, validate=True)
+
+    if domains_to_load is None:
+        raise ValueError("Parameter 'domains_to_load' must be specified and cannot be None.")
+
+    available_domains = set(schema.domains.keys())
+    available_domains.add("episodes")
+    
+    invalid_domains = [d for d in domains_to_load if d not in available_domains]
+    if invalid_domains:
+        raise ValueError(
+            f"The following requested domain(s) do not exist in the schema: {invalid_domains}. "
+            f"Available domains are: {sorted(list(available_domains))}"
+        )
+
+    datasets = {}
+
+    def _read_file(source_path: str) -> pd.DataFrame:
+        p = str(source_path)
+        if p.lower().endswith('.parquet'):
+            return pd.read_parquet(p)
+        elif p.lower().endswith('.csv'):
+            return pd.read_csv(p)
+        else:
+            return pd.read_parquet(p)
+
+    # 1. Load Episodes
+    if "episodes" in domains_to_load:
+        df_ep = _read_file(schema.episodes.source)
+        if "ADMISSION_DATE" in df_ep.columns:
+            df_ep["ADMISSION_DATE"] = pd.to_datetime(df_ep["ADMISSION_DATE"], errors="coerce")
+        if "DISCHARGE_DATE" in df_ep.columns:
+            df_ep["DISCHARGE_DATE"] = pd.to_datetime(df_ep["DISCHARGE_DATE"], errors="coerce")
+        datasets["episodes"] = df_ep
+
+        if verbose > 0:
+            print(f"Loaded... episodes ({get_total_memory_usage(df_ep):.2f}MB) shape {df_ep.shape}")
+
+    # 2. Load Event Domains
+    for domain_name in domains_to_load:
+        if domain_name == "episodes":
+            continue
+            
+        if domain_name in schema.domains:
+            dom_schema = schema.domains[domain_name]
+            df = _read_file(dom_schema.source)
+            
+            # Normalize timestamp datetime parsing automatically
+            ts_col = dom_schema.timestamp
+            if ts_col and ts_col in df.columns:
+                df[ts_col] = pd.to_datetime(df[ts_col], errors="coerce")
+            for fallback_col in ["PROBLEM_DT_TM", "DIAGNOSIS_DATE", "ORDER_DT_TM", "timestamp"]:
+                if fallback_col in df.columns:
+                    df[fallback_col] = pd.to_datetime(df[fallback_col], errors="coerce")
+                    
+            datasets[domain_name] = df
+
+            if verbose > 0:
+                print(f"Loaded... {domain_name} ({get_total_memory_usage(df):.2f}MB) shape {df.shape}")
+
+    return datasets
